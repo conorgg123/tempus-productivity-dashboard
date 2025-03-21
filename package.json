@@ -10,6 +10,7 @@
     "electron": "electron .",
     "electron-dev": "npx concurrently \"npm run dev\" \"npx wait-on http://localhost:3000 http://localhost:3001 http://localhost:3002 http://localhost:3003 http://localhost:3004 http://localhost:3005 http://localhost:3006 -t 120000 && npx electron .\"",
     "dist": "npm run build && electron-builder",
+    "package": "electron-builder build --win --publish never",
     "pack-win": "electron-builder --win --dir",
     "dist-win": "electron-builder --win"
   },
