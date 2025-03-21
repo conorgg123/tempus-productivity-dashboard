@@ -1,28 +1,67 @@
-Write-Host "Starting Productivity Dashboard..." -ForegroundColor Green
+# PowerShell script to properly build and run the app
+Write-Host "========= BUILDING AND RUNNING PRODUCTIVITY DASHBOARD =========" -ForegroundColor Green
+Write-Host ""
 
 # Kill any existing processes
-Write-Host "Stopping existing processes..." -ForegroundColor Yellow
-Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
-Get-Process -Name electron -ErrorAction SilentlyContinue | Stop-Process -Force
+Write-Host "Terminating existing processes..." -ForegroundColor Yellow
+taskkill /F /IM electron.exe /T 2>$null
+taskkill /F /IM node.exe /T 2>$null
+Start-Sleep -Seconds 2
 
-# Clean cache and build directories
-Write-Host "Cleaning cache..." -ForegroundColor Yellow
-if (Test-Path ".next") {
-    Remove-Item -Path ".next" -Recurse -Force -ErrorAction SilentlyContinue
+# Clean build directories
+Write-Host "Cleaning build artifacts..." -ForegroundColor Yellow
+if (Test-Path ".next") { Remove-Item -Recurse -Force ".next" }
+if (Test-Path "out") { Remove-Item -Recurse -Force "out" }
+if (Test-Path "node_modules\.cache") { Remove-Item -Recurse -Force "node_modules\.cache" }
+
+# Install dependencies explicitly
+Write-Host "Installing dependencies..." -ForegroundColor Yellow
+npm install --save-dev autoprefixer@10.4.14 postcss@8.4.27 tailwindcss@3.3.3
+
+# Create postcss.config.js if it doesn't exist
+if (-not (Test-Path "postcss.config.js")) {
+    Write-Host "Creating PostCSS config..." -ForegroundColor Yellow
+    @"
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 }
-if (Test-Path "out") {
-    Remove-Item -Path "out" -Recurse -Force -ErrorAction SilentlyContinue
+"@ | Out-File -FilePath "postcss.config.js" -Encoding utf8
 }
 
-# Start Next.js and wait
-Write-Host "Starting Next.js..." -ForegroundColor Cyan
-Start-Process -FilePath "cmd.exe" -ArgumentList "/k npx next dev" -NoNewWindow
-Write-Host "Waiting for Next.js to start (10 seconds)..." -ForegroundColor Yellow
-Start-Sleep -Seconds 10
+# Create tailwind.config.js if it doesn't exist
+if (-not (Test-Path "tailwind.config.js")) {
+    Write-Host "Creating Tailwind config..." -ForegroundColor Yellow
+    @"
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx}',
+    './src/components/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+"@ | Out-File -FilePath "tailwind.config.js" -Encoding utf8
+}
 
-# Start Electron
-Write-Host "Starting Electron..." -ForegroundColor Green
-Start-Process -FilePath "cmd.exe" -ArgumentList "/k npx electron ." -NoNewWindow
+# Build the application
+Write-Host "Building static files..." -ForegroundColor Green
+npm run build
 
-Write-Host "Application started! The window should appear shortly." -ForegroundColor Green
-Write-Host "If you see a blank screen, type 'reload()' in the developer tools console (F12)." -ForegroundColor Yellow 
+# Check if build was successful
+if (Test-Path "out\index.html") {
+    # Start Electron in production mode
+    Write-Host "Starting Electron in production mode..." -ForegroundColor Green
+    $env:NODE_ENV = "production"
+    Start-Process -FilePath "npx" -ArgumentList "electron ." -NoNewWindow
+    
+    Write-Host "App started successfully!" -ForegroundColor Green
+} else {
+    Write-Host "Build failed. Static files not created." -ForegroundColor Red
+    Write-Host "Check the error messages above for details." -ForegroundColor Red
+} 
