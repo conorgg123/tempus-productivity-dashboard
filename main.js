@@ -39,7 +39,8 @@ function createLoadingScreen() {
     transparent: false,
     alwaysOnTop: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     }
   });
 
@@ -92,19 +93,25 @@ function createLoadingFile() {
           100% { transform: rotate(360deg); }
         }
       </style>
+      <script>
+        // Fix for global is not defined
+        if (typeof global === 'undefined') {
+          window.global = window;
+        }
+      </script>
     </head>
     <body>
       <div class="loader">
         <h2>Loading Productivity Dashboard</h2>
         <div class="spinner"></div>
         <p>Please wait while the app is starting...</p>
-        <p id="status">Connecting to server...</p>
+        <p id="status">Initializing...</p>
         <script>
           let count = 0;
           setInterval(() => {
             const status = document.getElementById('status');
             count++;
-            status.textContent = 'Connecting to server' + '.'.repeat(count % 4);
+            status.textContent = 'Initializing' + '.'.repeat(count % 4);
           }, 500);
         </script>
       </div>
@@ -131,7 +138,8 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true
     }
   });
 
@@ -140,6 +148,7 @@ async function createWindow() {
   
   if (isDev) {
     // Development: try to connect to the Next.js dev server
+    console.log('Running in development mode, checking for Next.js server...');
     const startUrl = await findAvailablePort();
     
     if (startUrl) {
@@ -183,39 +192,66 @@ async function createWindow() {
     } else {
       console.error('No Next.js server found on any port');
       
-      loadingScreen.close();
-      dialog.showErrorBox('Server Not Found', 
-        'Could not find Next.js server running on any port.\n\nPlease start the Next.js server with:\nnpm run dev\n\nThen restart this application.');
-      
-      app.quit();
+      // Instead of quitting, try to use static files
+      console.log('Attempting to load from static files...');
+      loadStaticFiles();
     }
   } else {
     // Production: load from the static export
-    console.log('Running in production mode, loading from static export');
-    
-    try {
-      const startPath = path.join(__dirname, 'out/index.html');
-      console.log(`Loading file: ${startPath}`);
-      
-      await mainWindow.loadFile(startPath);
-      console.log('Successfully loaded from static export');
-      loadingScreen.close();
-      mainWindow.show();
-    } catch (error) {
-      console.error('Failed to load from static export:', error);
-      
-      loadingScreen.close();
-      dialog.showErrorBox('Loading Error', 
-        `Failed to load the application from the static export.\n\nError: ${error.message}`);
-      
-      app.quit();
-    }
+    loadStaticFiles();
   }
 
   // Emitted when the window is closed
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
+}
+
+// Utility function to load static files
+async function loadStaticFiles() {
+  console.log('Running in production mode, loading from static export');
+  
+  try {
+    // Check if out directory exists
+    const outDir = path.join(__dirname, 'out');
+    const outIndexPath = path.join(outDir, 'index.html');
+    
+    if (fs.existsSync(outIndexPath)) {
+      console.log(`Loading file: ${outIndexPath}`);
+      
+      // Load the file with file:// protocol
+      const fileUrl = url.format({
+        pathname: outIndexPath,
+        protocol: 'file:',
+        slashes: true
+      });
+      
+      await mainWindow.loadURL(fileUrl);
+      console.log('Successfully loaded from static export');
+      loadingScreen.close();
+      mainWindow.show();
+      
+      // Open DevTools for debugging in development
+      if (process.env.NODE_ENV === 'development') {
+        mainWindow.webContents.openDevTools();
+      }
+    } else {
+      console.error(`Static file not found: ${outIndexPath}`);
+      loadingScreen.close();
+      dialog.showErrorBox('Loading Error', 
+        `Could not find the application files.\n\nPlease run: npm run build\n\nThen restart this application.`);
+      
+      app.quit();
+    }
+  } catch (error) {
+    console.error('Failed to load from static export:', error);
+    
+    loadingScreen.close();
+    dialog.showErrorBox('Loading Error', 
+      `Failed to load the application from the static export.\n\nError: ${error.message}\n\nPlease run: npm run build`);
+    
+    app.quit();
+  }
 }
 
 // Find an available port

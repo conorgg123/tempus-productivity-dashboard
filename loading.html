@@ -33,19 +33,25 @@
           100% { transform: rotate(360deg); }
         }
       </style>
+      <script>
+        // Fix for global is not defined
+        if (typeof global === 'undefined') {
+          window.global = window;
+        }
+      </script>
     </head>
     <body>
       <div class="loader">
         <h2>Loading Productivity Dashboard</h2>
         <div class="spinner"></div>
         <p>Please wait while the app is starting...</p>
-        <p id="status">Connecting to server...</p>
+        <p id="status">Initializing...</p>
         <script>
           let count = 0;
           setInterval(() => {
             const status = document.getElementById('status');
             count++;
-            status.textContent = 'Connecting to server' + '.'.repeat(count % 4);
+            status.textContent = 'Initializing' + '.'.repeat(count % 4);
           }, 500);
         </script>
       </div>
