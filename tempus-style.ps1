@@ -1,3 +1,162 @@
+# TEMPUS-STYLE PRODUCTIVITY DASHBOARD
+Write-Host "========= CREATING TEMPUS-STYLE DASHBOARD =========" -ForegroundColor Green
+
+# Stop existing processes
+Write-Host "1. Stopping processes..." -ForegroundColor Yellow
+taskkill /F /IM electron.exe /T 2>$null
+Start-Sleep -Seconds 2
+
+# Clean slate - remove all Node.js related files
+Write-Host "2. Creating clean slate..." -ForegroundColor Yellow
+$filesToRemove = @("package.json", "package-lock.json", "next.config.js", "postcss.config.js", "tailwind.config.js", ".next")
+foreach ($file in $filesToRemove) {
+    if (Test-Path $file) {
+        Remove-Item -Recurse -Force $file
+        Write-Host "   Removed: $file" -ForegroundColor Gray
+    }
+}
+
+# Create package.json without BOM marker
+Write-Host "3. Creating package.json..." -ForegroundColor Yellow
+$packageContent = @"
+{
+  "name": "tempus-productivity-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^13.6.9"
+  }
+}
+"@
+$packageContent | Out-File -FilePath "package.json" -Encoding ascii
+
+# Create main.js file
+Write-Host "4. Creating Electron main.js file..." -ForegroundColor Yellow
+$mainContent = @"
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+// Global reference
+let mainWindow;
+
+// Store data in user's app data folder
+const userDataPath = app.getPath('userData');
+const dataFilePath = path.join(userDataPath, 'dashboard-data.json');
+
+// Default data for today's activities
+const defaultData = {
+  date: new Date().toISOString().split('T')[0],
+  totalWorked: {
+    hours: 6,
+    minutes: 18
+  },
+  percentOfDay: 79,
+  taskBreakdown: {
+    focus: 62,
+    meetings: 15,
+    breaks: 11,
+    other: 12
+  },
+  projects: [
+    { id: 1, name: "Finwall app", percent: 49, time: "3 hr 26 min", tasks: [
+      { id: 101, name: "DS12 - Dark version", time: "1 hr 51 min", completed: false },
+      { id: 102, name: "DS42 - Settings section", time: "55 min", completed: true },
+      { id: 103, name: "System update", time: "40 min", completed: false }
+    ]},
+    { id: 2, name: "Finwall website", percent: 32, time: "1 hr 47 min", tasks: [] },
+    { id: 3, name: "X Terminal", percent: 14, time: "46 min", tasks: [] },
+    { id: 4, name: "Li.Fi", percent: 5, time: "19 min", tasks: [] }
+  ],
+  apps: [
+    { id: 1, name: "Figma", percent: 47, time: "2 hr 58 min" },
+    { id: 2, name: "Adobe Photoshop", percent: 12, time: "46 min" },
+    { id: 3, name: "zoom.us", percent: 12, time: "45 min" },
+    { id: 4, name: "Slack", percent: 7, time: "26 min" },
+    { id: 5, name: "pinterest.com", percent: 6, time: "23 min" },
+    { id: 6, name: "HEY", percent: 3, time: "11 min" },
+    { id: 7, name: "nicelydone.com", percent: 3, time: "11 min" },
+    { id: 8, name: "twitter.com", percent: 2, time: "8 min" },
+    { id: 9, name: "crunchbase.com", percent: 2, time: "7 min" },
+    { id: 10, name: "instagram.com", percent: 1, time: "4 min" },
+    { id: 11, name: "Other", percent: 5, time: "19 min" }
+  ],
+  categories: [
+    { id: 1, name: "Design", percent: 59, time: "3 hr 44 min" },
+    { id: 2, name: "Video Conference", percent: 12, time: "45 min" },
+    { id: 3, name: "Work Messaging", percent: 10, time: "37 min" }
+  ],
+  timelineBlocks: [
+    { start: "09:00", end: "09:45", type: "design" },
+    { start: "10:15", end: "11:30", type: "meeting" },
+    { start: "11:45", end: "12:30", type: "design" },
+    { start: "13:00", end: "14:15", type: "development" },
+    { start: "14:30", end: "15:15", type: "break" },
+    { start: "16:00", end: "17:45", type: "design" },
+    { start: "18:15", end: "19:00", type: "meeting" }
+  ]
+};
+
+// Load or initialize data
+function loadData() {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      return data;
+    } else {
+      fs.writeFileSync(dataFilePath, JSON.stringify(defaultData));
+      return defaultData;
+    }
+  } catch (error) {
+    console.error('Error loading data:', error);
+    return defaultData;
+  }
+}
+
+function createWindow() {
+  // Create browser window
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    backgroundColor: '#ffffff'
+  });
+
+  // Load index.html
+  mainWindow.loadFile('index.html');
+  
+  // Open DevTools in development mode
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+// When Electron is ready
+app.whenReady().then(() => {
+  createWindow();
+});
+
+// Quit when all windows are closed
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+"@
+$mainContent | Out-File -FilePath "main.js" -Encoding ascii
+
+# Create HTML file with Tempus layout
+Write-Host "5. Creating HTML file with Tempus layout..." -ForegroundColor Yellow
+$htmlContent = @"
 <!DOCTYPE html>
 <html>
 <head>
@@ -586,18 +745,18 @@
     </div>
     
     <ul class="sidebar-nav">
-      <li><a href="#" class="active"><span class="nav-icon">????</span> Dashboard</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> Calendar</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> Projects & tasks</a></li>
-      <li><a href="#"><span class="nav-icon">??????</span> Timer</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> History</a></li>
+      <li><a href="#" class="active"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="#"><span class="nav-icon">📅</span> Calendar</a></li>
+      <li><a href="#"><span class="nav-icon">📁</span> Projects & tasks</a></li>
+      <li><a href="#"><span class="nav-icon">⏱️</span> Timer</a></li>
+      <li><a href="#"><span class="nav-icon">📜</span> History</a></li>
     </ul>
     
     <div class="sidebar-footer">
       <ul class="sidebar-nav">
-        <li><a href="#"><span class="nav-icon">???</span> Help</a></li>
-        <li><a href="#"><span class="nav-icon">??????</span> Settings</a></li>
-        <li><a href="#"><span class="nav-icon">????</span> Log Out</a></li>
+        <li><a href="#"><span class="nav-icon">❓</span> Help</a></li>
+        <li><a href="#"><span class="nav-icon">⚙️</span> Settings</a></li>
+        <li><a href="#"><span class="nav-icon">🚪</span> Log Out</a></li>
       </ul>
     </div>
   </div>
@@ -616,9 +775,9 @@
           <div class="view-tab">Month</div>
         </div>
         <button class="today-btn">Today</button>
-        <button class="nav-btn">???</button>
-        <button class="nav-btn">???</button>
-        <button class="nav-btn">??????</button>
+        <button class="nav-btn">←</button>
+        <button class="nav-btn">→</button>
+        <button class="nav-btn">⚙️</button>
       </div>
     </div>
     
@@ -668,7 +827,7 @@
           <div class="list-header">
             <div class="list-title">Projects & tasks</div>
             <div class="list-actions">
-              <button class="list-action">???</button>
+              <button class="list-action">⋯</button>
             </div>
           </div>
           
@@ -682,7 +841,7 @@
           <div class="list-header">
             <div class="list-title">Apps & Websites</div>
             <div class="list-actions">
-              <button class="list-action">???</button>
+              <button class="list-action">⋯</button>
             </div>
           </div>
           
@@ -698,7 +857,7 @@
           <div class="summary-header">Daily Summary</div>
           <div class="summary-content">
             <div class="summary-stat">
-              <div class="summary-stat-icon">???</div>
+              <div class="summary-stat-icon">⚡</div>
               <div>
                 Today you had <span class="highlight">20%</span> more meetings than usual, you closed <span class="highlight">2 tasks</span> on two projects, but the focus was <span class="highlight">12%</span> lower than yesterday.
               </div>
@@ -900,17 +1059,17 @@
         
         const hasTasks = project.tasks && project.tasks.length > 0;
         
-        projectEl.innerHTML = \
+        projectEl.innerHTML = \`
           <div class="item-header">
             <div class="item-name">
-              <span class="icon">????</span> \
+              <span class="icon">📁</span> \${project.name}
             </div>
-            <div class="item-time">\% ?? \</div>
+            <div class="item-time">\${project.percent}% · \${project.time}</div>
           </div>
           <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
+            <div class="progress-value" style="width: \${project.percent}%"></div>
           </div>
-        \;
+        \`;
         
         if (hasTasks) {
           const tasksEl = document.createElement('div');
@@ -919,13 +1078,13 @@
           project.tasks.forEach(task => {
             const taskEl = document.createElement('div');
             taskEl.className = 'task-item';
-            taskEl.innerHTML = \
+            taskEl.innerHTML = \`
               <div style="display: flex; align-items: center;">
-                <input type="checkbox" class="task-checkbox" \>
-                <span class="task-name \">\</span>
+                <input type="checkbox" class="task-checkbox" \${task.completed ? 'checked' : ''}>
+                <span class="task-name \${task.completed ? 'task-completed' : ''}">\${task.name}</span>
               </div>
-              <div class="task-time">\</div>
-            \;
+              <div class="task-time">\${task.time}</div>
+            \`;
             
             // Add event listener to checkbox
             taskEl.querySelector('.task-checkbox').addEventListener('change', (e) => {
@@ -955,15 +1114,15 @@
         const appEl = document.createElement('div');
         appEl.className = 'list-item';
         
-        appEl.innerHTML = \
+        appEl.innerHTML = \`
           <div class="item-header">
-            <div class="item-name">\</div>
-            <div class="item-time">\% ?? \</div>
+            <div class="item-name">\${app.name}</div>
+            <div class="item-time">\${app.percent}% · \${app.time}</div>
           </div>
           <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
+            <div class="progress-value" style="width: \${app.percent}%"></div>
           </div>
-        \;
+        \`;
         
         appsList.appendChild(appEl);
       });
@@ -977,15 +1136,15 @@
         const categoryEl = document.createElement('div');
         categoryEl.className = 'category-item';
         
-        categoryEl.innerHTML = \
+        categoryEl.innerHTML = \`
           <div class="category-header">
-            <div class="category-name">\</div>
-            <div class="category-time">\</div>
+            <div class="category-name">\${category.name}</div>
+            <div class="category-time">\${category.time}</div>
           </div>
           <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
+            <div class="progress-value" style="width: \${category.percent}%"></div>
           </div>
-        \;
+        \`;
         
         categoriesList.appendChild(categoryEl);
       });
@@ -1015,9 +1174,9 @@
         
         // Create block element
         const blockEl = document.createElement('div');
-        blockEl.className = \	imeline-block \\;
-        blockEl.style.left = \\px\;
-        blockEl.style.width = \\px\;
+        blockEl.className = \`timeline-block \${block.type}\`;
+        blockEl.style.left = \`\${startPos}px\`;
+        blockEl.style.width = \`\${width}px\`;
         
         timeline.appendChild(blockEl);
       });
@@ -1028,3 +1187,13 @@
   </script>
 </body>
 </html>
+"@
+$htmlContent | Out-File -FilePath "index.html" -Encoding ascii
+
+# Install dependencies
+Write-Host "6. Installing dependencies..." -ForegroundColor Yellow
+npm install
+
+# Run the app
+Write-Host "7. Starting the Tempus-style dashboard..." -ForegroundColor Green
+npx electron . 
