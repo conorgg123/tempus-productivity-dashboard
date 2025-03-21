@@ -1,3 +1,147 @@
+# COMPLETE PRODUCTIVITY DASHBOARD
+Write-Host "========= CREATING COMPLETE PRODUCTIVITY DASHBOARD =========" -ForegroundColor Green
+
+# Stop existing processes
+Write-Host "1. Stopping processes..." -ForegroundColor Yellow
+taskkill /F /IM electron.exe /T 2>$null
+Start-Sleep -Seconds 2
+
+# Clean slate - remove all Node.js related files
+Write-Host "2. Creating clean slate..." -ForegroundColor Yellow
+$filesToRemove = @("package.json", "package-lock.json", "next.config.js", "postcss.config.js", "tailwind.config.js", ".next")
+foreach ($file in $filesToRemove) {
+    if (Test-Path $file) {
+        Remove-Item -Recurse -Force $file
+        Write-Host "   Removed: $file" -ForegroundColor Gray
+    }
+}
+
+# Create enhanced package.json without BOM marker
+Write-Host "3. Creating complete package.json..." -ForegroundColor Yellow
+$packageContent = @"
+{
+  "name": "productivity-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "electron": "^13.6.9"
+  }
+}
+"@
+$packageContent | Out-File -FilePath "package.json" -Encoding ascii
+
+# Create enhanced main.js file
+Write-Host "4. Creating enhanced Electron main.js file..." -ForegroundColor Yellow
+$mainContent = @"
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+// Global reference
+let mainWindow;
+
+// Store data in user's app data folder
+const userDataPath = app.getPath('userData');
+const dataFilePath = path.join(userDataPath, 'dashboard-data.json');
+
+// Default data
+const defaultData = {
+  tasks: [
+    { id: 1, title: 'Create productivity dashboard', completed: true },
+    { id: 2, title: 'Add task management', completed: false },
+    { id: 3, title: 'Implement notes feature', completed: false }
+  ],
+  notes: [
+    { id: 1, title: 'Project Ideas', content: 'Build a productivity dashboard with Electron' }
+  ],
+  youtubeLinks: [
+    { id: 1, title: 'Electron Tutorial', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+  ],
+  events: [
+    { id: 1, title: 'Team Meeting', date: '2023-06-15T10:00:00', description: 'Weekly team sync' }
+  ]
+};
+
+// Load or initialize data
+function loadData() {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      return data;
+    } else {
+      fs.writeFileSync(dataFilePath, JSON.stringify(defaultData));
+      return defaultData;
+    }
+  } catch (error) {
+    console.error('Error loading data:', error);
+    return defaultData;
+  }
+}
+
+function createWindow() {
+  // Create browser window
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    backgroundColor: '#f5f7fa',
+    icon: path.join(__dirname, 'icon.png')
+  });
+
+  // Load index.html
+  mainWindow.loadFile('index.html');
+  
+  // Open DevTools in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+// When Electron is ready
+app.whenReady().then(() => {
+  createWindow();
+  
+  // Set up IPC handlers for data operations
+  ipcMain.handle('get-data', () => {
+    return loadData();
+  });
+  
+  ipcMain.handle('save-data', (event, data) => {
+    try {
+      fs.writeFileSync(dataFilePath, JSON.stringify(data));
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving data:', error);
+      return { success: false, error: error.message };
+    }
+  });
+});
+
+// Quit when all windows are closed
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+"@
+$mainContent | Out-File -FilePath "main.js" -Encoding ascii
+
+# Create HTML file with all features
+Write-Host "5. Creating complete HTML file with all features..." -ForegroundColor Yellow
+$htmlContent = @"
 <!DOCTYPE html>
 <html>
 <head>
@@ -744,7 +888,7 @@
         if (videoId) {
           const thumbnail = document.createElement('img');
           thumbnail.className = 'youtube-thumbnail';
-          thumbnail.src = \https://img.youtube.com/vi/\/mqdefault.jpg\;
+          thumbnail.src = \`https://img.youtube.com/vi/\${videoId}/mqdefault.jpg\`;
           youtubeItem.appendChild(thumbnail);
         }
         
@@ -908,10 +1052,10 @@
         const formattedDate = new Date(year, month, day).toLocaleDateString();
         const eventsList = eventsOnDay.map(e => {
           const time = new Date(e.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          return \- \ (\): \\;
+          return \`- \${e.title} (\${time}): \${e.description || 'No description'}\`;
         }).join('\\n');
         
-        alert(\Events on \:\\n\\);
+        alert(\`Events on \${formattedDate}:\\n\${eventsList}\`);
       }
     }
 
@@ -999,3 +1143,23 @@
   </script>
 </body>
 </html>
+"@
+$htmlContent | Out-File -FilePath "index.html" -Encoding ascii
+
+# Install dependencies
+Write-Host "6. Installing dependencies..." -ForegroundColor Yellow
+npm install
+
+# Create icon file (simple placeholder)
+Write-Host "7. Creating application icon..." -ForegroundColor Yellow
+$iconContent = @"
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#4a6ee0"/>
+  <text x="50" y="60" font-family="Arial" font-size="50" text-anchor="middle" fill="white">PD</text>
+</svg>
+"@
+$iconContent | Out-File -FilePath "icon.svg" -Encoding ascii
+
+# Run the app
+Write-Host "8. Starting the complete productivity dashboard..." -ForegroundColor Green
+npx electron . 
