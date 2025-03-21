@@ -1,9 +1,15 @@
-const { app, BrowserWindow } = require('electron');
+﻿const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const url = require('url');
+const fs = require('fs');
 
 // Global reference to prevent garbage collection
 let mainWindow;
+
+// Check if out/index.html exists
+function checkForStaticBuild() {
+  const indexPath = path.join(__dirname, 'out', 'index.html');
+  return fs.existsSync(indexPath);
+}
 
 function createWindow() {
   // Create the browser window
@@ -12,43 +18,38 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      contextIsolation: true
     }
   });
 
-  // For development (check if we should connect to dev server)
-  const isDev = process.env.NODE_ENV === 'development';
-  
-  if (isDev) {
-    // Load from development server
-    mainWindow.loadURL('http://localhost:3000');
-    
-    // Open the DevTools
-    mainWindow.webContents.openDevTools();
+  // Load the index.html
+  if (checkForStaticBuild()) {
+    mainWindow.loadFile(path.join(__dirname, 'out', 'index.html'));
   } else {
-    // Load the index.html from the build
-    mainWindow.loadURL(url.format({
-      pathname: path.join(__dirname, 'out/index.html'),
-      protocol: 'file:',
-      slashes: true
-    }));
+    // Show error message if static build doesn't exist
+    mainWindow.loadURL(\data:text/html,
+      <html>
+        <head><title>Error</title></head>
+        <body>
+          <h1>Static build not found</h1>
+          <p>Please run: npm run build-static</p>
+        </body>
+      </html>
+    \);
   }
 
-  // When window is closed
-  mainWindow.on('closed', function () {
-    mainWindow = null;
-  });
+  // Show DevTools
+  mainWindow.webContents.openDevTools();
 }
 
-// When Electron has finished initialization
+// When app is ready
 app.whenReady().then(createWindow);
 
 // Quit when all windows are closed
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('activate', function () {
-  if (mainWindow === null) createWindow();
-}); 
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
