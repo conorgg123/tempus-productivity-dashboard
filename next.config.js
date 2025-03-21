@@ -24,13 +24,8 @@ const nextConfig = {
         os: false,
       };
       
-      // Fix for global polyfill - use webpack directly
-      const webpack = require('webpack');
-      config.plugins.push(
-        new webpack.ProvidePlugin({
-          global: ['window'],
-        })
-      );
+      // Fix for global polyfill - simplified approach
+      config.output.globalObject = 'this';
     }
     return config;
   },
