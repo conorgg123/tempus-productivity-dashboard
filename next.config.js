@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
+  // Prevent build issues
+  swcMinify: false,
+  // Valid options for output
+  output: 'standalone',
   // Use unoptimized images for static export
   images: {
     loader: 'imgix',
@@ -14,11 +18,11 @@ module.exports = {
       // For Electron renderer
       config.target = 'electron-renderer';
       
-      // Replace node modules
+      // Valid node configuration using approved properties only
       config.node = {
-        fs: 'empty',
-        path: 'empty',
-        os: 'empty'
+        __dirname: false,
+        __filename: false,
+        global: true
       };
     }
     return config;
