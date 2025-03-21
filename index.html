@@ -1,1030 +1,910 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>tempus.</title>
-  <style>
-    :root {
-      --primary-color: #7646f4;
-      --primary-light: #f0eaff;
-      --secondary-color: #6c757d;
-      --success-color: #28a745;
-      --danger-color: #dc3545;
-      --light-color: #f8f9fa;
-      --dark-color: #343a40;
-      --border-color: #e5e5e5;
-      --bg-color: #ffffff;
-      --sidebar-width: 240px;
-      --header-height: 64px;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-    
-    body {
-      background-color: var(--bg-color);
-      color: #333;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: var(--sidebar-width);
-      background-color: #ffffff;
-      border-right: 1px solid var(--border-color);
-      padding: 20px 0;
-      z-index: 100;
-    }
-    
-    .sidebar-logo {
-      padding: 0 20px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-    }
-    
-    .sidebar-logo img {
-      width: 40px;
-      height: 40px;
-      margin-right: 10px;
-    }
-    
-    .sidebar-logo h1 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #000;
-    }
-    
-    .sidebar-nav {
-      list-style: none;
-    }
-    
-    .sidebar-nav li {
-      margin-bottom: 5px;
-    }
-    
-    .sidebar-nav a {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      text-decoration: none;
-      color: #666;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-    
-    .sidebar-nav a.active {
-      background-color: #f5f5f5;
-      color: #000;
-      border-left: 3px solid var(--primary-color);
-    }
-    
-    .sidebar-nav a:hover {
-      background-color: #f5f5f5;
-      color: #000;
-    }
-    
-    .sidebar-nav .nav-icon {
-      margin-right: 10px;
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
-    }
-    
-    .sidebar-footer {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      padding: 0 20px;
-    }
-    
-    /* Main content */
-    .main-content {
-      margin-left: var(--sidebar-width);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    /* Header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 20px;
-    }
-    
-    .header-date {
-      font-size: 1.5rem;
-      font-weight: 500;
-    }
-    
-    .header-tracking {
-      display: flex;
-      align-items: center;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    
-    .tracking-dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--success-color);
-      margin-right: 6px;
-    }
-    
-    .header-controls {
-      display: flex;
-      align-items: center;
-    }
-    
-    .view-tabs {
-      display: flex;
-      background-color: #f5f5f5;
-      border-radius: 6px;
-      margin-right: 20px;
-    }
-    
-    .view-tab {
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    
-    .view-tab.active {
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .today-btn {
-      padding: 8px 16px;
-      background-color: white;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      margin-right: 10px;
-    }
-    
-    .nav-btn {
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: white;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-right: 5px;
-    }
-    
-    /* Timeline section */
-    .section {
-      margin-bottom: 30px;
-    }
-    
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin-bottom: 15px;
-    }
-    
-    .timeline-container {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .timeline {
-      display: flex;
-      height: 100px;
-      position: relative;
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .timeline-hour {
-      flex: 1;
-      text-align: center;
-      font-size: 0.8rem;
-      color: #888;
-      position: relative;
-    }
-    
-    .timeline-hour::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      height: 150px;
-      width: 1px;
-      background-color: #eee;
-    }
-    
-    .timeline-block {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      background-color: black;
-      opacity: 0.8;
-      border-radius: 4px;
-    }
-    
-    .timeline-block.design {
-      background-color: #4a6ee0;
-    }
-    
-    .timeline-block.meeting {
-      background-color: #a651e7;
-    }
-    
-    .timeline-block.development {
-      background-color: #6db56d;
-    }
-    
-    .timeline-block.break {
-      background-color: #e76c6c;
-    }
-    
-    .timeline-legend {
-      display: flex;
-      justify-content: center;
-      margin-top: 15px;
-    }
-    
-    .timeline-legend-item {
-      display: flex;
-      align-items: center;
-      margin: 0 10px;
-      font-size: 0.8rem;
-    }
-    
-    .legend-color {
-      width: 30px;
-      height: 10px;
-      border-radius: 2px;
-      margin-right: 5px;
-    }
-    
-    /* Dashboard grid */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
-    
-    .dashboard-column {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    /* Summary section */
-    .summary-container {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .summary-header {
-      margin-bottom: 20px;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    
-    .summary-content {
-      margin-bottom: 20px;
-    }
-    
-    .summary-stat {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    
-    .summary-stat-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background-color: var(--primary-light);
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 10px;
-      font-size: 0.8rem;
-    }
-    
-    .highlight {
-      font-weight: bold;
-      padding: 0 4px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-    }
-    
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 30px;
-    }
-    
-    .metric-box {
-      background-color: white;
-      border-radius: 8px;
-      padding: 15px;
-    }
-    
-    .metric-title {
-      font-size: 0.8rem;
-      color: #888;
-      margin-bottom: 8px;
-    }
-    
-    .metric-value {
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-    
-    .metric-label {
-      font-size: 0.8rem;
-      color: #888;
-    }
-    
-    /* Progress circle */
-    .progress-container {
-      position: relative;
-      width: 120px;
-      height: 120px;
-    }
-    
-    .progress-circle {
-      transform: rotate(-90deg);
-      width: 100%;
-      height: 100%;
-    }
-    
-    .progress-circle-bg {
-      fill: none;
-      stroke: #f0f0f0;
-      stroke-width: 10;
-    }
-    
-    .progress-circle-value {
-      fill: none;
-      stroke-width: 10;
-      stroke-linecap: round;
-      transition: stroke-dasharray 0.3s ease;
-    }
-    
-    .progress-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    
-    /* Tasks and apps section */
-    .list-container {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .list-title {
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-    
-    .list-actions {
-      display: flex;
-    }
-    
-    .list-action {
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: white;
-      border: 1px solid var(--border-color);
-      border-radius: 50%;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    
-    .list-item {
-      padding: 10px 0;
-      border-bottom: 1px solid #f5f5f5;
-    }
-    
-    .list-item:last-child {
-      border-bottom: none;
-    }
-    
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    
-    .item-name {
-      font-weight: 500;
-    }
-    
-    .item-time {
-      font-size: 0.9rem;
-      color: #888;
-    }
-    
-    .progress-bar {
-      height: 6px;
-      background-color: #f0f0f0;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    
-    .progress-value {
-      height: 100%;
-      background-color: var(--primary-color);
-      border-radius: 3px;
-    }
-    
-    /* Tasks list */
-    .task-list {
-      padding-left: 30px;
-      margin-top: 8px;
-    }
-    
-    .task-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      font-size: 0.9rem;
-    }
-    
-    .task-checkbox {
-      margin-right: 8px;
-    }
-    
-    .task-name {
-      flex: 1;
-    }
-    
-    .task-completed {
-      text-decoration: line-through;
-      color: #aaa;
-    }
-    
-    /* Charts */
-    .chart-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 20px;
-    }
-    
-    .donut-chart {
-      width: 100px;
-      height: 100px;
-      position: relative;
-    }
-    
-    .chart-label {
-      text-align: center;
-      margin-top: 5px;
-      font-size: 0.9rem;
-    }
-    
-    .chart-value {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    
-    /* Categories */
-    .categories-container {
-      margin-top: 20px;
-    }
-    
-    .category-item {
-      margin-bottom: 15px;
-    }
-    
-    .category-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    
-    .category-name {
-      font-weight: 500;
-    }
-    
-    .category-time {
-      font-size: 0.9rem;
-      color: #888;
-    }
-    
-    /* Helper classes */
-    .mt-2 {
-      margin-top: 10px;
-    }
-    
-    .mt-4 {
-      margin-top: 20px;
-    }
-    
-    /* Icon placeholders */
-    .icon {
-      font-size: 1.2rem;
-      display: inline-block;
-      width: 24px;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempus Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-light: #A29BFE;
+            --secondary: #00B894;
+            --secondary-light: #55EFC4;
+            --danger: #FF7675;
+            --warning: #FDCB6E;
+            --dark: #2D3436;
+            --light: #F7F7F7;
+            --gray: #DFE6E9;
+            --gray-dark: #636E72;
+            --accent1: #74B9FF;
+            --accent2: #E84393;
+            --sidebar-width: 220px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 4px 0;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 3px solid white;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            opacity: 0.9;
+        }
+        
+        .help {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Main content */
+        .main-content {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .date {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .view-controls {
+            display: flex;
+            background-color: var(--gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .view-control {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .view-control.active {
+            background-color: white;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .today-btn {
+            margin-left: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3);
+        }
+        
+        .today-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+        
+        /* Timeline */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .timeline {
+            border-radius: 12px;
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .timeline-grid {
+            display: flex;
+            position: relative;
+            margin-top: 30px;
+            border-top: 1px solid var(--gray);
+        }
+        
+        .timeline-hour {
+            flex: 1;
+            border-right: 1px solid var(--gray);
+            height: 120px;
+            position: relative;
+        }
+        
+        .timeline-hour:last-child {
+            border-right: none;
+        }
+        
+        .hour-label {
+            position: absolute;
+            top: -25px;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+        
+        .event {
+            position: absolute;
+            height: 30px;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .design {
+            background-color: var(--primary);
+            width: 120px;
+            left: 55%;
+        }
+        
+        .meetings {
+            background-color: var(--accent2);
+            width: 80px;
+            left: 75%;
+        }
+        
+        .development {
+            background-color: var(--secondary);
+            width: 100px;
+            left: 83%;
+        }
+        
+        .breaks {
+            background-color: var(--danger);
+            width: 70px;
+            left: 90%;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        
+        /* Dual sections */
+        .dual-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-actions {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background-color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Daily Summary */
+        .daily-summary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent1) 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .summary-text {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .highlight {
+            font-weight: 600;
+            padding: 0 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .circular-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0%, var(--primary-light) 79%, rgba(255, 255, 255, 0.3) 79%, rgba(255, 255, 255, 0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        
+        .progress-value {
+            position: relative;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .category {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .category-progress {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-bottom: 5px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .category-name {
+            font-size: 12px;
+            color: var(--gray-dark);
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .focus {
+            background: conic-gradient(var(--primary) 62%, rgba(0, 0, 0, 0.05) 62%);
+        }
+        
+        .meetings {
+            background: conic-gradient(var(--accent2) 15%, rgba(0, 0, 0, 0.05) 15%);
+        }
+        
+        .breaks {
+            background: conic-gradient(var(--danger) 11%, rgba(0, 0, 0, 0.05) 11%);
+        }
+        
+        .other {
+            background: conic-gradient(var(--gray-dark) 12%, rgba(0, 0, 0, 0.05) 12%);
+        }
+        
+        .category-progress::before {
+            content: "";
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        
+        .category-value {
+            position: relative;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .action-buttons {
+            display: flex;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .add-task-btn, .add-app-btn {
+            background-color: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.2);
+            margin: 0 5px;
+        }
+
+        .add-task-btn:hover, .add-app-btn:hover {
+            background-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(108, 92, 231, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(108, 92, 231, 0);
+            }
+        }
+
+        .task-list, .app-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .task-item, .app-item {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            background-color: var(--gray);
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover, .app-item:hover {
+            background-color: var(--light);
+            transform: translateX(5px);
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid var(--primary-light);
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-checkbox.checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            position: relative;
+        }
+
+        .task-checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-name, .app-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .task-priority {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .high {
+            background-color: var(--danger);
+        }
+
+        .medium {
+            background-color: var(--warning);
+        }
+
+        .low {
+            background-color: var(--secondary);
+        }
+
+        .app-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-light);
+            border-radius: 6px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <div style="width: 40px; height: 40px; background-color: #7646f4; border-radius: 8px; margin-right: 10px;"></div>
-      <h1>tempus.</h1>
-    </div>
-    
-    <ul class="sidebar-nav">
-      <li><a href="#" class="active"><span class="nav-icon">????</span> Dashboard</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> Calendar</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> Projects & tasks</a></li>
-      <li><a href="#"><span class="nav-icon">??????</span> Timer</a></li>
-      <li><a href="#"><span class="nav-icon">????</span> History</a></li>
-    </ul>
-    
-    <div class="sidebar-footer">
-      <ul class="sidebar-nav">
-        <li><a href="#"><span class="nav-icon">???</span> Help</a></li>
-        <li><a href="#"><span class="nav-icon">??????</span> Settings</a></li>
-        <li><a href="#"><span class="nav-icon">????</span> Log Out</a></li>
-      </ul>
-    </div>
-  </div>
-  
-  <div class="main-content">
-    <div class="header">
-      <div class="header-date">Wednesday, September 8, 2023</div>
-      <div class="header-tracking">
-        <span class="tracking-dot"></span>
-        Active
-      </div>
-      <div class="header-controls">
-        <div class="view-tabs">
-          <div class="view-tab active">Day</div>
-          <div class="view-tab">Week</div>
-          <div class="view-tab">Month</div>
-        </div>
-        <button class="today-btn">Today</button>
-        <button class="nav-btn">???</button>
-        <button class="nav-btn">???</button>
-        <button class="nav-btn">??????</button>
-      </div>
-    </div>
-    
-    <div class="section">
-      <div class="section-title">Timeline</div>
-      <div class="timeline-container">
-        <div class="timeline" id="timeline">
-          <div class="timeline-hour">9:00</div>
-          <div class="timeline-hour">10:00</div>
-          <div class="timeline-hour">11:00</div>
-          <div class="timeline-hour">12:00</div>
-          <div class="timeline-hour">13:00</div>
-          <div class="timeline-hour">14:00</div>
-          <div class="timeline-hour">15:00</div>
-          <div class="timeline-hour">16:00</div>
-          <div class="timeline-hour">17:00</div>
-          <div class="timeline-hour">18:00</div>
-          <div class="timeline-hour">19:00</div>
-          <div class="timeline-hour">20:00</div>
-          <!-- Timeline blocks will be added dynamically -->
-        </div>
-        <div class="timeline-legend">
-          <div class="timeline-legend-item">
-            <div class="legend-color" style="background-color: #4a6ee0;"></div>
-            <span>Design</span>
-          </div>
-          <div class="timeline-legend-item">
-            <div class="legend-color" style="background-color: #a651e7;"></div>
-            <span>Meetings</span>
-          </div>
-          <div class="timeline-legend-item">
-            <div class="legend-color" style="background-color: #6db56d;"></div>
-            <span>Development</span>
-          </div>
-          <div class="timeline-legend-item">
-            <div class="legend-color" style="background-color: #e76c6c;"></div>
-            <span>Breaks</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="dashboard-grid">
-      <div class="dashboard-column">
-        <!-- Projects & Tasks section -->
-        <div class="list-container">
-          <div class="list-header">
-            <div class="list-title">Projects & tasks</div>
-            <div class="list-actions">
-              <button class="list-action">???</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <span style="color: var(--primary); font-weight: bold;">T</span>
             </div>
-          </div>
-          
-          <div id="projects-list">
-            <!-- Projects will be loaded dynamically -->
-          </div>
+            <div class="logo-text">tempus.</div>
         </div>
         
-        <!-- Apps & Websites section -->
-        <div class="list-container">
-          <div class="list-header">
-            <div class="list-title">Apps & Websites</div>
-            <div class="list-actions">
-              <button class="list-action">???</button>
-            </div>
-          </div>
-          
-          <div id="apps-list">
-            <!-- Apps will be loaded dynamically -->
-          </div>
+        <div class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
         </div>
-      </div>
-      
-      <div class="dashboard-column">
-        <!-- Daily Summary section -->
-        <div class="summary-container">
-          <div class="summary-header">Daily Summary</div>
-          <div class="summary-content">
-            <div class="summary-stat">
-              <div class="summary-stat-icon">???</div>
-              <div>
-                Today you had <span class="highlight">20%</span> more meetings than usual, you closed <span class="highlight">2 tasks</span> on two projects, but the focus was <span class="highlight">12%</span> lower than yesterday.
-              </div>
-            </div>
-          </div>
-          
-          <div class="metrics-grid">
-            <div class="metric-box">
-              <div class="metric-title">Total time worked</div>
-              <div class="metric-value">6 hr 18 min</div>
+        
+        <div class="nav-item">
+            <span class="nav-icon">📅</span>
+            <span>Calendar</span>
+        </div>
+        
+        <div class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span>Projects & tasks</span>
+        </div>
+        
+        <div class="nav-item">
+            <span class="nav-icon">⏱️</span>
+            <span>Timer</span>
+        </div>
+        
+        <div class="nav-item">
+            <span class="nav-icon">📈</span>
+            <span>History</span>
+        </div>
+        
+        <div class="help">
+            <div class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span>Help</span>
             </div>
             
-            <div class="metric-box">
-              <div class="metric-title">Percent of work day</div>
-              <div style="display: flex; align-items: center;">
-                <svg class="progress-circle" viewBox="0 0 36 36">
-                  <path class="progress-circle-bg"
-                    d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path class="progress-circle-value" style="stroke: #7646f4; stroke-dasharray: 79, 100;"
-                    d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div style="margin-left: 10px;">
-                  <div class="metric-value">79%</div>
-                  <div class="metric-label">of 8 hr 0 min</div>
+            <div class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            
+            <div class="nav-item">
+                <span class="nav-icon">↪️</span>
+                <span>Log Out</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="date">
+                Wednesday, September 8, 2023
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
                 </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="chart-container mt-4">
-            <div>
-              <div class="donut-chart">
-                <svg width="100" height="100" viewBox="0 0 42 42">
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#f0f0f0" stroke-width="3"></circle>
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#7646f4" stroke-width="3" stroke-dasharray="62.8 100" stroke-dashoffset="25"></circle>
-                  <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10" fill="#000">62%</text>
-                </svg>
-              </div>
-              <div class="chart-label">Focus</div>
             </div>
             
-            <div>
-              <div class="donut-chart">
-                <svg width="100" height="100" viewBox="0 0 42 42">
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#f0f0f0" stroke-width="3"></circle>
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#aaa" stroke-width="3" stroke-dasharray="15 100" stroke-dashoffset="25"></circle>
-                  <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10" fill="#000">15%</text>
-                </svg>
-              </div>
-              <div class="chart-label">Meetings</div>
+            <div class="view-controls-wrapper" style="display: flex; align-items: center;">
+                <div class="view-controls">
+                    <div class="view-control active">Day</div>
+                    <div class="view-control">Week</div>
+                    <div class="view-control">Month</div>
+                </div>
+                <button class="today-btn">Today</button>
             </div>
-            
-            <div>
-              <div class="donut-chart">
-                <svg width="100" height="100" viewBox="0 0 42 42">
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#f0f0f0" stroke-width="3"></circle>
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#aaa" stroke-width="3" stroke-dasharray="11 100" stroke-dashoffset="25"></circle>
-                  <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10" fill="#000">11%</text>
-                </svg>
-              </div>
-              <div class="chart-label">Breaks</div>
-            </div>
-            
-            <div>
-              <div class="donut-chart">
-                <svg width="100" height="100" viewBox="0 0 42 42">
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#f0f0f0" stroke-width="3"></circle>
-                  <circle cx="21" cy="21" r="16" fill="transparent" stroke="#aaa" stroke-width="3" stroke-dasharray="12 100" stroke-dashoffset="25"></circle>
-                  <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10" fill="#000">12%</text>
-                </svg>
-              </div>
-              <div class="chart-label">Other</div>
-            </div>
-          </div>
-          
-          <div class="mt-4">
-            <div class="metric-title">Top categories</div>
-            <div class="categories-container" id="categories-list">
-              <!-- Categories will be loaded dynamically -->
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Load dashboard data
-    let dashboardData;
-    
-    function loadData() {
-      try {
-        // For Electron environment
-        if (typeof require !== 'undefined') {
-          const electron = require('electron');
-          const fs = require('fs');
-          const app = electron.remote ? electron.remote.app : electron.app;
-          const path = require('path');
-          
-          // Try to load from user data folder
-          const userDataPath = app.getPath('userData');
-          const dataFilePath = path.join(userDataPath, 'dashboard-data.json');
-          
-          if (fs.existsSync(dataFilePath)) {
-            dashboardData = JSON.parse(fs.readFileSync(dataFilePath));
-          } else {
-            // Use default data
-            dashboardData = getDefaultData();
-          }
-        } else {
-          // For browser testing, use hardcoded data
-          dashboardData = getDefaultData();
-        }
         
-        // Render all components
-        renderProjects();
-        renderApps();
-        renderCategories();
-        renderTimeline();
-        
-      } catch (error) {
-        console.error('Error loading data:', error);
-        // Fallback to default data
-        dashboardData = getDefaultData();
-        renderProjects();
-        renderApps();
-        renderCategories();
-        renderTimeline();
-      }
-    }
-    
-    function getDefaultData() {
-      return {
-        date: new Date().toISOString().split('T')[0],
-        totalWorked: {
-          hours: 6,
-          minutes: 18
-        },
-        percentOfDay: 79,
-        taskBreakdown: {
-          focus: 62,
-          meetings: 15,
-          breaks: 11,
-          other: 12
-        },
-        projects: [
-          { id: 1, name: "Finwall app", percent: 49, time: "3 hr 26 min", tasks: [
-            { id: 101, name: "DS12 - Dark version", time: "1 hr 51 min", completed: false },
-            { id: 102, name: "DS42 - Settings section", time: "55 min", completed: true },
-            { id: 103, name: "System update", time: "40 min", completed: false }
-          ]},
-          { id: 2, name: "Finwall website", percent: 32, time: "1 hr 47 min", tasks: [] },
-          { id: 3, name: "X Terminal", percent: 14, time: "46 min", tasks: [] },
-          { id: 4, name: "Li.Fi", percent: 5, time: "19 min", tasks: [] }
-        ],
-        apps: [
-          { id: 1, name: "Figma", percent: 47, time: "2 hr 58 min" },
-          { id: 2, name: "Adobe Photoshop", percent: 12, time: "46 min" },
-          { id: 3, name: "zoom.us", percent: 12, time: "45 min" },
-          { id: 4, name: "Slack", percent: 7, time: "26 min" },
-          { id: 5, name: "pinterest.com", percent: 6, time: "23 min" },
-          { id: 6, name: "HEY", percent: 3, time: "11 min" },
-          { id: 7, name: "nicelydone.com", percent: 3, time: "11 min" },
-          { id: 8, name: "twitter.com", percent: 2, time: "8 min" },
-          { id: 9, name: "crunchbase.com", percent: 2, time: "7 min" },
-          { id: 10, name: "instagram.com", percent: 1, time: "4 min" },
-          { id: 11, name: "Other", percent: 5, time: "19 min" }
-        ],
-        categories: [
-          { id: 1, name: "Design", percent: 59, time: "3 hr 44 min" },
-          { id: 2, name: "Video Conference", percent: 12, time: "45 min" },
-          { id: 3, name: "Work Messaging", percent: 10, time: "37 min" }
-        ],
-        timelineBlocks: [
-          { start: "09:00", end: "09:45", type: "design" },
-          { start: "10:15", end: "11:30", type: "meeting" },
-          { start: "11:45", end: "12:30", type: "design" },
-          { start: "13:00", end: "14:15", type: "development" },
-          { start: "14:30", end: "15:15", type: "break" },
-          { start: "16:00", end: "17:45", type: "design" },
-          { start: "18:15", end: "19:00", type: "meeting" }
-        ]
-      };
-    }
-    
-    function renderProjects() {
-      const projectsList = document.getElementById('projects-list');
-      projectsList.innerHTML = '';
-      
-      dashboardData.projects.forEach(project => {
-        const projectEl = document.createElement('div');
-        projectEl.className = 'list-item';
-        
-        const hasTasks = project.tasks && project.tasks.length > 0;
-        
-        projectEl.innerHTML = \
-          <div class="item-header">
-            <div class="item-name">
-              <span class="icon">????</span> \
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="section-title">Timeline</div>
+            
+            <div class="timeline-grid">
+                <div class="timeline-hour">
+                    <div class="hour-label">9:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">10:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">11:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">12:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">13:00</div>
+                    <div class="event design">Design</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">14:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">15:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">16:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">17:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">18:00</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">19:00</div>
+                    <div class="event meetings">Meetings</div>
+                </div>
+                <div class="timeline-hour">
+                    <div class="hour-label">20:00</div>
+                    <div class="event development">Development</div>
+                    <div class="event breaks">Breaks</div>
+                </div>
             </div>
-            <div class="item-time">\% ?? \</div>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
-          </div>
-        \;
-        
-        if (hasTasks) {
-          const tasksEl = document.createElement('div');
-          tasksEl.className = 'task-list';
-          
-          project.tasks.forEach(task => {
-            const taskEl = document.createElement('div');
-            taskEl.className = 'task-item';
-            taskEl.innerHTML = \
-              <div style="display: flex; align-items: center;">
-                <input type="checkbox" class="task-checkbox" \>
-                <span class="task-name \">\</span>
-              </div>
-              <div class="task-time">\</div>
-            \;
             
-            // Add event listener to checkbox
-            taskEl.querySelector('.task-checkbox').addEventListener('change', (e) => {
-              const nameEl = taskEl.querySelector('.task-name');
-              if (e.target.checked) {
-                nameEl.classList.add('task-completed');
-              } else {
-                nameEl.classList.remove('task-completed');
-              }
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--primary);"></div>
+                    <div>Design</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--accent2);"></div>
+                    <div>Meetings</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--secondary);"></div>
+                    <div>Development</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--danger);"></div>
+                    <div>Breaks</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dual Sections -->
+        <div class="dual-sections">
+            <!-- Projects & Tasks -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="section-title">Projects & tasks</div>
+                    <div class="card-actions">⋯</div>
+                </div>
+                
+                <div class="task-list">
+                    <div class="task-item">
+                        <div class="task-priority high"></div>
+                        <div class="task-checkbox"></div>
+                        <div class="task-name">Complete dashboard design</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-priority medium"></div>
+                        <div class="task-checkbox checked"></div>
+                        <div class="task-name">Review project requirements</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-priority low"></div>
+                        <div class="task-checkbox"></div>
+                        <div class="task-name">Schedule team meeting</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="add-task-btn">+ Add Task</button>
+                </div>
+            </div>
+            
+            <!-- Apps & Websites -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="section-title">Apps & Websites</div>
+                    <div class="card-actions">⋯</div>
+                </div>
+                
+                <div class="app-list">
+                    <div class="app-item">
+                        <div class="app-icon">F</div>
+                        <div class="app-name">Figma</div>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-icon">V</div>
+                        <div class="app-name">Visual Studio Code</div>
+                    </div>
+                    <div class="app-item">
+                        <div class="app-icon">S</div>
+                        <div class="app-name">Slack</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="add-app-btn">+ Add App</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Daily Summary -->
+        <div class="daily-summary">
+            <div class="summary-title">Daily Summary</div>
+            
+            <div class="summary-text">
+                Today you had <span class="highlight">20%</span> more meetings than usual, you closed <span class="highlight">2 tasks</span> on two projects, but the focus was <span class="highlight">12%</span> lower than yesterday.
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-row">
+                    <div>
+                        <div style="font-size: 14px; opacity: 0.8;">Total time worked</div>
+                        <div style="font-size: 24px; font-weight: 600; margin-top: 5px;">6 hr 18 min</div>
+                    </div>
+                    
+                    <div>
+                        <div style="font-size: 14px; opacity: 0.8; text-align: right;">Percent of work day</div>
+                        <div style="font-size: 24px; font-weight: 600; margin-top: 5px; text-align: right;">79%</div>
+                        <div style="font-size: 12px; opacity: 0.8; text-align: right;">of 8 hr 0 min</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="categories">
+                <div class="category">
+                    <div class="category-progress focus">
+                        <div class="category-value">62%</div>
+                    </div>
+                    <div class="category-name">Focus</div>
+                </div>
+                
+                <div class="category">
+                    <div class="category-progress meetings">
+                        <div class="category-value">15%</div>
+                    </div>
+                    <div class="category-name">Meetings</div>
+                </div>
+                
+                <div class="category">
+                    <div class="category-progress breaks">
+                        <div class="category-value">11%</div>
+                    </div>
+                    <div class="category-name">Breaks</div>
+                </div>
+                
+                <div class="category">
+                    <div class="category-progress other">
+                        <div class="category-value">12%</div>
+                    </div>
+                    <div class="category-name">Other</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Task checkbox functionality
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                const taskName = this.nextElementSibling;
+                if (this.classList.contains('checked')) {
+                    taskName.style.textDecoration = 'line-through';
+                    taskName.style.opacity = '0.6';
+                } else {
+                    taskName.style.textDecoration = 'none';
+                    taskName.style.opacity = '1';
+                }
             });
+        });
+
+        // View controls functionality
+        document.querySelectorAll('.view-control').forEach(control => {
+            control.addEventListener('click', function() {
+                document.querySelector('.view-control.active').classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+        // Add task button functionality
+        document.querySelector('.add-task-btn').addEventListener('click', function() {
+            const taskList = document.querySelector('.task-list');
+            const priorities = ['high', 'medium', 'low'];
+            const priority = priorities[Math.floor(Math.random() * priorities.length)];
             
-            tasksEl.appendChild(taskEl);
-          });
-          
-          projectEl.appendChild(tasksEl);
-        }
-        
-        projectsList.appendChild(projectEl);
-      });
-    }
-    
-    function renderApps() {
-      const appsList = document.getElementById('apps-list');
-      appsList.innerHTML = '';
-      
-      dashboardData.apps.forEach(app => {
-        const appEl = document.createElement('div');
-        appEl.className = 'list-item';
-        
-        appEl.innerHTML = \
-          <div class="item-header">
-            <div class="item-name">\</div>
-            <div class="item-time">\% ?? \</div>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
-          </div>
-        \;
-        
-        appsList.appendChild(appEl);
-      });
-    }
-    
-    function renderCategories() {
-      const categoriesList = document.getElementById('categories-list');
-      categoriesList.innerHTML = '';
-      
-      dashboardData.categories.forEach(category => {
-        const categoryEl = document.createElement('div');
-        categoryEl.className = 'category-item';
-        
-        categoryEl.innerHTML = \
-          <div class="category-header">
-            <div class="category-name">\</div>
-            <div class="category-time">\</div>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-value" style="width: \%"></div>
-          </div>
-        \;
-        
-        categoriesList.appendChild(categoryEl);
-      });
-    }
-    
-    function renderTimeline() {
-      const timeline = document.getElementById('timeline');
-      
-      // Calculate time range (9:00 - 20:00 = 11 hours = 660 minutes)
-      const startHour = 9;
-      const endHour = 20;
-      const totalMinutes = (endHour - startHour) * 60;
-      const timelineWidth = timeline.clientWidth;
-      
-      dashboardData.timelineBlocks.forEach(block => {
-        // Convert times to minutes since start
-        const startTime = block.start.split(':');
-        const endTime = block.end.split(':');
-        
-        const startMinutes = (parseInt(startTime[0]) - startHour) * 60 + parseInt(startTime[1]);
-        const endMinutes = (parseInt(endTime[0]) - startHour) * 60 + parseInt(endTime[1]);
-        const duration = endMinutes - startMinutes;
-        
-        // Calculate positions
-        const startPos = (startMinutes / totalMinutes) * timelineWidth;
-        const width = (duration / totalMinutes) * timelineWidth;
-        
-        // Create block element
-        const blockEl = document.createElement('div');
-        blockEl.className = \	imeline-block \\;
-        blockEl.style.left = \\px\;
-        blockEl.style.width = \\px\;
-        
-        timeline.appendChild(blockEl);
-      });
-    }
-    
-    // Initialize data on page load
-    document.addEventListener('DOMContentLoaded', loadData);
-  </script>
+            const newTask = document.createElement('div');
+            newTask.className = 'task-item';
+            newTask.innerHTML = `
+                <div class="task-priority ${priority}"></div>
+                <div class="task-checkbox"></div>
+                <div class="task-name">New task</div>
+            `;
+            
+            taskList.appendChild(newTask);
+            
+            // Add click event to the new checkbox
+            const newCheckbox = newTask.querySelector('.task-checkbox');
+            newCheckbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                const taskName = this.nextElementSibling;
+                if (this.classList.contains('checked')) {
+                    taskName.style.textDecoration = 'line-through';
+                    taskName.style.opacity = '0.6';
+                } else {
+                    taskName.style.textDecoration = 'none';
+                    taskName.style.opacity = '1';
+                }
+            });
+        });
+
+        // Add app button functionality
+        document.querySelector('.add-app-btn').addEventListener('click', function() {
+            const appList = document.querySelector('.app-list');
+            const apps = ['N', 'C', 'G', 'D'];
+            const appIcon = apps[Math.floor(Math.random() * apps.length)];
+            const appNames = {
+                'N': 'Notion',
+                'C': 'Chrome',
+                'G': 'Gmail',
+                'D': 'Dropbox'
+            };
+            
+            const newApp = document.createElement('div');
+            newApp.className = 'app-item';
+            newApp.innerHTML = `
+                <div class="app-icon">${appIcon}</div>
+                <div class="app-name">${appNames[appIcon]}</div>
+            `;
+            
+            appList.appendChild(newApp);
+        });
+    </script>
 </body>
 </html>
