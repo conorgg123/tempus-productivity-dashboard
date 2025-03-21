@@ -1,56 +1,44 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+// Define global at the top level
+if (typeof window !== 'undefined' && typeof global === 'undefined') {
+  window.global = window;
+}
 
 export default function Home() {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Productivity Dashboard</title>
-        <meta name="description" content="Next.js Productivity Dashboard" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Productivity Dashboard
-        </h1>
-
-        <p className={styles.description}>
-          Your personal productivity tool
-        </p>
-
-        <div className={styles.grid}>
-          <div className={styles.card}>
-            <h2>Tasks</h2>
-            <p>View and manage your daily tasks</p>
-          </div>
-
-          <div className={styles.card}>
-            <h2>Calendar</h2>
-            <p>Schedule your upcoming events</p>
-          </div>
-
-          <div className={styles.card}>
-            <h2>Notes</h2>
-            <p>Keep track of important information</p>
-          </div>
-
-          <div className={styles.card}>
-            <h2>Settings</h2>
-            <p>Customize your dashboard</p>
-          </div>
-        </div>
+    <div className="container">
+      <main>
+        <h1>Productivity Dashboard</h1>
+        <p>Your productivity tools in one place</p>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by Next.js
-        </a>
-      </footer>
+      <style jsx>{`
+        .container {
+          min-height: 100vh;
+          padding: 0 0.5rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+        }
+        main {
+          padding: 5rem 0;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+        h1 {
+          margin: 0;
+          line-height: 1.15;
+          font-size: 4rem;
+        }
+        p {
+          line-height: 1.5;
+          font-size: 1.5rem;
+        }
+      `}</style>
     </div>
   )
 } 

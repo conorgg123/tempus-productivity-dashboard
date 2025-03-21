@@ -21,15 +21,19 @@ contextBridge.exposeInMainWorld(
   }
 );
 
-// All of the Node.js APIs are available in the preload process.
-// It has the same sandbox as a Chrome extension.
+// Define global for renderer process
+if (typeof global === 'undefined') {
+  window.global = window;
+}
+
+// Expose APIs from Node to the renderer process
 window.addEventListener('DOMContentLoaded', () => {
-  console.log('Preload script loaded');
-  
-  // Add global polyfill to fix "global is not defined" errors
+  // Ensure global is available
   if (typeof global === 'undefined') {
     window.global = window;
   }
+  
+  console.log('Preload script loaded');
   
   // Add process.env for React and other libraries
   if (!window.process) {
