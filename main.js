@@ -639,6 +639,111 @@ function createWindow() {
             font-size: 14px;
             color: var(--text-secondary);
           }
+          
+          /* YouTube Manager */
+          .youtube-container {
+            margin-top: 16px;
+          }
+          
+          .youtube-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+          }
+          
+          .youtube-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          
+          .youtube-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          
+          .youtube-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+          }
+          
+          .youtube-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .youtube-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+          }
+          
+          .youtube-play-btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            border-style: solid;
+            border-width: 10px 0 10px 16px;
+            border-color: transparent transparent transparent white;
+          }
+          
+          .youtube-info {
+            padding: 12px;
+          }
+          
+          .youtube-title {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+          }
+          
+          .youtube-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+          }
+          
+          .youtube-actions {
+            display: flex;
+            justify-content: flex-end;
+          }
+          
+          .youtube-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+          }
+          
+          .youtube-btn:hover {
+            background-color: #5558de;
+          }
         </style>
       </head>
       <body>
@@ -675,6 +780,14 @@ function createWindow() {
               <a class="nav-item" href="#">
                 <span class="material-icons nav-icon">history</span>
                 <span>History</span>
+              </a>
+            </div>
+            
+            <div class="nav-section">
+              <div class="nav-section-title">Resources</div>
+              <a class="nav-item" href="#">
+                <span class="material-icons nav-icon">video_library</span>
+                <span>YouTube Manager</span>
               </a>
             </div>
             
@@ -750,6 +863,50 @@ function createWindow() {
                     </div>
                     <div id="projects-list">
                       <!-- Dynamic content will be added here -->
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">YouTube Videos</h3>
+                      <button class="btn">Add Video</button>
+                    </div>
+                    <div id="youtube-videos" class="youtube-container">
+                      <!-- Placeholder for recent YouTube videos -->
+                      <div class="youtube-grid">
+                        <div class="youtube-card">
+                          <div class="youtube-thumbnail">
+                            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="YouTube Thumbnail">
+                            <div class="youtube-play-btn"></div>
+                          </div>
+                          <div class="youtube-info">
+                            <h4 class="youtube-title">Introduction to Productivity Systems</h4>
+                            <div class="youtube-meta">
+                              <span>Educational</span>
+                              <span>12:30</span>
+                            </div>
+                            <div class="youtube-actions">
+                              <button class="youtube-btn">Open</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="youtube-card">
+                          <div class="youtube-thumbnail">
+                            <img src="https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg" alt="YouTube Thumbnail">
+                            <div class="youtube-play-btn"></div>
+                          </div>
+                          <div class="youtube-info">
+                            <h4 class="youtube-title">Time Management Tips</h4>
+                            <div class="youtube-meta">
+                              <span>Educational</span>
+                              <span>8:45</span>
+                            </div>
+                            <div class="youtube-actions">
+                              <button class="youtube-btn">Open</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
