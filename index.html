@@ -3248,6 +3248,218 @@
                     this.renderCalendarView(tasksContainer, filteredTasks);
                 }
             }
+            
+            // Render list view of tasks
+            renderListView(container, tasks) {
+                container.innerHTML = '';
+                
+                if (tasks.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
+                            No tasks found. Add your first task above!
+                        </div>
+                    `;
+                    return;
+                }
+                
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    if (task.completed) {
+                        taskItem.classList.add('task-completed');
+                    }
+                    
+                    // Find project (if any)
+                    let projectName = 'None';
+                    let projectColor = 'var(--gray)';
+                    
+                    if (task.projectId !== 'none') {
+                        const project = this.projects.find(p => p.id === task.projectId);
+                        if (project) {
+                            projectName = project.name;
+                            projectColor = project.color;
+                        }
+                    }
+                    
+                    // Format due date
+                    let dueDateDisplay = 'No due date';
+                    if (task.dueDate) {
+                        const dueDate = new Date(task.dueDate);
+                        dueDateDisplay = dueDate.toLocaleDateString();
+                        
+                        // Check if overdue
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (dueDate < today && !task.completed) {
+                            dueDateDisplay = `<span style="color: var(--danger);">Overdue: ${dueDateDisplay}</span>`;
+                        }
+                    }
+                    
+                    taskItem.innerHTML = `
+                        <div class="task-checkbox">
+                            <input type="checkbox" data-task-id="${task.id}" ${task.completed ? 'checked' : ''}>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <div class="task-project-tag" style="background-color: ${projectColor};">
+                                    ${projectName}
+                                </div>
+                                <div class="task-due-date">
+                                    <span>📅</span> ${dueDateDisplay}
+                                </div>
+                                <div class="task-priority">
+                                    <span class="priority-indicator priority-${task.priority}"></span>
+                                    ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn" data-action="edit" data-task-id="${task.id}">✏️</button>
+                            <button class="task-action-btn" data-action="delete" data-task-id="${task.id}">🗑️</button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(taskItem);
+                    
+                    // Add event listeners
+                    const checkbox = taskItem.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', () => {
+                        this.toggleTaskComplete(task.id);
+                    });
+                    
+                    const editBtn = taskItem.querySelector('.task-action-btn[data-action="edit"]');
+                    editBtn.addEventListener('click', () => {
+                        this.showEditTaskModal(task.id);
+                    });
+                    
+                    const deleteBtn = taskItem.querySelector('.task-action-btn[data-action="delete"]');
+                    deleteBtn.addEventListener('click', () => {
+                        this.deleteTask(task.id);
+                    });
+                });
+            }
+            
+            // Render kanban view
+            renderKanbanView(container, tasks) {
+                container.innerHTML = '';
+                
+                // Create kanban container
+                const kanbanContainer = document.createElement('div');
+                kanbanContainer.className = 'kanban-container';
+                
+                // Create columns
+                const todoColumn = this.createKanbanColumn('To Do', tasks.filter(task => !task.completed));
+                const doneColumn = this.createKanbanColumn('Completed', tasks.filter(task => task.completed));
+                
+                kanbanContainer.appendChild(todoColumn);
+                kanbanContainer.appendChild(doneColumn);
+                
+                container.appendChild(kanbanContainer);
+            }
+            
+            // Create a kanban column with tasks
+            createKanbanColumn(title, tasks) {
+                const column = document.createElement('div');
+                column.className = 'kanban-column';
+                
+                column.innerHTML = `
+                    <div class="kanban-column-header">
+                        ${title}
+                        <div class="kanban-count">${tasks.length}</div>
+                    </div>
+                    <div class="kanban-column-content"></div>
+                `;
+                
+                const content = column.querySelector('.kanban-column-content');
+                
+                if (tasks.length === 0) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--gray-dark);">
+                            No tasks in this column
+                        </div>
+                    `;
+                } else {
+                    tasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        
+                        // Find project (if any)
+                        let projectName = 'None';
+                        let projectColor = 'var(--gray)';
+                        
+                        if (task.projectId !== 'none') {
+                            const project = this.projects.find(p => p.id === task.projectId);
+                            if (project) {
+                                projectName = project.name;
+                                projectColor = project.color;
+                            }
+                        }
+                        
+                        taskItem.innerHTML = `
+                            <div class="task-content">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    <div class="task-project-tag" style="background-color: ${projectColor};">
+                                        ${projectName}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="task-action-btn" data-action="edit" data-task-id="${task.id}">✏️</button>
+                            </div>
+                        `;
+                        
+                        content.appendChild(taskItem);
+                        
+                        // Add event listener
+                        const editBtn = taskItem.querySelector('.task-action-btn[data-action="edit"]');
+                        editBtn.addEventListener('click', () => {
+                            this.showEditTaskModal(task.id);
+                        });
+                        
+                        // Make the entire task item clickable to toggle completion
+                        taskItem.addEventListener('click', (e) => {
+                            if (!e.target.classList.contains('task-action-btn') && !e.target.closest('.task-action-btn')) {
+                                this.toggleTaskComplete(task.id);
+                            }
+                        });
+                    });
+                }
+                
+                return column;
+            }
+            
+            // Render calendar view
+            renderCalendarView(container, tasks) {
+                container.innerHTML = `
+                    <div class="project-calendar">
+                        <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
+                            Calendar view is under development. Please check back later!
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update progress bar
+            updateProgress() {
+                const filteredTasks = this.getFilteredTasks();
+                const progressBar = document.getElementById('progress-bar');
+                const progressPercentage = document.getElementById('progress-percentage');
+                
+                if (!progressBar || !progressPercentage || filteredTasks.length === 0) {
+                    if (progressBar) progressBar.style.width = '0%';
+                    if (progressPercentage) progressPercentage.textContent = '0%';
+                    return;
+                }
+                
+                const completedCount = filteredTasks.filter(task => task.completed).length;
+                const percentage = Math.round((completedCount / filteredTasks.length) * 100);
+                
+                progressBar.style.width = `${percentage}%`;
+                progressPercentage.textContent = `${percentage}%`;
+            }
         }
   </script>
 </body>
