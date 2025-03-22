@@ -190,30 +190,35 @@ export default function Dashboard() {
           </div>
           
           <div className={styles.timeBreakdownContainer}>
-            {dashboardData.taskBreakdown.map((task, index) => (
-              <div key={index} className={styles.taskRow}>
-                <div className={styles.taskDetails}>
-                  <span className={styles.taskName}>{task.name}</span>
-                  <span className={styles.taskTime}>{task.time}</span>
+            {Array.isArray(dashboardData.taskBreakdown) 
+              ? dashboardData.taskBreakdown.map((task, index) => (
+                <div key={index} className={styles.taskRow}>
+                  <div className={styles.taskDetails}>
+                    <span className={styles.taskName}>{task.name}</span>
+                    <span className={styles.taskTime}>{task.time}</span>
+                  </div>
+                  <div className={styles.taskProgressContainer}>
+                    <div 
+                      className={styles.taskProgress} 
+                      style={{ width: formatPercent(task.percent) }}
+                    ></div>
+                  </div>
+                  <div className={styles.taskActions}>
+                    <button 
+                      className={styles.deleteTaskBtn}
+                      onClick={() => handleDeleteTask(index)}
+                    >
+                      <span className="material-icons">delete</span>
+                    </button>
+                  </div>
                 </div>
-                <div className={styles.taskProgressContainer}>
-                  <div 
-                    className={styles.taskProgress} 
-                    style={{ width: formatPercent(task.percent) }}
-                  ></div>
+              ))
+              : <div className={styles.emptyState}>
+                  <p>No time entries yet. Add your first task to start tracking your productivity!</p>
                 </div>
-                <div className={styles.taskActions}>
-                  <button 
-                    className={styles.deleteTaskBtn}
-                    onClick={() => handleDeleteTask(index)}
-                  >
-                    <span className="material-icons">delete</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+            }
             
-            {dashboardData.taskBreakdown.length === 0 && (
+            {Array.isArray(dashboardData.taskBreakdown) && dashboardData.taskBreakdown.length === 0 && (
               <div className={styles.emptyState}>
                 <p>No time entries yet. Add your first task to start tracking your productivity!</p>
               </div>
