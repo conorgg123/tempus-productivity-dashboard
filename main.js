@@ -95,7 +95,7 @@ function createWindow() {
 
   // Load the app
   const startUrl = isDev 
-    ? 'http://localhost:3000' 
+    ? 'http://localhost:3005' 
     : url.format({
         pathname: path.join(__dirname, './out/index.html'),
         protocol: 'file:',
