@@ -140,7 +140,7 @@ function createWindow() {
   } else {
     // In production mode, load directly from the filesystem
     startUrl = url.format({
-      pathname: path.join(__dirname, './out/index.html'),
+      pathname: path.resolve(__dirname, 'out/index.html'),
       protocol: 'file:',
       slashes: true
     });
