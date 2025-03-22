@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '@/components/Layout';
 import styles from '@/styles/YouTubeManager.module.css';
+import { loadData, saveData } from '@/utils/storage';
 
 export default function YouTubeManager() {
   const [youtubeLinks, setYoutubeLinks] = useState([]);
@@ -20,37 +21,21 @@ export default function YouTubeManager() {
 
   // Load data on component mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Load from localStorage if available
-      const storedLinks = localStorage.getItem('youtube-links');
-      const storedCategories = localStorage.getItem('youtube-categories');
-      
-      if (storedLinks) {
-        setYoutubeLinks(JSON.parse(storedLinks).links || []);
-      } else {
-        // Fetch default data
-        fetch('/data/youtube_links.json')
-          .then(response => response.json())
-          .then(data => {
-            setYoutubeLinks(data.links);
-            localStorage.setItem('youtube-links', JSON.stringify(data));
-          })
-          .catch(error => console.error('Error loading YouTube links:', error));
-      }
-      
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories).categories || []);
-      } else {
-        // Fetch default categories
-        fetch('/data/youtube_categories.json')
-          .then(response => response.json())
-          .then(data => {
-            setCategories(data.categories);
-            localStorage.setItem('youtube-categories', JSON.stringify(data));
-          })
-          .catch(error => console.error('Error loading YouTube categories:', error));
+    async function fetchData() {
+      if (typeof window !== 'undefined') {
+        // Load YouTube links
+        const storedLinks = await loadData('youtube-links', { links: [] });
+        setYoutubeLinks(storedLinks.links || []);
+        
+        // Load categories
+        const storedCategories = await loadData('youtube-categories', { 
+          categories: ["All", "Watch Later", "Educational", "Entertainment", "Music", "Coding", "Speech Tips"] 
+        });
+        setCategories(storedCategories.categories || []);
       }
     }
+    
+    fetchData();
   }, []);
 
   // Filter videos based on search and category
@@ -92,10 +77,10 @@ export default function YouTubeManager() {
       added_on: new Date().toISOString()
     };
     
-    // Update state and localStorage
+    // Update state and storage
     const updatedLinks = [...youtubeLinks, newVideo];
     setYoutubeLinks(updatedLinks);
-    localStorage.setItem('youtube-links', JSON.stringify({ links: updatedLinks }));
+    saveData('youtube-links', { links: updatedLinks });
     
     // Reset form
     setNewLinkData({
@@ -119,7 +104,7 @@ export default function YouTubeManager() {
     
     const updatedCategories = [...categories, newCategory];
     setCategories(updatedCategories);
-    localStorage.setItem('youtube-categories', JSON.stringify({ categories: updatedCategories }));
+    saveData('youtube-categories', { categories: updatedCategories });
     
     setNewCategory('');
     setShowCategoryModal(false);
@@ -131,7 +116,7 @@ export default function YouTubeManager() {
       const updatedLinks = [...youtubeLinks];
       updatedLinks.splice(index, 1);
       setYoutubeLinks(updatedLinks);
-      localStorage.setItem('youtube-links', JSON.stringify({ links: updatedLinks }));
+      saveData('youtube-links', { links: updatedLinks });
     }
   };
 
