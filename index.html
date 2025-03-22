@@ -2339,6 +2339,163 @@
             </div>
         </div>
     </div>
+
+    <!-- Timer Section -->
+    <div id="timer-section" class="tab-content" style="display: none;">
+        <div class="header">
+            <div class="date">
+                Time Tracking
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+            <div class="view-controls-wrapper" style="display: flex; align-items: center;">
+                <div class="view-controls">
+                    <div class="view-control active" data-timer-view="day">Day</div>
+                    <div class="view-control" data-timer-view="week">Week</div>
+                </div>
+                <button class="calendar-new-btn" id="start-timer-btn">Start Timer</button>
+            </div>
+        </div>
+        
+        <div class="timer-container" style="display: flex; height: calc(100vh - 150px);">
+            <!-- Timer Controls -->
+            <div class="timer-controls" style="width: 350px; padding: 20px; border-right: 1px solid var(--gray);">
+                <div class="timer-display" style="text-align: center; margin-bottom: 30px;">
+                    <div class="time-display" style="font-size: 48px; font-weight: 600;">00:00:00</div>
+                    <div class="timer-status">Ready to start</div>
+                </div>
+                
+                <div class="timer-form">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="activity-name" style="display: block; margin-bottom: 5px; font-weight: 500;">Activity Name</label>
+                        <input type="text" id="activity-name" placeholder="What are you working on?" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="activity-category" style="display: block; margin-bottom: 5px; font-weight: 500;">Category</label>
+                        <select id="activity-category" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
+                            <option value="focus">Focus Work</option>
+                            <option value="meetings">Meetings</option>
+                            <option value="breaks">Breaks</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="timer-buttons" style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button id="timer-start-btn" class="timer-btn start" style="flex: 1; padding: 12px; border-radius: 8px; background-color: var(--primary); color: white; border: none; font-weight: 500; cursor: pointer;">Start</button>
+                        <button id="timer-pause-btn" class="timer-btn pause" style="flex: 1; padding: 12px; border-radius: 8px; background-color: var(--warning); color: white; border: none; font-weight: 500; cursor: pointer; display: none;">Pause</button>
+                        <button id="timer-stop-btn" class="timer-btn stop" style="flex: 1; padding: 12px; border-radius: 8px; background-color: var(--danger); color: white; border: none; font-weight: 500; cursor: pointer; display: none;">Stop</button>
+                    </div>
+                </div>
+                
+                <div class="timer-stats" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--gray);">
+                    <h3 style="margin-bottom: 15px; font-size: 18px;">Today's Stats</h3>
+                    <div class="stat-item" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Total Time:</span>
+                        <span id="today-total-time">0h 0m</span>
+                    </div>
+                    <div class="stat-item" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Activities:</span>
+                        <span id="today-activities-count">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity Timeline -->
+            <div class="timeline-wrapper" style="flex: 1; padding: 20px; overflow-y: auto;">
+                <h3 style="margin-bottom: 15px;">Activity Timeline</h3>
+                
+                <div class="timeline-container">
+                    <div class="timeline-hours">
+                        <div class="hour-marker" style="display: flex; border-bottom: 1px solid var(--gray); padding: 10px 0;">
+                            <div style="width: 60px; text-align: right; padding-right: 10px; color: var(--gray-dark);">12 AM</div>
+                            <div style="flex: 1; position: relative; height: 40px;"></div>
+                        </div>
+                        <div class="hour-marker" style="display: flex; border-bottom: 1px solid var(--gray); padding: 10px 0;">
+                            <div style="width: 60px; text-align: right; padding-right: 10px; color: var(--gray-dark);">1 AM</div>
+                            <div style="flex: 1; position: relative; height: 40px;"></div>
+                        </div>
+                        <!-- More hours would be generated dynamically -->
+                    </div>
+                    
+                    <div id="activities-list" style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">Recent Activities</h3>
+                        <div class="empty-state" style="text-align: center; padding: 30px; color: var(--gray-dark);">
+                            No activities recorded yet. Start a timer to begin tracking.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Section -->
+    <div id="history-section" class="tab-content" style="display: none;">
+        <div class="header">
+            <div class="date">
+                Activity History
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-container" style="padding: 20px;">
+            <div class="history-filters" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">Filters</h3>
+                <div style="display: flex; gap: 15px;">
+                    <div class="filter-group" style="flex: 1;">
+                        <label for="date-range" style="display: block; margin-bottom: 5px;">Date Range</label>
+                        <select id="date-range" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 1;">
+                        <label for="category-filter" style="display: block; margin-bottom: 5px;">Category</label>
+                        <select id="category-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
+                            <option value="all">All Categories</option>
+                            <option value="focus">Focus Work</option>
+                            <option value="meetings">Meetings</option>
+                            <option value="breaks">Breaks</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-summary" style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 15px;">Summary</h3>
+                <div style="display: flex; gap: 20px;">
+                    <div class="summary-card" style="flex: 1; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <h4 style="margin-bottom: 10px; font-size: 16px;">Total Time</h4>
+                        <div style="font-size: 24px; font-weight: 600;" id="summary-total-time">0h 0m</div>
+                    </div>
+                    <div class="summary-card" style="flex: 1; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <h4 style="margin-bottom: 10px; font-size: 16px;">Activities</h4>
+                        <div style="font-size: 24px; font-weight: 600;" id="summary-activities-count">0</div>
+                    </div>
+                    <div class="summary-card" style="flex: 1; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <h4 style="margin-bottom: 10px; font-size: 16px;">Most Common Activity</h4>
+                        <div style="font-size: 18px; font-weight: 500;" id="most-common-activity">None</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="activity-history-list">
+                <h3 style="margin-bottom: 15px;">Activity Log</h3>
+                <div class="empty-state" style="text-align: center; padding: 30px; color: var(--gray-dark);" id="empty-history">
+                    No activity history to display.
+                </div>
+                <div id="history-list" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
   </div>
 
   <script>
@@ -3724,4 +3881,3 @@
   </script>
 </body>
 </html>
-```
