@@ -5556,5 +5556,42 @@
             }
         }
   </script>
+
+  <script>
+    // JavaScript for tab navigation functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove active class from all tabs
+          navItems.forEach(tab => {
+            tab.classList.remove('active');
+          });
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+        });
+      });
+
+      // Update current date and time
+      updateDateTime();
+      setInterval(updateDateTime, 60000); // Update every minute
+    });
+
+    // Function to update the current date and time display
+    function updateDateTime() {
+      const dateElement = document.querySelector('.date');
+      if (!dateElement) return;
+
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateString = now.toLocaleDateString('en-US', options);
+      
+      // Only update the text part, keeping the status indicator
+      const statusHtml = dateElement.querySelector('.status').outerHTML;
+      dateElement.innerHTML = dateString + statusHtml;
+    }
+  </script>
 </body>
 </html>
