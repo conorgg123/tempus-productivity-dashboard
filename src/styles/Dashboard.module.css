@@ -1,18 +1,4 @@
 /* Dashboard styles */
-:root {
-  --primary-color: #7646f4;
-  --primary-light: #f0eaff;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --border-color: #e5e5e5;
-  --bg-color: #ffffff;
-  --sidebar-width: 240px;
-  --header-height: 64px;
-}
-
 .loading {
   display: flex;
   align-items: center;
