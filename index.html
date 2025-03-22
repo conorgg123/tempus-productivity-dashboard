@@ -2344,6 +2344,37 @@
         document.addEventListener('DOMContentLoaded', function() {
             const youtubeManager = new YouTubeManager();
             
+            // Initialize dark mode based on localStorage
+            const themeToggle = document.getElementById('theme-toggle');
+            const darkThemeRadio = document.getElementById('dark-theme');
+            const lightThemeRadio = document.getElementById('light-theme');
+            
+            if (themeToggle) {
+                const darkMode = localStorage.getItem('darkMode');
+                if (darkMode === 'enabled') {
+                    document.body.classList.add('dark-theme');
+                    themeToggle.checked = true;
+                    if (darkThemeRadio) darkThemeRadio.checked = true;
+                } else {
+                    document.body.classList.remove('dark-theme');
+                    themeToggle.checked = false;
+                    if (lightThemeRadio) lightThemeRadio.checked = true;
+                }
+                
+                // Add event listener for dark mode toggle
+                themeToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.body.classList.add('dark-theme');
+                        localStorage.setItem('darkMode', 'enabled');
+                        if (darkThemeRadio) darkThemeRadio.checked = true;
+                    } else {
+                        document.body.classList.remove('dark-theme');
+                        localStorage.setItem('darkMode', 'disabled');
+                        if (lightThemeRadio) lightThemeRadio.checked = true;
+                    }
+                });
+            }
+            
             // Add tab switching functionality
             const tabs = document.querySelectorAll('.main-tab');
             tabs.forEach(tab => {
@@ -2388,7 +2419,6 @@
                     
                     // Apply theme based on selection
                     const themeSelection = document.querySelector('input[name="theme"]:checked').value;
-                    const themeToggle = document.getElementById('theme-toggle');
                     
                     if (themeSelection === 'dark') {
                         themeToggle.checked = true;
@@ -2402,28 +2432,7 @@
                 });
             }
             
-            // Theme sync between settings and toggle
-            const darkThemeRadio = document.getElementById('dark-theme');
-            const lightThemeRadio = document.getElementById('light-theme');
-            const themeToggle = document.getElementById('theme-toggle');
-            
-            if (darkThemeRadio && lightThemeRadio && themeToggle) {
-                // Set initial value based on current theme
-                if (document.body.classList.contains('dark-theme')) {
-                    darkThemeRadio.checked = true;
-                } else {
-                    lightThemeRadio.checked = true;
-                }
-                
-                // Listen for toggle changes
-                themeToggle.addEventListener('change', function() {
-                    if (this.checked) {
-                        darkThemeRadio.checked = true;
-                    } else {
-                        lightThemeRadio.checked = true;
-                    }
-                });
-            }
+            // Theme sync between settings and toggle - handled in the initialization above
         });
   </script>
 </body>
