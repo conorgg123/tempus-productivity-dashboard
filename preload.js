@@ -37,6 +37,13 @@ contextBridge.exposeInMainWorld(
         return global.sharedData.initialData;
       }
       return null;
+    },
+    getBasePath: () => {
+      // Access the base path for static assets
+      if (global.sharedData && global.sharedData.basePath) {
+        return global.sharedData.basePath;
+      }
+      return null;
     }
   }
 );

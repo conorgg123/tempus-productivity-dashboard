@@ -153,6 +153,11 @@ function createWindow() {
       protocol: 'file:',
       slashes: true
     });
+    
+    // Set a base path for proper asset loading
+    global.sharedData.basePath = path.join(__dirname, 'out');
+    console.log('Base path for assets:', global.sharedData.basePath);
+    
     console.log('Running in production mode, loading from:', startUrl);
   }
   
