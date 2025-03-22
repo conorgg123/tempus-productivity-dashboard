@@ -23,6 +23,8 @@ export default function Dashboard() {
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskTime, setNewTaskTime] = useState("");
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [activeView, setActiveView] = useState('day');
+  const [isTracking, setIsTracking] = useState(true);
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -39,6 +41,12 @@ export default function Dashboard() {
         projects: [],
         apps: []
       });
+
+      // Convert totalWorked to string format if it's an object
+      if (typeof data.totalWorked === 'object' && data.totalWorked !== null) {
+        const { hours, minutes } = data.totalWorked;
+        data.totalWorked = `${hours}h ${minutes}m`;
+      }
       
       setDashboardData(data);
     }
@@ -134,6 +142,19 @@ export default function Dashboard() {
     return `${percent}%`;
   };
 
+  // Get the current time in hours:minutes format
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  // Function to toggle tracking status
+  const toggleTracking = () => {
+    setIsTracking(!isTracking);
+  }
+
   return (
     <Layout>
       <Head>
@@ -147,6 +168,40 @@ export default function Dashboard() {
             <p>Today's overview: {dashboardData.date}</p>
           </div>
           <div className={styles.headerActions}>
+            <div className={styles.viewToggle}>
+              <button 
+                className={`${styles.viewBtn} ${activeView === 'day' ? styles.active : ''}`}
+                onClick={() => setActiveView('day')}
+              >
+                Day
+              </button>
+              <button 
+                className={`${styles.viewBtn} ${activeView === 'week' ? styles.active : ''}`}
+                onClick={() => setActiveView('week')}
+              >
+                Week
+              </button>
+              <button 
+                className={`${styles.viewBtn} ${activeView === 'month' ? styles.active : ''}`}
+                onClick={() => setActiveView('month')}
+              >
+                Month
+              </button>
+            </div>
+            <button 
+              className={styles.todayBtn}
+            >
+              Today
+            </button>
+            <button 
+              className={`${styles.trackingBtn} ${isTracking ? styles.active : ''}`}
+              onClick={toggleTracking}
+            >
+              <span className="material-icons">
+                {isTracking ? 'fiber_manual_record' : 'play_arrow'}
+              </span>
+              {isTracking ? 'Active' : 'Start tracking'}
+            </button>
             <button 
               className={styles.addTaskBtn}
               onClick={() => setShowAddTaskModal(true)}
@@ -155,74 +210,226 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
-        
-        <div className={styles.statsContainer}>
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <span className="material-icons">timer</span>
+
+        <div className={styles.dashboardContent}>
+          <div className={styles.leftColumn}>
+            <div className={styles.timelineSection}>
+              <h3>Timeline</h3>
+              <div className={styles.timelineContainer}>
+                <div className={styles.timeScaleContainer}>
+                  {Array.from({ length: 12 }).map((_, idx) => (
+                    <div key={idx} className={styles.timeScaleMark}>
+                      <span>{(idx + 9) % 24}:00</span>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.timelineMain}>
+                  <div className={styles.currentTimeLine} style={{ left: '60%' }}>
+                    <div className={styles.currentTimeMarker}>{getCurrentTime()}</div>
+                  </div>
+                  <div className={styles.timelineEvent} style={{ left: '25%', width: '15%', backgroundColor: '#4CAF50' }}>
+                    <span>Coding</span>
+                  </div>
+                  <div className={styles.timelineEvent} style={{ left: '43%', width: '12%', backgroundColor: '#9C27B0' }}>
+                    <span>Meeting</span>
+                  </div>
+                  <div className={styles.timelineEvent} style={{ left: '65%', width: '20%', backgroundColor: '#2196F3' }}>
+                    <span>Design</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className={styles.statInfo}>
-              <h3>Time Worked</h3>
-              <p className={styles.statValue}>{dashboardData.totalWorked}</p>
-            </div>
-          </div>
           
-          <div className={styles.statCard}>
-            <div className={styles.statIcon}>
-              <span className="material-icons">pie_chart</span>
-            </div>
-            <div className={styles.statInfo}>
-              <h3>Percent of Day</h3>
-              <p className={styles.statValue}>{formatPercent(dashboardData.percentOfDay)}</p>
-              <div className={styles.progressBar}>
-                <div 
-                  className={styles.progressFill} 
-                  style={{ width: formatPercent(dashboardData.percentOfDay) }}
-                ></div>
+            <div className={styles.projectsSection}>
+              <div className={styles.sectionHeader}>
+                <h3>Projects & tasks</h3>
+                <button className={styles.moreActionsBtn}>
+                  <span className="material-icons">more_horiz</span>
+                </button>
+              </div>
+              <div className={styles.projectsList}>
+                <div className={styles.projectItem}>
+                  <div className={styles.projectDetails}>
+                    <div className={styles.projectIcon} style={{ backgroundColor: '#9C27B0' }}>
+                      <span className="material-icons">code</span>
+                    </div>
+                    <div className={styles.projectInfo}>
+                      <span className={styles.projectName}>Finwall app</span>
+                      <div className={styles.projectProgressBar}>
+                        <div className={styles.projectProgressFill} style={{ width: '49%' }}></div>
+                      </div>
+                    </div>
+                    <span className={styles.projectPercentage}>49%</span>
+                  </div>
+                  <div className={styles.projectTasks}>
+                    <div className={styles.projectTask}>
+                      <div className={styles.taskCheckbox}>✓</div>
+                      <span className={styles.taskName}>DS42 - Settings section</span>
+                      <span className={styles.taskTime}>55 min</span>
+                    </div>
+                    <div className={styles.projectTask}>
+                      <div className={styles.taskCheckbox}></div>
+                      <span className={styles.taskName}>DS12 - Dark version</span>
+                      <span className={styles.taskTime}>1 hr 51 min</span>
+                    </div>
+                    <div className={styles.projectTask}>
+                      <div className={styles.taskCheckbox}></div>
+                      <span className={styles.taskName}>System update</span>
+                      <span className={styles.taskTime}>40 min</span>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.projectItem}>
+                  <div className={styles.projectDetails}>
+                    <div className={styles.projectIcon} style={{ backgroundColor: '#4CAF50' }}>
+                      <span className="material-icons">folder</span>
+                    </div>
+                    <div className={styles.projectInfo}>
+                      <span className={styles.projectName}>Finwall web</span>
+                      <div className={styles.projectProgressBar}>
+                        <div className={styles.projectProgressFill} style={{ width: '32%' }}></div>
+                      </div>
+                    </div>
+                    <span className={styles.projectPercentage}>32%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className={styles.timeBreakdownSection}>
-          <div className={styles.sectionHeader}>
-            <h3>Time Breakdown</h3>
-          </div>
           
-          <div className={styles.timeBreakdownContainer}>
-            {Array.isArray(dashboardData.taskBreakdown) 
-              ? dashboardData.taskBreakdown.map((task, index) => (
-                <div key={index} className={styles.taskRow}>
-                  <div className={styles.taskDetails}>
-                    <span className={styles.taskName}>{task.name}</span>
-                    <span className={styles.taskTime}>{task.time}</span>
-                  </div>
-                  <div className={styles.taskProgressContainer}>
-                    <div 
-                      className={styles.taskProgress} 
-                      style={{ width: formatPercent(task.percent) }}
-                    ></div>
-                  </div>
-                  <div className={styles.taskActions}>
-                    <button 
-                      className={styles.deleteTaskBtn}
-                      onClick={() => handleDeleteTask(index)}
-                    >
-                      <span className="material-icons">delete</span>
-                    </button>
+          <div className={styles.rightColumn}>
+            <div className={styles.dailySummarySection}>
+              <h3>Daily Summary</h3>
+              
+              <div className={styles.summaryInfo}>
+                <div className={styles.summaryHighlight}>
+                  <span className={styles.summaryIcon}>⚡</span>
+                  <p>
+                    Today you had <strong>20%</strong> more meetings than usual, you closed <strong>2 tasks</strong> on two projects, but the focus was <strong>12%</strong> lower than yesterday.
+                  </p>
+                </div>
+              </div>
+              
+              <div className={styles.summaryStats}>
+                <div className={styles.statItem}>
+                  <h4>Total time worked</h4>
+                  <div className={styles.statValue}>
+                    <span className={styles.bigNumber}>
+                      {dashboardData.totalWorked.split(' ')[0]}
+                    </span>
+                    <span className={styles.timeUnit}>
+                      hr {dashboardData.totalWorked.split(' ')[1]}
+                    </span>
                   </div>
                 </div>
-              ))
-              : <div className={styles.emptyState}>
-                  <p>No time entries yet. Add your first task to start tracking your productivity!</p>
+                
+                <div className={styles.statItem}>
+                  <h4>Percent of work day</h4>
+                  <div className={styles.circularProgress}>
+                    <div className={styles.progressCircle} style={{ 
+                      background: `conic-gradient(var(--primary-color) ${dashboardData.percentOfDay * 3.6}deg, var(--progress-bg) 0deg)`
+                    }}>
+                      <div className={styles.progressInner}>
+                        <span>{dashboardData.percentOfDay}%</span>
+                        <small>of 8 hr 0 min</small>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-            }
+              </div>
+              
+              <div className={styles.activityBreakdown}>
+                <div className={styles.breakdownItem}>
+                  <div className={styles.breakdownProgress} style={{ backgroundColor: '#9C27B0', width: '62%' }}></div>
+                  <span className={styles.breakdownPercent}>62%</span>
+                  <span className={styles.breakdownLabel}>Focus</span>
+                </div>
+                <div className={styles.breakdownItem}>
+                  <div className={styles.breakdownProgress} style={{ backgroundColor: '#2196F3', width: '15%' }}></div>
+                  <span className={styles.breakdownPercent}>15%</span>
+                  <span className={styles.breakdownLabel}>Meetings</span>
+                </div>
+                <div className={styles.breakdownItem}>
+                  <div className={styles.breakdownProgress} style={{ backgroundColor: '#4CAF50', width: '11%' }}></div>
+                  <span className={styles.breakdownPercent}>11%</span>
+                  <span className={styles.breakdownLabel}>Breaks</span>
+                </div>
+                <div className={styles.breakdownItem}>
+                  <div className={styles.breakdownProgress} style={{ backgroundColor: '#FF9800', width: '12%' }}></div>
+                  <span className={styles.breakdownPercent}>12%</span>
+                  <span className={styles.breakdownLabel}>Other</span>
+                </div>
+              </div>
+            </div>
             
-            {Array.isArray(dashboardData.taskBreakdown) && dashboardData.taskBreakdown.length === 0 && (
-              <div className={styles.emptyState}>
-                <p>No time entries yet. Add your first task to start tracking your productivity!</p>
+            <div className={styles.appsSection}>
+              <div className={styles.sectionHeader}>
+                <h3>Apps & Websites</h3>
+                <button className={styles.moreActionsBtn}>
+                  <span className="material-icons">more_horiz</span>
+                </button>
               </div>
-            )}
+              
+              <div className={styles.appsList}>
+                <div className={styles.appItem}>
+                  <div className={styles.appPercent}>47%</div>
+                  <div className={styles.appInfo}>
+                    <div className={styles.appName}>Figma</div>
+                    <div className={styles.appProgressBar}>
+                      <div className={styles.appProgressFill} style={{ width: '47%' }}></div>
+                    </div>
+                  </div>
+                  <div className={styles.appTime}>2 hr 58 min</div>
+                </div>
+                
+                <div className={styles.appItem}>
+                  <div className={styles.appPercent}>12%</div>
+                  <div className={styles.appInfo}>
+                    <div className={styles.appName}>Adobe Photoshop</div>
+                    <div className={styles.appProgressBar}>
+                      <div className={styles.appProgressFill} style={{ width: '12%' }}></div>
+                    </div>
+                  </div>
+                  <div className={styles.appTime}>46 min</div>
+                </div>
+                
+                <div className={styles.appItem}>
+                  <div className={styles.appPercent}>12%</div>
+                  <div className={styles.appInfo}>
+                    <div className={styles.appName}>zoom.us</div>
+                    <div className={styles.appProgressBar}>
+                      <div className={styles.appProgressFill} style={{ width: '12%' }}></div>
+                    </div>
+                  </div>
+                  <div className={styles.appTime}>45 min</div>
+                </div>
+                
+                <div className={styles.categorySection}>
+                  <h4>Top categories</h4>
+                  <div className={styles.categoryItem}>
+                    <div className={styles.categoryPercent}>59%</div>
+                    <div className={styles.categoryInfo}>
+                      <div className={styles.categoryName}>Design</div>
+                      <div className={styles.categoryProgressBar}>
+                        <div className={styles.categoryProgressFill} style={{ width: '59%' }}></div>
+                      </div>
+                    </div>
+                    <div className={styles.categoryTime}>3 hr 44 min</div>
+                  </div>
+                  
+                  <div className={styles.categoryItem}>
+                    <div className={styles.categoryPercent}>12%</div>
+                    <div className={styles.categoryInfo}>
+                      <div className={styles.categoryName}>Video Conference</div>
+                      <div className={styles.categoryProgressBar}>
+                        <div className={styles.categoryProgressFill} style={{ width: '12%' }}></div>
+                      </div>
+                    </div>
+                    <div className={styles.categoryTime}>45 min</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
