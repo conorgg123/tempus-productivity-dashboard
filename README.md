@@ -20,9 +20,13 @@ A modern desktop application built with Electron and a clean, professional UI th
 
 ### Calendar
 - Modern calendar with week, day, and month views
-- Visual timeline for scheduling with elegant design
-- Color-coded event cards for different activity types
-- Create and edit events with intuitive controls
+- Professional UI with clear date navigation and view toggles
+- Color-coded event cards for different activity types (meetings, design, focus sessions)
+- Detailed event information including attendees and locations
+- Interactive event management with modal dialog for event details
+- Proper handling of overlapping events with intelligent positioning
+- Week view with full day names and day numbers
+- Time slots from 6am to 1pm for productive day planning
 
 ### YouTube Link Manager
 - Save and organize YouTube links with thumbnails
@@ -47,6 +51,18 @@ A modern desktop application built with Electron and a clean, professional UI th
 - **Quick Actions**: Access common actions like edit, delete, or mark complete through convenient action buttons
 - **Deadline Management**: Set and track task deadlines with visual indicators for approaching due dates
 - **Progress History**: View historical data on task completion patterns and productivity trends
+
+### Timer
+- Track time spent on specific tasks or projects
+- Start, pause, and reset functionality
+- Visual time display with hours, minutes, and seconds
+- Activity history for reviewing time usage
+
+### Activity History
+- Review past productivity sessions
+- Weekly activity summary with visual charts
+- Track patterns in your productivity over time
+- Filter history by activity type or date range
 
 ### Settings & Personalization
 - Toggle between light and dark mode
@@ -107,10 +123,13 @@ npm run dist
 
 ### Calendar
 1. Navigate to the Calendar section from the sidebar
-2. Toggle between Day, Week, and Month views
-3. Click on a time slot to add a new event
-4. Color-code events by category (Focus, Meeting, Break, etc.)
-5. Drag events to reschedule (in Week/Day views)
+2. Toggle between Day, Week, and Month views using the view buttons
+3. Navigate between dates using the arrow buttons or "Today" button
+4. View events color-coded by type (blue for design, orange for meetings, purple for focus sessions)
+5. Click on an event to view detailed information including time, location, and attendees
+6. Add new events using the floating "+" button
+7. Edit or delete events through the event details modal
+8. See overlapping events properly displayed side by side
 
 ### YouTube Manager
 1. Add YouTube URLs to save for later viewing
@@ -118,11 +137,24 @@ npm run dist
 3. Search and filter your video collection
 4. Click thumbnails to open videos in your browser
 
-### Tasks
+### Projects & Tasks
 1. Create new tasks with the "New Task" button
 2. Assign tasks to projects and set deadlines
 3. Track progress with the visual indicators
 4. Mark tasks complete by clicking checkboxes
+5. Filter tasks by project, priority, or completion status
+
+### Timer
+1. Start the timer to track time spent on activities
+2. Pause when taking breaks or switching tasks
+3. Reset the timer for new activities
+4. View your current session time in a clear, readable format
+
+### Activity History
+1. Browse through your past productivity sessions
+2. See a weekly summary of your activities
+3. Analyze patterns in your work habits
+4. Filter history by activity type or time period
 
 ### Settings
 1. Toggle dark mode on/off
@@ -137,7 +169,11 @@ tempus-productivity-dashboard/
 ├── out/                  # Production output files
 │   ├── index.html        # Main dashboard page
 │   ├── calendar.html     # Calendar interface
+│   ├── projects-tasks.html # Projects & tasks manager
+│   ├── timer.html        # Time tracking feature
+│   ├── history.html      # Activity history
 │   ├── youtube-manager.html # YouTube manager
+│   ├── help.html         # Help & support
 │   ├── settings.html     # Settings page
 │   └── production-fix.css # Styles for production
 ├── src/                  # Source code
@@ -167,14 +203,22 @@ This loads the optimized build from the `out` directory.
 1. **White screen on startup**
    - Ensure all HTML files are correctly copied to the temp directory
    - Check console for any loading errors
+   - Verify that main.js is properly copying all required files
 
 2. **Page navigation not working**
    - Verify that HTML files are accessible in the temp directory
    - Check for correct relative paths in the HTML href attributes
+   - Confirm that all sidebar links point to existing HTML files
 
 3. **Dark mode not applying**
    - Make sure the CSS variables are properly loaded
    - Check that the toggle is correctly updating the theme class
+   - Verify that the production-fix.css file contains all necessary style rules
+
+4. **Cache errors in console**
+   - These are common Electron cache errors that don't affect functionality
+   - They typically happen when multiple instances of Electron are running
+   - You can safely ignore "Unable to create cache" and "Access is denied" messages
 
 ## License
 
