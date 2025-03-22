@@ -105,7 +105,35 @@ function loadData() {
             added_on: new Date().toISOString()
           }
         ],
-        youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment", "Music", "Coding", "Speech Tips"]
+        youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment", "Music", "Coding", "Speech Tips"],
+        calendarEvents: [
+          {
+            id: '1',
+            title: 'Team Meeting',
+            date: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 10, 0).toISOString(),
+            endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 11, 30).toISOString(),
+            type: 'meeting',
+            description: 'Weekly team sync'
+          },
+          {
+            id: '2',
+            title: 'Design Sprint',
+            date: new Date(new Date().getFullYear(), new Date().getMonth(), 18, 9, 0).toISOString(),
+            endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 18, 17, 0).toISOString(),
+            type: 'design',
+            description: 'Design new features'
+          }
+        ],
+        settings: {
+          darkMode: false,
+          accentColor: '#6366f1',
+          notifications: true,
+          soundEffects: false,
+          calendarView: 'month',
+          weekStart: '0',
+          displayName: 'John Doe',
+          email: 'john@example.com'
+        }
       };
       fs.writeFileSync(dataFilePath, JSON.stringify(initialData));
       return initialData;
@@ -123,7 +151,16 @@ function loadData() {
       categories: [],
       timelineBlocks: [],
       youtubeLinks: [],
-      youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment"]
+      youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment"],
+      calendarEvents: [],
+      settings: {
+        darkMode: false,
+        accentColor: '#6366f1',
+        notifications: true,
+        soundEffects: false,
+        calendarView: 'month',
+        weekStart: '0'
+      }
     };
   }
 }
@@ -1376,6 +1413,165 @@ ipcMain.on('save-youtube-category', (event, category) => {
   } catch (error) {
     console.error('Error saving YouTube category:', error);
     event.reply('youtube-category-saved', { success: false, error: error.message });
+  }
+});
+
+// Calendar events handlers
+ipcMain.on('get-calendar-events', (event) => {
+  try {
+    const data = loadData();
+    event.reply('calendar-events', data.calendarEvents || []);
+  } catch (error) {
+    console.error('Error getting calendar events:', error);
+    event.reply('calendar-events', []);
+  }
+});
+
+ipcMain.on('save-calendar-events', (event, events) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Update calendar events
+    data.calendarEvents = events;
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('calendar-events-saved', { success: true });
+  } catch (error) {
+    console.error('Error saving calendar events:', error);
+    event.reply('calendar-events-saved', { success: false, error: error.message });
+  }
+});
+
+ipcMain.on('add-calendar-event', (event, eventData) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Ensure the calendarEvents array exists
+    if (!data.calendarEvents) {
+      data.calendarEvents = [];
+    }
+    
+    // Add the new event with an ID if it doesn't have one
+    const newEvent = {
+      ...eventData,
+      id: eventData.id || Date.now().toString() // Use provided ID or generate a new one
+    };
+    
+    data.calendarEvents.push(newEvent);
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result with the new event
+    event.reply('calendar-event-added', { success: true, event: newEvent });
+  } catch (error) {
+    console.error('Error adding calendar event:', error);
+    event.reply('calendar-event-added', { success: false, error: error.message });
+  }
+});
+
+ipcMain.on('update-calendar-event', (event, { id, data: eventData }) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Check if calendarEvents exists
+    if (!data.calendarEvents) {
+      event.reply('calendar-event-updated', { success: false, error: 'No calendar events found' });
+      return;
+    }
+    
+    // Find the index of the event to update
+    const index = data.calendarEvents.findIndex(event => event.id === id);
+    
+    if (index === -1) {
+      event.reply('calendar-event-updated', { success: false, error: 'Event not found' });
+      return;
+    }
+    
+    // Update the event
+    data.calendarEvents[index] = {
+      ...data.calendarEvents[index],
+      ...eventData,
+      id // Ensure ID remains the same
+    };
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('calendar-event-updated', { success: true, event: data.calendarEvents[index] });
+  } catch (error) {
+    console.error('Error updating calendar event:', error);
+    event.reply('calendar-event-updated', { success: false, error: error.message });
+  }
+});
+
+ipcMain.on('delete-calendar-event', (event, eventId) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Check if calendarEvents exists
+    if (!data.calendarEvents) {
+      event.reply('calendar-event-deleted', { success: false, error: 'No calendar events found' });
+      return;
+    }
+    
+    // Find the index of the event to delete
+    const index = data.calendarEvents.findIndex(event => event.id === eventId);
+    
+    if (index === -1) {
+      event.reply('calendar-event-deleted', { success: false, error: 'Event not found' });
+      return;
+    }
+    
+    // Remove the event
+    data.calendarEvents.splice(index, 1);
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('calendar-event-deleted', { success: true });
+  } catch (error) {
+    console.error('Error deleting calendar event:', error);
+    event.reply('calendar-event-deleted', { success: false, error: error.message });
+  }
+});
+
+// Settings handlers
+ipcMain.on('get-settings', (event) => {
+  try {
+    const data = loadData();
+    event.reply('settings', data.settings || {});
+  } catch (error) {
+    console.error('Error getting settings:', error);
+    event.reply('settings', {});
+  }
+});
+
+ipcMain.on('save-settings', (event, settings) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Update settings
+    data.settings = settings;
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('settings-saved', { success: true });
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    event.reply('settings-saved', { success: false, error: error.message });
   }
 });
 
