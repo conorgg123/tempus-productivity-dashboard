@@ -45,7 +45,7 @@ export default function TodoList() {
   const [newProjectColor, setNewProjectColor] = useState('#7646f4');
 
   useEffect(() => {
-    async function loadData() {
+    async function loadInitialData() {
       const todosData = await loadData('todos', []);
       setTodos(todosData);
       
@@ -62,7 +62,7 @@ export default function TodoList() {
       }
     }
     
-    loadData();
+    loadInitialData();
   }, []);
 
   useEffect(() => {
