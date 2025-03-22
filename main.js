@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
+const os = require('os');
 
 // Global reference
 let mainWindow;
@@ -141,24 +142,206 @@ function createWindow() {
     // In development mode, try to connect to the Next.js server
     startUrl = 'http://localhost:3005';
     console.log('Running in development mode, connecting to Next.js server at:', startUrl);
+    mainWindow.loadURL(startUrl);
   } else {
-    // In production mode, load directly from the filesystem
-    const indexPath = path.resolve(__dirname, 'out/index.html');
-    console.log('Looking for index.html at:', indexPath);
-    console.log('Current directory:', __dirname);
-    console.log('File exists:', fs.existsSync(indexPath));
+    // In production mode, create a basic HTML page that loads our app
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Tempus Productivity</title>
+        <style>
+          body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: #f5f5f5;
+          }
+          .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+          }
+          .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+          }
+          .main-content {
+            display: flex;
+            flex: 1;
+          }
+          .content-area {
+            flex: 1;
+            padding: 20px;
+          }
+          h1, h2 {
+            margin-top: 0;
+          }
+          .loading-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+          }
+          .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="dashboard-container">
+          <div class="main-content">
+            <div class="sidebar">
+              <h2>Tempus</h2>
+              <nav>
+                <ul style="list-style: none; padding: 0;">
+                  <li style="margin-bottom: 10px;"><a href="#" style="color: white; text-decoration: none;">Dashboard</a></li>
+                  <li style="margin-bottom: 10px;"><a href="#" style="color: white; text-decoration: none;">Calendar</a></li>
+                  <li style="margin-bottom: 10px;"><a href="#" style="color: white; text-decoration: none;">Daily Focus</a></li>
+                  <li style="margin-bottom: 10px;"><a href="#" style="color: white; text-decoration: none;">Todo List</a></li>
+                  <li style="margin-bottom: 10px;"><a href="#" style="color: white; text-decoration: none;">YouTube Manager</a></li>
+                </ul>
+              </nav>
+            </div>
+            <div class="content-area">
+              <h1>Your Productivity Dashboard</h1>
+              <p>Today's overview: <span id="current-date"></span></p>
+              
+              <div id="projects-container">
+                <h2>Projects & Tasks</h2>
+                <div id="projects-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          document.getElementById('current-date').textContent = new Date().toLocaleDateString();
+          
+          // Load data from the Electron API
+          window.addEventListener('DOMContentLoaded', () => {
+            if (window.api && window.api.getPersonalData) {
+              const data = window.api.getPersonalData();
+              if (data) {
+                renderDashboard(data);
+              }
+            }
+          });
+          
+          function renderDashboard(data) {
+            const projectsList = document.getElementById('projects-list');
+            projectsList.innerHTML = '';
+            
+            if (data.projects && data.projects.length > 0) {
+              data.projects.forEach(project => {
+                const projectElement = document.createElement('div');
+                projectElement.style.backgroundColor = '#fff';
+                projectElement.style.padding = '15px';
+                projectElement.style.borderRadius = '8px';
+                projectElement.style.marginBottom = '15px';
+                projectElement.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                
+                const projectHeader = document.createElement('div');
+                projectHeader.style.display = 'flex';
+                projectHeader.style.justifyContent = 'space-between';
+                projectHeader.style.marginBottom = '10px';
+                
+                const projectName = document.createElement('h3');
+                projectName.textContent = project.name;
+                projectName.style.margin = '0';
+                
+                const projectTime = document.createElement('span');
+                projectTime.textContent = project.time;
+                
+                projectHeader.appendChild(projectName);
+                projectHeader.appendChild(projectTime);
+                
+                const progressBar = document.createElement('div');
+                progressBar.style.height = '6px';
+                progressBar.style.backgroundColor = '#f0f0f0';
+                progressBar.style.borderRadius = '3px';
+                progressBar.style.overflow = 'hidden';
+                progressBar.style.marginBottom = '10px';
+                
+                const progressFill = document.createElement('div');
+                progressFill.style.height = '100%';
+                progressFill.style.width = project.percent + '%';
+                progressFill.style.backgroundColor = '#4a6efa';
+                
+                progressBar.appendChild(progressFill);
+                
+                projectElement.appendChild(projectHeader);
+                projectElement.appendChild(progressBar);
+                
+                // Add tasks if available
+                if (project.tasks && project.tasks.length > 0) {
+                  const tasksList = document.createElement('div');
+                  tasksList.style.borderTop = '1px solid #f0f0f0';
+                  tasksList.style.paddingTop = '10px';
+                  
+                  project.tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.style.display = 'flex';
+                    taskItem.style.justifyContent = 'space-between';
+                    taskItem.style.marginBottom = '8px';
+                    
+                    const taskName = document.createElement('div');
+                    taskName.textContent = task.name;
+                    
+                    const taskTime = document.createElement('div');
+                    taskTime.textContent = task.time;
+                    taskTime.style.color = '#666';
+                    
+                    taskItem.appendChild(taskName);
+                    taskItem.appendChild(taskTime);
+                    
+                    tasksList.appendChild(taskItem);
+                  });
+                  
+                  projectElement.appendChild(tasksList);
+                }
+                
+                projectsList.appendChild(projectElement);
+              });
+            } else {
+              projectsList.innerHTML = '<p>No projects available.</p>';
+            }
+          }
+        </script>
+      </body>
+      </html>
+    `;
     
-    startUrl = url.format({
-      pathname: indexPath,
+    const tempPath = path.join(os.tmpdir(), 'tempus-productivity.html');
+    fs.writeFileSync(tempPath, htmlContent);
+    
+    const fileUrl = url.format({
+      pathname: tempPath,
       protocol: 'file:',
       slashes: true
     });
     
-    // Set a base path for proper asset loading
-    global.sharedData.basePath = path.join(__dirname, 'out');
-    console.log('Base path for assets:', global.sharedData.basePath);
+    console.log('Running in production mode with temporary HTML file');
+    console.log('Loading from:', fileUrl);
     
-    console.log('Running in production mode, loading from:', startUrl);
+    mainWindow.loadURL(fileUrl);
   }
   
   // Register error handler for page load failures
@@ -166,8 +349,6 @@ function createWindow() {
     console.error('Failed to load:', errorCode, errorDescription);
   });
   
-  mainWindow.loadURL(startUrl);
-
   // Open DevTools in development mode
   if (isDev) {
     mainWindow.webContents.openDevTools();
