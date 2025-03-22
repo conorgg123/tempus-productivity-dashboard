@@ -1,0 +1,300 @@
+/* YouTube Manager styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.headerTitle h2 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.headerTitle p {
+  color: #666;
+}
+
+.headerControls {
+  display: flex;
+}
+
+.searchInput {
+  padding: 10px 15px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 250px;
+}
+
+.youtubeContainer {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.youtubeControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.categoryFilter {
+  display: flex;
+  align-items: center;
+}
+
+.categoryFilter span {
+  margin-right: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.select {
+  padding: 8px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: #fff;
+}
+
+.actionBtn {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #333;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.actionBtn:hover {
+  background-color: #e0e0e0;
+}
+
+.youtubeForm {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.youtubeForm h3 {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.formRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.formInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.primaryBtn {
+  background-color: #7646f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.primaryBtn:hover {
+  background-color: #6535e4;
+}
+
+.youtubeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.youtubeCard {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.youtubeCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.youtubeThumbnail {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+}
+
+.youtubeThumbnail img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.youtubePlayBtn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtubePlayBtn:before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 15px solid white;
+  margin-left: 5px;
+}
+
+.youtubeInfo {
+  padding: 15px;
+}
+
+.youtubeTitle {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.8em;
+}
+
+.youtubeMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.youtubeCategory {
+  display: inline-block;
+  background-color: #f0eaff;
+  color: #7646f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-bottom: 15px;
+}
+
+.youtubeActions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.youtubeBtn {
+  padding: 6px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #333;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.youtubeBtn:hover {
+  background-color: #f5f5f5;
+}
+
+.youtubeEmpty {
+  text-align: center;
+  padding: 50px 0;
+  color: #666;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px;
+  border-top: 1px solid #e5e5e5;
+  gap: 10px;
+} 
