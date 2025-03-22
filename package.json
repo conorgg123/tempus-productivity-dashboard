@@ -1,55 +1,58 @@
 {
-  "name": "tempus-productivity-dashboard",
-  "version": "0.1.0",
-  "private": true,
+  "name": "tempus-productivity",
+  "productName": "Tempus Productivity",
+  "version": "1.0.0",
   "main": "main.js",
+  "private": true,
   "scripts": {
     "dev": "concurrently \"npm run next:dev\" \"npm run electron:dev\"",
     "next:dev": "next dev",
     "electron:dev": "wait-on http://localhost:3000 && electron .",
-    "build": "next build && next export",
+    "build": "next build && next export -o out",
     "start": "next start",
     "lint": "next lint",
     "electron": "electron .",
-    "package": "electron-builder",
+    "package": "electron-builder build --publish never",
     "dist": "npm run build && npm run package"
   },
   "dependencies": {
     "electron-is-dev": "^2.0.0",
-    "next": "13.4.19",
+    "next": "13.4.12",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.4.19",
-    "wait-on": "^7.2.0"
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "electron": "^25.3.1",
+    "electron-builder": "^24.6.3",
+    "eslint": "^8.46.0",
+    "eslint-config-next": "13.4.12",
+    "wait-on": "^7.0.1"
   },
   "build": {
     "appId": "com.tempus.productivity",
-    "productName": "Tempus Productivity Dashboard",
+    "productName": "Tempus Productivity",
     "files": [
       "out/**/*",
       "main.js",
-      "public/**/*"
+      "preload.js",
+      "node_modules/**/*"
     ],
     "directories": {
-      "buildResources": "public"
+      "output": "dist"
     },
     "win": {
       "target": "nsis",
-      "icon": "public/favicon.ico"
+      "icon": "public/icons/win/icon.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "public/favicon.ico"
+      "icon": "public/icons/mac/icon.icns"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "public/favicon.ico"
+      "icon": "public/icons/png/512x512.png"
     }
   }
 }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="Tempus Productivity Dashboard - An Electron-based productivity application">
+  <title>Tempus Productivity</title>
+  
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <style>
+    /* Loading styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    .loading-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      background: #7646f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      animation: pulse 1.5s infinite;
+    }
+    
+    .loading-logo::after {
+      content: 'T';
+      font-size: 70px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .loading-text {
+      font-size: 18px;
+      color: #666;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(118, 70, 244, 0.7);
+      }
+      
+      70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(118, 70, 244, 0);
+      }
+      
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(118, 70, 244, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-container">
+    <div class="loading-logo"></div>
+    <p class="loading-text">Loading Tempus Productivity...</p>
+  </div>
+  
+  <script>
+    // This script is used to redirect to the Next.js app when it's ready
+    window.location.href = './main.html';
+  </script>
+</body>
+</html> 
