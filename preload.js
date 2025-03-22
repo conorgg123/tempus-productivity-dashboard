@@ -44,6 +44,47 @@ contextBridge.exposeInMainWorld(
         return global.sharedData.basePath;
       }
       return null;
+    },
+    // Add YouTube manager API methods
+    saveYouTubeLink: (link) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('youtube-link-saved', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('save-youtube-link', link);
+      });
+    },
+    getYouTubeLinks: () => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('youtube-links', (event, links) => {
+          resolve(links);
+        });
+        ipcRenderer.send('get-youtube-links');
+      });
+    },
+    deleteYouTubeLink: (linkId) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('youtube-link-deleted', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('delete-youtube-link', linkId);
+      });
+    },
+    getYouTubeCategories: () => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('youtube-categories', (event, categories) => {
+          resolve(categories);
+        });
+        ipcRenderer.send('get-youtube-categories');
+      });
+    },
+    saveYouTubeCategory: (category) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('youtube-category-saved', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('save-youtube-category', category);
+      });
     }
   }
 );

@@ -88,7 +88,24 @@ function loadData() {
         projects: [],
         apps: [],
         categories: [],
-        timelineBlocks: []
+        timelineBlocks: [],
+        youtubeLinks: [
+          {
+            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            title: 'Introduction to Productivity Systems',
+            category: 'Educational',
+            duration: '12:30',
+            added_on: new Date().toISOString()
+          },
+          {
+            link: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+            title: 'Time Management Tips',
+            category: 'Educational',
+            duration: '8:45',
+            added_on: new Date().toISOString()
+          }
+        ],
+        youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment", "Music", "Coding", "Speech Tips"]
       };
       fs.writeFileSync(dataFilePath, JSON.stringify(initialData));
       return initialData;
@@ -104,7 +121,9 @@ function loadData() {
       projects: [],
       apps: [],
       categories: [],
-      timelineBlocks: []
+      timelineBlocks: [],
+      youtubeLinks: [],
+      youtubeCategories: ["All", "Watch Later", "Educational", "Entertainment"]
     };
   }
 }
@@ -785,7 +804,7 @@ function createWindow() {
             
             <div class="nav-section">
               <div class="nav-section-title">Resources</div>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="youtube-manager.html">
                 <span class="material-icons nav-icon">video_library</span>
                 <span>YouTube Manager</span>
               </a>
@@ -1122,6 +1141,60 @@ function createWindow() {
             } else {
               appsList.innerHTML = '<p style="padding: 16px; text-align: center;">No app data available.</p>';
             }
+            
+            // Render YouTube videos
+            const youtubeContainer = document.getElementById('youtube-videos');
+            if (youtubeContainer) {
+              const youtubeGrid = document.createElement('div');
+              youtubeGrid.className = 'youtube-grid';
+              
+              if (data.youtubeLinks && data.youtubeLinks.length > 0) {
+                // Display up to 4 most recent YouTube videos
+                const recentVideos = data.youtubeLinks.slice(0, 4);
+                
+                recentVideos.forEach(video => {
+                  const videoId = extractYouTubeVideoId(video.link);
+                  if (!videoId) return;
+                  
+                  const thumbnailUrl = "https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg";
+                  
+                  const videoCard = document.createElement('div');
+                  videoCard.className = 'youtube-card';
+                  
+                  videoCard.innerHTML = 
+                    '<div class="youtube-thumbnail">' +
+                    '<img src="' + thumbnailUrl + '" alt="' + video.title + '">' +
+                    '<div class="youtube-play-btn"></div>' +
+                    '</div>' +
+                    '<div class="youtube-info">' +
+                    '<h4 class="youtube-title">' + video.title + '</h4>' +
+                    '<div class="youtube-meta">' +
+                    '<span>' + (video.category || 'Uncategorized') + '</span>' +
+                    '<span>' + (video.duration || '--:--') + '</span>' +
+                    '</div>' +
+                    '<div class="youtube-actions">' +
+                    '<button class="youtube-btn" onclick="window.open(\'' + video.link + '\', \'_blank\')">Open</button>' +
+                    '</div>' +
+                    '</div>';
+                  
+                  youtubeGrid.appendChild(videoCard);
+                });
+                
+                // Clear the container first
+                youtubeContainer.innerHTML = '';
+                youtubeContainer.appendChild(youtubeGrid);
+              } else {
+                youtubeContainer.innerHTML = '<p style="padding: 16px; text-align: center;">No YouTube videos saved yet.</p>';
+              }
+            }
+          }
+          
+          // Helper function to extract YouTube video ID
+          function extractYouTubeVideoId(url) {
+            if (!url) return null;
+            const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/)([^#&?]*).*/;
+            const match = url.match(regex);
+            return (match && match[2].length === 11) ? match[2] : null;
           }
         </script>
       </body>
@@ -1189,6 +1262,120 @@ ipcMain.on('load-from-file', (event, filename) => {
   } catch (error) {
     console.error('Error loading file:', error);
     event.reply('load-file-reply', null);
+  }
+});
+
+// Add IPC handlers for YouTube manager
+ipcMain.on('save-youtube-link', (event, link) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Ensure the youtubeLinks array exists
+    if (!data.youtubeLinks) {
+      data.youtubeLinks = [];
+    }
+    
+    // Add the new link with an ID
+    const newLink = {
+      ...link,
+      id: Date.now().toString(), // Simple unique ID
+      added_on: new Date().toISOString()
+    };
+    
+    data.youtubeLinks.push(newLink);
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result with the new link
+    event.reply('youtube-link-saved', { success: true, link: newLink });
+  } catch (error) {
+    console.error('Error saving YouTube link:', error);
+    event.reply('youtube-link-saved', { success: false, error: error.message });
+  }
+});
+
+ipcMain.on('get-youtube-links', (event) => {
+  try {
+    const data = loadData();
+    event.reply('youtube-links', data.youtubeLinks || []);
+  } catch (error) {
+    console.error('Error getting YouTube links:', error);
+    event.reply('youtube-links', []);
+  }
+});
+
+ipcMain.on('delete-youtube-link', (event, linkId) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Check if youtubeLinks exists
+    if (!data.youtubeLinks) {
+      event.reply('youtube-link-deleted', { success: false, error: 'No YouTube links found' });
+      return;
+    }
+    
+    // Find the index of the link to delete
+    const index = data.youtubeLinks.findIndex(link => link.id === linkId);
+    
+    if (index === -1) {
+      event.reply('youtube-link-deleted', { success: false, error: 'Link not found' });
+      return;
+    }
+    
+    // Remove the link
+    data.youtubeLinks.splice(index, 1);
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('youtube-link-deleted', { success: true });
+  } catch (error) {
+    console.error('Error deleting YouTube link:', error);
+    event.reply('youtube-link-deleted', { success: false, error: error.message });
+  }
+});
+
+ipcMain.on('get-youtube-categories', (event) => {
+  try {
+    const data = loadData();
+    event.reply('youtube-categories', data.youtubeCategories || ["All", "Watch Later", "Educational", "Entertainment"]);
+  } catch (error) {
+    console.error('Error getting YouTube categories:', error);
+    event.reply('youtube-categories', ["All", "Watch Later", "Educational", "Entertainment"]);
+  }
+});
+
+ipcMain.on('save-youtube-category', (event, category) => {
+  try {
+    // Load existing data
+    const data = loadData();
+    
+    // Ensure the youtubeCategories array exists
+    if (!data.youtubeCategories) {
+      data.youtubeCategories = ["All", "Watch Later", "Educational", "Entertainment"];
+    }
+    
+    // Check if category already exists
+    if (data.youtubeCategories.includes(category)) {
+      event.reply('youtube-category-saved', { success: false, error: 'Category already exists' });
+      return;
+    }
+    
+    // Add the new category
+    data.youtubeCategories.push(category);
+    
+    // Save updated data
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    
+    // Return success result
+    event.reply('youtube-category-saved', { success: true, categories: data.youtubeCategories });
+  } catch (error) {
+    console.error('Error saving YouTube category:', error);
+    event.reply('youtube-category-saved', { success: false, error: error.message });
   }
 });
 
