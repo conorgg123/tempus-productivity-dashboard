@@ -85,6 +85,64 @@ contextBridge.exposeInMainWorld(
         });
         ipcRenderer.send('save-youtube-category', category);
       });
+    },
+    // Calendar API methods
+    getCalendarEvents: () => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('calendar-events', (event, events) => {
+          resolve(events);
+        });
+        ipcRenderer.send('get-calendar-events');
+      });
+    },
+    saveCalendarEvents: (events) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('calendar-events-saved', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('save-calendar-events', events);
+      });
+    },
+    addCalendarEvent: (event) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('calendar-event-added', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('add-calendar-event', event);
+      });
+    },
+    updateCalendarEvent: (eventId, eventData) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('calendar-event-updated', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('update-calendar-event', { id: eventId, data: eventData });
+      });
+    },
+    deleteCalendarEvent: (eventId) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('calendar-event-deleted', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('delete-calendar-event', eventId);
+      });
+    },
+    // Settings API methods
+    getSettings: () => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('settings', (event, settings) => {
+          resolve(settings);
+        });
+        ipcRenderer.send('get-settings');
+      });
+    },
+    saveSettings: (settings) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('settings-saved', (event, result) => {
+          resolve(result);
+        });
+        ipcRenderer.send('save-settings', settings);
+      });
     }
   }
 );
