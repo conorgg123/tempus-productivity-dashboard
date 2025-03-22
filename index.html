@@ -570,6 +570,166 @@
             font-size: 12px;
             font-weight: 600;
         }
+
+        /* YouTube Manager Styles */
+        .youtube-container {
+            padding: 20px;
+        }
+        
+        .youtube-form {
+            margin-bottom: 20px;
+        }
+        
+        .youtube-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .youtube-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--gray);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        
+        .youtube-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+        }
+        
+        .youtube-add-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .youtube-add-button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            background-color: var(--light);
+            border-radius: 8px;
+            color: var(--gray-dark);
+        }
+        
+        .youtube-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .youtube-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .youtube-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .youtube-thumbnail {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .youtube-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .youtube-card:hover .youtube-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .youtube-content {
+            padding: 15px;
+        }
+        
+        .youtube-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .youtube-url {
+            color: var(--gray-dark);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .youtube-actions {
+            display: flex;
+            padding: 0 15px 15px;
+            gap: 10px;
+        }
+        
+        .youtube-open-btn {
+            flex: 1;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .youtube-delete-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .youtube-open-btn:hover, .youtube-delete-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* Tab Navigation */
+        .main-tab {
+            cursor: pointer;
+        }
+        
+        .active-tab {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-left: 3px solid white !important;
+        }
+        
+        .tab-content {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -904,6 +1064,318 @@
             `;
             
             appList.appendChild(newApp);
+        });
+
+        // YouTube Manager Functionality
+        class YouTubeManager {
+            constructor() {
+                this.links = [];
+                this.loadLinks();
+                this.setupEventListeners();
+            }
+
+            // Load links from localStorage
+            loadLinks() {
+                try {
+                    const savedLinks = JSON.parse(localStorage.getItem('youtube-links')) || [];
+                    this.links = savedLinks;
+                    this.renderLinks();
+                } catch (error) {
+                    console.error('Error loading YouTube links:', error);
+                    this.links = [];
+                }
+            }
+
+            // Save links to localStorage
+            saveLinks() {
+                localStorage.setItem('youtube-links', JSON.stringify(this.links));
+            }
+
+            // Is valid YouTube URL
+            isValidYouTubeUrl(url) {
+                const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})$/;
+                return pattern.test(url);
+            }
+
+            // Extract Video ID from URL
+            extractVideoId(url) {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+
+            // Add a new YouTube link
+            addLink(url) {
+                if (!url) {
+                    this.showError('Please enter a YouTube URL');
+                    return;
+                }
+
+                if (!this.isValidYouTubeUrl(url)) {
+                    this.showError('Please enter a valid YouTube URL');
+                    return;
+                }
+
+                const videoId = this.extractVideoId(url);
+                
+                if (!videoId) {
+                    this.showError('Could not extract video ID from URL');
+                    return;
+                }
+
+                const newLink = {
+                    id: Date.now().toString(),
+                    url: url,
+                    videoId: videoId,
+                    title: `YouTube Video ${this.links.length + 1}`,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.links.push(newLink);
+                this.saveLinks();
+                this.renderLinks();
+                this.clearInput();
+                this.showSuccess('YouTube link added successfully');
+            }
+
+            // Delete a YouTube link
+            deleteLink(id) {
+                this.links = this.links.filter(link => link.id !== id);
+                this.saveLinks();
+                this.renderLinks();
+            }
+
+            // Render the list of links
+            renderLinks() {
+                const youtubeContainer = document.getElementById('youtube-links-container');
+                if (!youtubeContainer) return;
+
+                youtubeContainer.innerHTML = '';
+                
+                if (this.links.length === 0) {
+                    youtubeContainer.innerHTML = `
+                        <div class="empty-message">
+                            No YouTube links added yet. Add your first link above.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'youtube-grid';
+                
+                this.links.forEach(link => {
+                    const card = document.createElement('div');
+                    card.className = 'youtube-card';
+                    card.innerHTML = `
+                        <div class="youtube-thumbnail">
+                            <img src="https://img.youtube.com/vi/${link.videoId}/mqdefault.jpg" alt="${link.title}">
+                        </div>
+                        <div class="youtube-content">
+                            <div class="youtube-title">${link.title}</div>
+                            <div class="youtube-url">${link.url}</div>
+                        </div>
+                        <div class="youtube-actions">
+                            <button class="youtube-open-btn" data-url="${link.url}">Open</button>
+                            <button class="youtube-delete-btn" data-id="${link.id}">Delete</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                youtubeContainer.appendChild(grid);
+                
+                // Add event listeners to the buttons
+                document.querySelectorAll('.youtube-open-btn').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        window.open(e.target.dataset.url, '_blank');
+                    });
+                });
+                
+                document.querySelectorAll('.youtube-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        this.deleteLink(e.target.dataset.id);
+                    });
+                });
+            }
+
+            // Show error message
+            showError(message) {
+                const errorElement = document.getElementById('youtube-error');
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Show success message
+            showSuccess(message) {
+                const successElement = document.getElementById('youtube-success');
+                if (successElement) {
+                    successElement.textContent = message;
+                    successElement.style.display = 'block';
+                    setTimeout(() => {
+                        successElement.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Clear input field
+            clearInput() {
+                const input = document.getElementById('youtube-url-input');
+                if (input) {
+                    input.value = '';
+                }
+            }
+
+            // Setup event listeners
+            setupEventListeners() {
+                const addBtn = document.getElementById('youtube-add-btn');
+                const input = document.getElementById('youtube-url-input');
+                
+                if (addBtn) {
+                    addBtn.addEventListener('click', () => {
+                        const url = input.value.trim();
+                        this.addLink(url);
+                    });
+                }
+                
+                if (input) {
+                    input.addEventListener('keypress', e => {
+                        if (e.key === 'Enter') {
+                            const url = e.target.value.trim();
+                            this.addLink(url);
+                        }
+                    });
+                }
+
+                // Add tab switching functionality
+                const tabs = document.querySelectorAll('.main-tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        // Hide all sections
+                        document.querySelectorAll('.tab-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        
+                        // Remove active class from all tabs
+                        tabs.forEach(t => t.classList.remove('active-tab'));
+                        
+                        // Add active class to clicked tab
+                        tab.classList.add('active-tab');
+                        
+                        // Show corresponding section
+                        const targetId = tab.getAttribute('data-target');
+                        document.getElementById(targetId).style.display = 'block';
+                    });
+                });
+            }
+        }
+
+        // Initialize the YouTubeManager when the page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            const youtubeManager = new YouTubeManager();
+            
+            // Show dashboard by default
+            document.getElementById('dashboard-section').style.display = 'block';
+            document.querySelector('[data-target="dashboard-section"]').classList.add('active-tab');
+        });
+    </script>
+
+    <!-- Add YouTube Manager Tab Button in Sidebar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add YouTube Manager tab to sidebar after Projects & tasks
+            const projectsTab = document.querySelector('.nav-item:nth-child(3)'); // Projects & tasks tab
+            if (projectsTab) {
+                const youtubeTab = document.createElement('div');
+                youtubeTab.className = 'nav-item main-tab';
+                youtubeTab.setAttribute('data-target', 'youtube-section');
+                youtubeTab.innerHTML = `
+                    <span class="nav-icon">🎬</span>
+                    <span>YouTube Manager</span>
+                `;
+                projectsTab.parentNode.insertBefore(youtubeTab, projectsTab.nextSibling);
+            }
+
+            // Add Dashboard tab for navigation
+            const dashboardTab = document.querySelector('.nav-item:first-child'); // Dashboard tab
+            if (dashboardTab) {
+                dashboardTab.classList.add('main-tab');
+                dashboardTab.setAttribute('data-target', 'dashboard-section');
+            }
+
+            // Create YouTube Manager Section
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                // Create a container for YouTube Manager
+                const youtubeSection = document.createElement('div');
+                youtubeSection.id = 'youtube-section';
+                youtubeSection.className = 'tab-content';
+                youtubeSection.style.display = 'none'; // Hide by default
+                youtubeSection.innerHTML = `
+                    <div class="header">
+                        <div class="date">
+                            YouTube Manager
+                            <div class="status">
+                                <div class="status-indicator"></div>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="youtube-container">
+                        <div class="youtube-form">
+                            <div id="youtube-success" style="display: none; background-color: var(--secondary); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
+                            <div id="youtube-error" style="display: none; background-color: var(--danger); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
+                            
+                            <div class="youtube-input-container">
+                                <input 
+                                    type="text" 
+                                    id="youtube-url-input" 
+                                    placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=...)" 
+                                    class="youtube-input"
+                                />
+                                <button id="youtube-add-btn" class="youtube-add-button">Add Link</button>
+                            </div>
+                        </div>
+                        
+                        <div id="youtube-links-container" class="youtube-links">
+                            <div class="empty-message">
+                                No YouTube links added yet. Add your first link above.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Make the dashboard section a tab content
+                const dashboardSection = document.createElement('div');
+                dashboardSection.id = 'dashboard-section';
+                dashboardSection.className = 'tab-content';
+                
+                // Move all existing main content into the dashboard section
+                const headerEl = mainContent.querySelector('.header');
+                const existingContent = [];
+                
+                // Start collecting elements after the header
+                let currentElement = headerEl.nextElementSibling;
+                while (currentElement) {
+                    const nextElement = currentElement.nextElementSibling;
+                    existingContent.push(currentElement);
+                    mainContent.removeChild(currentElement);
+                    currentElement = nextElement;
+                }
+                
+                // Add all the collected elements to the dashboard section
+                existingContent.forEach(el => dashboardSection.appendChild(el));
+                
+                // Add both sections to the main content
+                mainContent.appendChild(dashboardSection);
+                mainContent.appendChild(youtubeSection);
+            }
         });
     </script>
 </body>
