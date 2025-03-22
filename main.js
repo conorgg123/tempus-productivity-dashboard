@@ -139,18 +139,30 @@ function createWindow() {
     console.log('Running in development mode, connecting to Next.js server at:', startUrl);
   } else {
     // In production mode, load directly from the filesystem
+    const indexPath = path.resolve(__dirname, 'out/index.html');
+    console.log('Looking for index.html at:', indexPath);
+    console.log('File exists:', fs.existsSync(indexPath));
+    
     startUrl = url.format({
-      pathname: path.resolve(__dirname, 'out/index.html'),
+      pathname: indexPath,
       protocol: 'file:',
       slashes: true
     });
     console.log('Running in production mode, loading from:', startUrl);
   }
   
+  // Register error handler for page load failures
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
+  
   mainWindow.loadURL(startUrl);
 
   // Open DevTools in development mode
   if (isDev) {
+    mainWindow.webContents.openDevTools();
+  } else {
+    // Temporarily open DevTools in production for debugging
     mainWindow.webContents.openDevTools();
   }
 
