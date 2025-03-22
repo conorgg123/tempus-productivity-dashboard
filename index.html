@@ -730,6 +730,554 @@
         .tab-content {
             display: none;
         }
+
+        /* Calendar Styles */
+        .calendar-container {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 100px);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .calendar-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .calendar-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--gray);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--gray);
+        }
+
+        .calendar-new-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3);
+        }
+
+        .calendar-new-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .calendar-grid-container {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        .calendar-sidebar {
+            width: 200px;
+            border-right: 1px solid var(--gray);
+            padding: 20px;
+        }
+
+        .calendar-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-auto-rows: minmax(120px, 1fr);
+        }
+
+        .calendar-day {
+            border-right: 1px solid var(--gray);
+            border-bottom: 1px solid var(--gray);
+            padding: 8px;
+            min-height: 120px;
+            position: relative;
+        }
+
+        .calendar-day-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .day-name {
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+
+        .day-number {
+            font-size: 18px;
+            font-weight: 600;
+            height: 36px;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .current-day .day-number {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .not-current-month .day-number {
+            color: var(--gray);
+        }
+
+        .calendar-event {
+            margin-bottom: 4px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .event-work {
+            background-color: var(--primary);
+        }
+
+        .event-personal {
+            background-color: var(--secondary);
+        }
+
+        .event-meeting {
+            background-color: var(--accent2);
+        }
+
+        .event-reminder {
+            background-color: var(--warning);
+        }
+
+        .mini-calendar {
+            margin-bottom: 20px;
+        }
+
+        .mini-calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mini-calendar-title {
+            font-weight: 600;
+        }
+
+        .mini-calendar-nav {
+            display: flex;
+            gap: 5px;
+        }
+
+        .mini-calendar-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mini-calendar-btn:hover {
+            background: var(--gray);
+        }
+
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .mini-calendar-day {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .mini-calendar-day:hover {
+            background: var(--gray);
+        }
+
+        .mini-calendar-day.current {
+            background: var(--primary);
+            color: white;
+        }
+
+        .mini-calendar-day.has-events {
+            font-weight: bold;
+        }
+
+        .my-calendars {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .calendar-list {
+            list-style: none;
+        }
+
+        .calendar-list-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .calendar-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        /* Week view */
+        .calendar-week-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .week-header {
+            display: flex;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .week-header-time {
+            width: 60px;
+            border-right: 1px solid var(--gray);
+        }
+
+        .week-header-day {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-right: 1px solid var(--gray);
+        }
+
+        .week-header-day:last-child {
+            border-right: none;
+        }
+
+        .week-body {
+            display: flex;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .week-time-column {
+            width: 60px;
+            border-right: 1px solid var(--gray);
+        }
+
+        .week-time-slot {
+            height: 60px;
+            padding: 5px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray);
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+
+        .week-day-column {
+            flex: 1;
+            border-right: 1px solid var(--gray);
+            position: relative;
+        }
+
+        .week-day-column:last-child {
+            border-right: none;
+        }
+
+        .week-time-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .week-grid-hour {
+            height: 60px;
+            border-bottom: 1px solid var(--gray);
+            position: relative;
+        }
+
+        .week-event {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            color: white;
+            z-index: 2;
+        }
+
+        /* Event Modal */
+        .event-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .event-modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .event-modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .event-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray-dark);
+        }
+
+        .event-modal-body {
+            padding: 16px;
+        }
+
+        .event-form-group {
+            margin-bottom: 16px;
+        }
+
+        .event-form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .event-form-input,
+        .event-form-select,
+        .event-form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .event-form-input:focus,
+        .event-form-select:focus,
+        .event-form-textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .event-form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .event-form-row > div {
+            flex: 1;
+        }
+
+        .event-modal-footer {
+            padding: 16px;
+            border-top: 1px solid var(--gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .event-form-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background-color: var(--gray);
+            color: var(--dark);
+        }
+
+        .btn-save {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+            margin-right: auto;
+        }
+
+        /* Dark mode toggle */
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .theme-switch-label {
+            margin-right: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--secondary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Dark theme variables */
+        body.dark-theme {
+            --light: #1A1A2E;
+            --dark: #E1E1E6;
+            --gray: #3F3F5A;
+            --gray-dark: #9999A1;
+        }
+
+        body.dark-theme .main-content {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        body.dark-theme .card,
+        body.dark-theme .timeline,
+        body.dark-theme .view-control.active,
+        body.dark-theme .calendar-nav-btn,
+        body.dark-theme .event-modal-content {
+            background-color: #222240;
+        }
+
+        body.dark-theme .task-item,
+        body.dark-theme .app-item {
+            background-color: #2A2A45;
+        }
+
+        body.dark-theme .task-item:hover,
+        body.dark-theme .app-item:hover {
+            background-color: #353555;
+        }
+
+        body.dark-theme .day-number {
+            color: var(--dark);
+        }
     </style>
 </head>
 <body>
@@ -742,12 +1290,12 @@
             <div class="logo-text">tempus.</div>
         </div>
         
-        <div class="nav-item active">
+        <div class="nav-item active main-tab" data-target="dashboard-section">
             <span class="nav-icon">📊</span>
             <span>Dashboard</span>
         </div>
         
-        <div class="nav-item">
+        <div class="nav-item main-tab" data-target="calendar-section">
             <span class="nav-icon">📅</span>
             <span>Calendar</span>
         </div>
@@ -768,6 +1316,14 @@
         </div>
         
         <div class="help">
+            <div class="theme-switch">
+                <span class="theme-switch-label">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
             <div class="nav-item">
                 <span class="nav-icon">❓</span>
                 <span>Help</span>
@@ -1283,99 +1839,334 @@
             document.getElementById('dashboard-section').style.display = 'block';
             document.querySelector('[data-target="dashboard-section"]').classList.add('active-tab');
         });
-    </script>
 
-    <!-- Add YouTube Manager Tab Button in Sidebar -->
-    <script>
+        // Create Calendar section
         document.addEventListener('DOMContentLoaded', function() {
-            // Add YouTube Manager tab to sidebar after Projects & tasks
-            const projectsTab = document.querySelector('.nav-item:nth-child(3)'); // Projects & tasks tab
-            if (projectsTab) {
-                const youtubeTab = document.createElement('div');
-                youtubeTab.className = 'nav-item main-tab';
-                youtubeTab.setAttribute('data-target', 'youtube-section');
-                youtubeTab.innerHTML = `
-                    <span class="nav-icon">🎬</span>
-                    <span>YouTube Manager</span>
-                `;
-                projectsTab.parentNode.insertBefore(youtubeTab, projectsTab.nextSibling);
+            // Add Calendar tab for navigation
+            const calendarTab = document.querySelector('.nav-item[data-target="calendar-section"]');
+            if (calendarTab) {
+                calendarTab.classList.add('main-tab');
             }
 
-            // Add Dashboard tab for navigation
-            const dashboardTab = document.querySelector('.nav-item:first-child'); // Dashboard tab
-            if (dashboardTab) {
-                dashboardTab.classList.add('main-tab');
-                dashboardTab.setAttribute('data-target', 'dashboard-section');
-            }
-
-            // Create YouTube Manager Section
+            // Create Calendar Section
             const mainContent = document.querySelector('.main-content');
             if (mainContent) {
-                // Create a container for YouTube Manager
-                const youtubeSection = document.createElement('div');
-                youtubeSection.id = 'youtube-section';
-                youtubeSection.className = 'tab-content';
-                youtubeSection.style.display = 'none'; // Hide by default
-                youtubeSection.innerHTML = `
-                    <div class="header">
-                        <div class="date">
-                            YouTube Manager
-                            <div class="status">
-                                <div class="status-indicator"></div>
-                                <span>Active</span>
+                // Create a container for Calendar
+                const calendarSection = document.createElement('div');
+                calendarSection.id = 'calendar-section';
+                calendarSection.className = 'tab-content';
+                calendarSection.style.display = 'none'; // Hide by default
+                calendarSection.innerHTML = `
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-title">
+                                March 2024
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="youtube-container">
-                        <div class="youtube-form">
-                            <div id="youtube-success" style="display: none; background-color: var(--secondary); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
-                            <div id="youtube-error" style="display: none; background-color: var(--danger); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
-                            
-                            <div class="youtube-input-container">
-                                <input 
-                                    type="text" 
-                                    id="youtube-url-input" 
-                                    placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=...)" 
-                                    class="youtube-input"
-                                />
-                                <button id="youtube-add-btn" class="youtube-add-button">Add Link</button>
+                            <div class="calendar-controls">
+                                <div class="calendar-nav">
+                                    <button class="calendar-nav-btn" id="prev-month">
+                                        <span>‹</span>
+                                    </button>
+                                    <button class="today-btn">Today</button>
+                                    <button class="calendar-nav-btn" id="next-month">
+                                        <span>›</span>
+                                    </button>
+                                </div>
+                                <div class="view-controls">
+                                    <div class="view-control" data-view="month">Month</div>
+                                    <div class="view-control active" data-view="week">Week</div>
+                                    <div class="view-control" data-view="day">Day</div>
+                                </div>
+                                <button class="calendar-new-btn" id="add-event-btn">
+                                    <span>+</span> New
+                                </button>
                             </div>
                         </div>
                         
-                        <div id="youtube-links-container" class="youtube-links">
-                            <div class="empty-message">
-                                No YouTube links added yet. Add your first link above.
+                        <div class="calendar-week-view" id="week-view">
+                            <div class="week-header">
+                                <div class="week-header-time"></div>
+                                <div class="week-header-day">
+                                    <div>Tue 19</div>
+                                </div>
+                                <div class="week-header-day">
+                                    <div>Wed 20</div>
+                                </div>
+                                <div class="week-header-day">
+                                    <div>Thu 20</div>
+                                </div>
+                                <div class="week-header-day">
+                                    <div>Fri 20</div>
+                                </div>
+                                <div class="week-header-day">
+                                    <div>Sat 20</div>
+                                </div>
+                            </div>
+                            <div class="week-body">
+                                <div class="week-time-column">
+                                    ${Array.from({length: 12}, (_, i) => {
+                                        const hour = i + 9;
+                                        return `<div class="week-time-slot">${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}</div>`;
+                                    }).join('')}
+                                </div>
+                                <div class="week-day-column">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                        <div class="week-event event-work" style="top: 40px; height: 60px;">
+                                            Report Progress Follow-up<br>
+                                            10:15 AM - 11:45 AM
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="week-day-column">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                        <div class="week-event event-meeting" style="top: 220px; height: 150px;">
+                                            Weekly Team Catchup<br>
+                                            1:00 PM - 3:00 PM
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="week-day-column">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="week-day-column">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                        <div class="week-event event-personal" style="top: 40px; height: 60px;">
+                                            Cleaning Service Provider<br>
+                                            10:15 AM - 11:45 AM
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="week-day-column">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                        <div class="week-event event-reminder" style="top: 400px; height: 60px;">
+                                            Planning Next Week<br>
+                                            3:00 PM - 4:00 PM
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="month-view" style="display: none;">
+                            <div class="calendar-grid">
+                                ${Array.from({ length: 35 }, (_, i) => {
+                                    const day = i - 4; // Start from previous month (-4)
+                                    const isCurrentMonth = day > 0 && day <= 31;
+                                    const isCurrentDay = day === 20;
+                                    
+                                    return `
+                                        <div class="calendar-day ${isCurrentMonth ? '' : 'not-current-month'} ${isCurrentDay ? 'current-day' : ''}">
+                                            <div class="calendar-day-header">
+                                                <div class="day-number">${isCurrentMonth ? day : (day <= 0 ? 31 + day : day - 31)}</div>
+                                            </div>
+                                            ${isCurrentMonth && day === 5 ? '<div class="calendar-event event-work">Team Meeting 9:30 AM</div>' : ''}
+                                            ${isCurrentMonth && day === 12 ? '<div class="calendar-event event-personal">Lunch with Client 12:30 PM</div>' : ''}
+                                            ${isCurrentMonth && day === 15 ? '<div class="calendar-event event-reminder">Project Deadline 5:00 PM</div>' : ''}
+                                            ${isCurrentMonth && day === 20 ? '<div class="calendar-event event-meeting">Weekly Review 2:00 PM</div>' : ''}
+                                            ${isCurrentMonth && day === 20 ? '<div class="calendar-event event-personal">Dinner 7:30 PM</div>' : ''}
+                                            ${isCurrentMonth && day === 25 ? '<div class="calendar-event event-work">Product Launch 10:00 AM</div>' : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        <div id="day-view" style="display: none;">
+                            <div class="week-body" style="height: 100%;">
+                                <div class="week-time-column">
+                                    ${Array.from({length: 12}, (_, i) => {
+                                        const hour = i + 9;
+                                        return `<div class="week-time-slot">${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}</div>`;
+                                    }).join('')}
+                                </div>
+                                <div class="week-day-column" style="flex: 1;">
+                                    <div class="week-time-grid">
+                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
+                                        <div class="week-event event-meeting" style="top: 220px; height: 150px;">
+                                            Weekly Team Catchup<br>
+                                            1:00 PM - 3:00 PM
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
                 
-                // Make the dashboard section a tab content
-                const dashboardSection = document.createElement('div');
-                dashboardSection.id = 'dashboard-section';
-                dashboardSection.className = 'tab-content';
+                // Add the Calendar section to the main content
+                mainContent.appendChild(calendarSection);
+
+                // Set up event listeners for calendar functionality
+                const addEventBtn = document.getElementById('add-event-btn');
+                const eventModal = document.getElementById('event-modal');
+                const closeEventModal = document.querySelector('.event-modal-close');
+                const cancelEventBtn = document.getElementById('cancel-event-btn');
+                const saveEventBtn = document.getElementById('save-event-btn');
+                const deleteEventBtn = document.getElementById('delete-event-btn');
+                const eventForm = document.getElementById('event-form');
+                const eventTitleInput = document.getElementById('event-title');
+                const eventDateInput = document.getElementById('event-date');
                 
-                // Move all existing main content into the dashboard section
-                const headerEl = mainContent.querySelector('.header');
-                const existingContent = [];
+                // Set default date to today
+                eventDateInput.valueAsDate = new Date();
                 
-                // Start collecting elements after the header
-                let currentElement = headerEl.nextElementSibling;
-                while (currentElement) {
-                    const nextElement = currentElement.nextElementSibling;
-                    existingContent.push(currentElement);
-                    mainContent.removeChild(currentElement);
-                    currentElement = nextElement;
+                // Show event modal
+                addEventBtn.addEventListener('click', function() {
+                    // Reset form
+                    eventForm.reset();
+                    eventDateInput.valueAsDate = new Date();
+                    deleteEventBtn.style.display = 'none';
+                    document.querySelector('.event-modal-title').textContent = 'Add Event';
+                    
+                    // Show modal
+                    eventModal.style.display = 'flex';
+                });
+                
+                // Close event modal
+                function closeModal() {
+                    eventModal.style.display = 'none';
                 }
                 
-                // Add all the collected elements to the dashboard section
-                existingContent.forEach(el => dashboardSection.appendChild(el));
+                closeEventModal.addEventListener('click', closeModal);
+                cancelEventBtn.addEventListener('click', closeModal);
                 
-                // Add both sections to the main content
-                mainContent.appendChild(dashboardSection);
-                mainContent.appendChild(youtubeSection);
+                // Close modal when clicking outside
+                eventModal.addEventListener('click', function(event) {
+                    if (event.target === eventModal) {
+                        closeModal();
+                    }
+                });
+                
+                // Save event
+                saveEventBtn.addEventListener('click', function() {
+                    if (eventTitleInput.value.trim() === '') {
+                        alert('Please enter an event title');
+                        return;
+                    }
+                    
+                    // Here would be the code to save the event data
+                    // For now, just close the modal
+                    closeModal();
+                });
+                
+                // Switch between calendar views
+                const viewControls = document.querySelectorAll('.calendar-controls .view-control');
+                const monthView = document.getElementById('month-view');
+                const weekView = document.getElementById('week-view');
+                const dayView = document.getElementById('day-view');
+                
+                viewControls.forEach(control => {
+                    control.addEventListener('click', function() {
+                        // Remove active class from all controls
+                        viewControls.forEach(c => c.classList.remove('active'));
+                        
+                        // Add active class to clicked control
+                        this.classList.add('active');
+                        
+                        // Show correct view
+                        const view = this.getAttribute('data-view');
+                        
+                        monthView.style.display = view === 'month' ? 'block' : 'none';
+                        weekView.style.display = view === 'week' ? 'block' : 'none';
+                        dayView.style.display = view === 'day' ? 'block' : 'none';
+                    });
+                });
+                
+                // Make calendar events clickable to edit
+                const calendarEvents = document.querySelectorAll('.calendar-event, .week-event');
+                
+                calendarEvents.forEach(event => {
+                    event.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        // Set form values (in a real app, you'd use the actual event data)
+                        eventTitleInput.value = this.textContent.split('\n')[0].trim();
+                        
+                        // Show delete button
+                        deleteEventBtn.style.display = 'block';
+                        
+                        // Update modal title
+                        document.querySelector('.event-modal-title').textContent = 'Edit Event';
+                        
+                        // Show modal
+                        eventModal.style.display = 'flex';
+                    });
+                });
+                
+                // Allow adding events by clicking on the calendar days (month view)
+                const calendarDays = document.querySelectorAll('.calendar-day');
+                
+                calendarDays.forEach(day => {
+                    day.addEventListener('click', function(e) {
+                        if (e.target === day || e.target.classList.contains('day-number') || e.target.classList.contains('calendar-day-header')) {
+                            // Get the day number
+                            const dayNumber = this.querySelector('.day-number').textContent;
+                            
+                            // Set the date in the form
+                            const date = new Date();
+                            date.setDate(parseInt(dayNumber));
+                            eventDateInput.valueAsDate = date;
+                            
+                            // Reset the form
+                            eventForm.reset();
+                            deleteEventBtn.style.display = 'none';
+                            document.querySelector('.event-modal-title').textContent = 'Add Event';
+                            
+                            // Show modal
+                            eventModal.style.display = 'flex';
+                        }
+                    });
+                });
+                
+                // Add basic click interactions for week view
+                const weekGridHours = document.querySelectorAll('.week-grid-hour');
+                
+                weekGridHours.forEach((hour, index) => {
+                    hour.addEventListener('click', function() {
+                        // Reset form
+                        eventForm.reset();
+                        
+                        // Set the start time based on the clicked hour
+                        const startHour = 9 + Math.floor(index / 12);
+                        document.getElementById('event-start-time').value = `${startHour.toString().padStart(2, '0')}:00`;
+                        
+                        // Set end time to 1 hour later
+                        document.getElementById('event-end-time').value = `${(startHour + 1).toString().padStart(2, '0')}:00`;
+                        
+                        // Show modal
+                        deleteEventBtn.style.display = 'none';
+                        document.querySelector('.event-modal-title').textContent = 'Add Event';
+                        eventModal.style.display = 'flex';
+                    });
+                });
             }
+            
+            // Dark mode toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.querySelector('body');
+            
+            // Check if a theme preference is stored
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                body.classList.add('dark-theme');
+                themeToggle.checked = true;
+            }
+            
+            themeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    body.classList.add('dark-theme');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    body.classList.remove('dark-theme');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
         });
     </script>
 </body>
