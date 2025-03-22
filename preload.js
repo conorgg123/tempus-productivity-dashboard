@@ -3,20 +3,33 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(
-  'api', {
+  "api", {
     send: (channel, data) => {
       // whitelist channels
-      const validChannels = ['reload-app', 'save-settings'];
+      let validChannels = ["toMain"];
       if (validChannels.includes(channel)) {
         ipcRenderer.send(channel, data);
       }
     },
     receive: (channel, func) => {
-      const validChannels = ['app-ready', 'settings-saved'];
+      let validChannels = ["fromMain"];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender` 
         ipcRenderer.on(channel, (event, ...args) => func(...args));
       }
+    },
+    // Expose any other methods or properties you need
+    platform: process.platform,
+    saveToFile: (filename, data) => {
+      ipcRenderer.send('save-to-file', { filename, data });
+    },
+    loadFromFile: (filename) => {
+      return new Promise((resolve) => {
+        ipcRenderer.once('load-file-reply', (event, data) => {
+          resolve(data);
+        });
+        ipcRenderer.send('load-from-file', filename);
+      });
     }
   }
 );

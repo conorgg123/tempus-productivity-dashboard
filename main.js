@@ -1,6 +1,8 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const url = require('url');
 const fs = require('fs');
+const isDev = require('electron-is-dev');
 
 // Global reference
 let mainWindow;
@@ -81,34 +83,80 @@ function loadData() {
 function createWindow() {
   // Create browser window
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 1200,
+    height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     },
-    backgroundColor: '#ffffff'
+    icon: path.join(__dirname, 'public/favicon.ico')
   });
 
-  // Load index.html
-  mainWindow.loadFile('index.html');
+  // Load the app
+  const startUrl = isDev 
+    ? 'http://localhost:3000' 
+    : url.format({
+        pathname: path.join(__dirname, './out/index.html'),
+        protocol: 'file:',
+        slashes: true
+      });
   
+  mainWindow.loadURL(startUrl);
+
   // Open DevTools in development mode
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
-// When Electron is ready
-app.whenReady().then(() => {
-  createWindow();
+// Handle file operations
+ipcMain.on('save-to-file', (event, { filename, data }) => {
+  const userDataPath = app.getPath('userData');
+  const filePath = path.join(userDataPath, filename);
+  
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    event.reply('file-saved', { success: true });
+  } catch (error) {
+    console.error('Error saving file:', error);
+    event.reply('file-saved', { success: false, error: error.message });
+  }
 });
+
+ipcMain.on('load-from-file', (event, filename) => {
+  const userDataPath = app.getPath('userData');
+  const filePath = path.join(userDataPath, filename);
+  
+  try {
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      event.reply('load-file-reply', data);
+    } else {
+      event.reply('load-file-reply', null);
+    }
+  } catch (error) {
+    console.error('Error loading file:', error);
+    event.reply('load-file-reply', null);
+  }
+});
+
+// When Electron is ready
+app.on('ready', createWindow);
 
 // Quit when all windows are closed
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (mainWindow === null) {
+    createWindow();
+  }
 });
