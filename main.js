@@ -131,13 +131,21 @@ function createWindow() {
   };
 
   // Load the app
-  const startUrl = isDev 
-    ? 'http://localhost:3005' 
-    : url.format({
-        pathname: path.join(__dirname, './out/index.html'),
-        protocol: 'file:',
-        slashes: true
-      });
+  let startUrl;
+  
+  if (isDev) {
+    // In development mode, try to connect to the Next.js server
+    startUrl = 'http://localhost:3005';
+    console.log('Running in development mode, connecting to Next.js server at:', startUrl);
+  } else {
+    // In production mode, load directly from the filesystem
+    startUrl = url.format({
+      pathname: path.join(__dirname, './out/index.html'),
+      protocol: 'file:',
+      slashes: true
+    });
+    console.log('Running in production mode, loading from:', startUrl);
+  }
   
   mainWindow.loadURL(startUrl);
 
