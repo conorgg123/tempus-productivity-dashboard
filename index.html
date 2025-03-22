@@ -3209,7 +3209,7 @@
             }
             
             // Edit a task
-            editTask(id, title, projectId, dueDate, priority, notes) {
+            editTask(id, title, projectId, dueDate, priority, notes, startTime, duration) {
                 this.tasks = this.tasks.map(task => 
                     task.id === id ? { 
                         ...task, 
@@ -3217,7 +3217,9 @@
                         projectId, 
                         dueDate, 
                         priority, 
-                        notes 
+                        notes,
+                        startTime,
+                        duration
                     } : task
                 );
                 
@@ -3420,107 +3422,138 @@
                 const tasksContainer = document.getElementById('tasks-list-container');
                 if (!tasksContainer) return;
                 
-                // Get filtered tasks
-                const filteredTasks = this.getFilteredTasks();
+                // Filter tasks based on active project
+                let filteredTasks = [];
                 
-                // Render based on active view
-                if (this.activeView === 'list') {
-                    this.renderListView(tasksContainer, filteredTasks);
-                } else if (this.activeView === 'kanban') {
-                    this.renderKanbanView(tasksContainer, filteredTasks);
-                } else if (this.activeView === 'calendar') {
-                    this.renderCalendarView(tasksContainer, filteredTasks);
+                if (this.activeProjectId === 'all') {
+                    filteredTasks = [...this.tasks];
+                } else if (this.activeProjectId === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    filteredTasks = this.tasks.filter(task => task.dueDate === today);
+                } else if (this.activeProjectId === 'upcoming') {
+                    const today = new Date().toISOString().split('T')[0];
+                    filteredTasks = this.tasks.filter(task => task.dueDate > today);
+                } else {
+                    filteredTasks = this.tasks.filter(task => task.projectId === this.activeProjectId);
                 }
-            }
-            
-            // Render list view of tasks
-            renderListView(container, tasks) {
-                container.innerHTML = '';
                 
-                if (tasks.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
-                            No tasks found. Add your first task above!
+                // Sort tasks by due date (if exists), then by creation date
+                filteredTasks.sort((a, b) => {
+                    if (a.dueDate && b.dueDate) {
+                        return new Date(a.dueDate) - new Date(b.dueDate);
+                    } else if (a.dueDate) {
+                        return -1;
+                    } else if (b.dueDate) {
+                        return 1;
+                    } else {
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    }
+                });
+                
+                if (filteredTasks.length === 0) {
+                    tasksContainer.innerHTML = `
+                        <div class="empty-state" style="text-align: center; padding: 50px 20px; color: var(--gray-dark);">
+                            <p style="font-size: 18px; margin-bottom: 15px;">No tasks found</p>
+                            <p>Create a new task to get started</p>
                         </div>
                     `;
                     return;
                 }
                 
-                tasks.forEach(task => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-item';
-                    if (task.completed) {
-                        taskItem.classList.add('task-completed');
-                    }
+                // Build the HTML for the tasks
+                let tasksHTML = '';
+                
+                filteredTasks.forEach(task => {
+                    // Find the project for this task
+                    const project = this.projects.find(p => p.id === task.projectId) || { name: 'No Project', color: 'var(--gray)' };
                     
-                    // Find project (if any)
-                    let projectName = 'None';
-                    let projectColor = 'var(--gray)';
-                    
-                    if (task.projectId !== 'none') {
-                        const project = this.projects.find(p => p.id === task.projectId);
-                        if (project) {
-                            projectName = project.name;
-                            projectColor = project.color;
-                        }
-                    }
-                    
-                    // Format due date
-                    let dueDateDisplay = 'No due date';
+                    // Format the due date
+                    let dueDateFormatted = '';
                     if (task.dueDate) {
                         const dueDate = new Date(task.dueDate);
-                        dueDateDisplay = dueDate.toLocaleDateString();
-                        
-                        // Check if overdue
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        
-                        if (dueDate < today && !task.completed) {
-                            dueDateDisplay = `<span style="color: var(--danger);">Overdue: ${dueDateDisplay}</span>`;
-                        }
+                        dueDateFormatted = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     }
                     
-                    taskItem.innerHTML = `
-                        <div class="task-checkbox">
-                            <input type="checkbox" data-task-id="${task.id}" ${task.completed ? 'checked' : ''}>
-                        </div>
-                        <div class="task-content">
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-meta">
-                                <div class="task-project-tag" style="background-color: ${projectColor};">
-                                    ${projectName}
-                                </div>
-                                <div class="task-due-date">
-                                    <span>📅</span> ${dueDateDisplay}
-                                </div>
-                                <div class="task-priority">
-                                    <span class="priority-indicator priority-${task.priority}"></span>
-                                    ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                    // Format the start time
+                    let startTimeFormatted = '';
+                    if (task.startTime) {
+                        startTimeFormatted = task.startTime;
+                    }
+                    
+                    // Format the duration
+                    let durationFormatted = '';
+                    if (task.duration) {
+                        const hours = Math.floor(task.duration / 60);
+                        const minutes = task.duration % 60;
+                        durationFormatted = hours > 0 ? 
+                            `${hours}h${minutes > 0 ? ` ${minutes}m` : ''}` : 
+                            `${minutes}m`;
+                    }
+                    
+                    tasksHTML += `
+                        <div class="task-item ${task.completed ? 'task-completed' : ''}" data-task-id="${task.id}">
+                            <div class="task-checkbox" onclick="event.stopPropagation();">
+                                <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''}>
+                                <label for="task-${task.id}"></label>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    <div class="task-project-tag" style="background-color: ${project.color};">${project.name}</div>
+                                    ${task.dueDate ? `<div class="task-due-date"><span>📅</span> ${dueDateFormatted}</div>` : ''}
+                                    ${task.startTime ? `<div class="task-start-time"><span>🕒</span> ${startTimeFormatted}</div>` : ''}
+                                    ${task.duration ? `<div class="task-duration"><span>⏱️</span> ${durationFormatted}</div>` : ''}
+                                    <div class="task-priority">
+                                        <div class="priority-indicator priority-${task.priority}"></div>
+                                        ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="task-actions">
-                            <button class="task-action-btn" data-action="edit" data-task-id="${task.id}">✏️</button>
-                            <button class="task-action-btn" data-action="delete" data-task-id="${task.id}">🗑️</button>
+                            <div class="task-actions">
+                                <button class="task-action-btn task-edit-btn">✏️</button>
+                                <button class="task-action-btn task-delete-btn">🗑️</button>
+                            </div>
                         </div>
                     `;
-                    
-                    container.appendChild(taskItem);
-                    
-                    // Add event listeners
-                    const checkbox = taskItem.querySelector('input[type="checkbox"]');
-                    checkbox.addEventListener('change', () => {
-                        this.toggleTaskComplete(task.id);
+                });
+                
+                tasksContainer.innerHTML = tasksHTML;
+                
+                // Add event listeners to the checkboxes
+                document.querySelectorAll('.task-checkbox input').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const taskId = e.target.closest('.task-item').getAttribute('data-task-id');
+                        this.toggleTaskComplete(taskId);
                     });
-                    
-                    const editBtn = taskItem.querySelector('.task-action-btn[data-action="edit"]');
-                    editBtn.addEventListener('click', () => {
-                        this.showEditTaskModal(task.id);
+                });
+                
+                // Add event listeners to the task items
+                document.querySelectorAll('.task-item').forEach(taskItem => {
+                    taskItem.addEventListener('click', (e) => {
+                        if (!e.target.closest('.task-checkbox') && !e.target.closest('.task-actions')) {
+                            const taskId = taskItem.getAttribute('data-task-id');
+                            this.openTaskModal('edit', taskId);
+                        }
                     });
-                    
-                    const deleteBtn = taskItem.querySelector('.task-action-btn[data-action="delete"]');
-                    deleteBtn.addEventListener('click', () => {
-                        this.deleteTask(task.id);
+                });
+                
+                // Add event listeners to the edit buttons
+                document.querySelectorAll('.task-edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const taskId = e.target.closest('.task-item').getAttribute('data-task-id');
+                        this.openTaskModal('edit', taskId);
+                    });
+                });
+                
+                // Add event listeners to the delete buttons
+                document.querySelectorAll('.task-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const taskId = e.target.closest('.task-item').getAttribute('data-task-id');
+                        if (confirm('Are you sure you want to delete this task?')) {
+                            this.deleteTask(taskId);
+                        }
                     });
                 });
             }
@@ -3705,6 +3738,8 @@
                 const dueDateInput = document.getElementById('task-due-date');
                 const prioritySelect = document.getElementById('task-priority');
                 const notesInput = document.getElementById('task-notes-input');
+                const startTimeInput = document.getElementById('task-start-time');
+                const durationSelect = document.getElementById('task-duration');
                 const deleteTaskBtn = document.getElementById('delete-task-btn');
                 
                 // Fill form with task data
@@ -3713,6 +3748,8 @@
                 dueDateInput.value = task.dueDate || '';
                 prioritySelect.value = task.priority;
                 notesInput.value = task.notes || '';
+                startTimeInput.value = task.startTime || '';
+                durationSelect.value = task.duration || '60';
                 
                 // Show delete button
                 deleteTaskBtn.style.display = 'block';
@@ -3853,12 +3890,14 @@
                         const dueDate = document.getElementById('task-due-date').value;
                         const priority = document.getElementById('task-priority').value;
                         const notes = document.getElementById('task-notes-input').value;
+                        const startTime = document.getElementById('task-start-time').value;
+                        const duration = document.getElementById('task-duration').value;
                         
                         if (mode === 'add') {
-                            this.addTask(title, projectId, dueDate, priority, notes);
+                            this.addTask(title, projectId, dueDate, priority, notes, startTime, duration);
                         } else if (mode === 'edit') {
                             const taskId = saveTaskBtn.getAttribute('data-task-id');
-                            this.editTask(taskId, title, projectId, dueDate, priority, notes);
+                            this.editTask(taskId, title, projectId, dueDate, priority, notes, startTime, duration);
                         }
                     });
                 }
