@@ -925,12 +925,6 @@
             background: var(--gray);
         }
 
-        .mini-calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-        }
-
         .mini-calendar-day {
             width: 24px;
             height: 24px;
@@ -1562,12 +1556,12 @@
                     <div class="event-form-group">
                         <label class="event-form-label">Title</label>
                         <input type="text" class="event-form-input" id="event-title" placeholder="Add title" required>
-          </div>
+                    </div>
                     <div class="event-form-row">
                         <div class="event-form-group">
                             <label class="event-form-label">Date</label>
                             <input type="date" class="event-form-input" id="event-date" required>
-        </div>
+                        </div>
                         <div class="event-form-group">
                             <label class="event-form-label">Event type</label>
                             <select class="event-form-select" id="event-type">
@@ -1603,7 +1597,152 @@
                 <button class="event-form-btn btn-delete" id="delete-event-btn" style="display: none;">Delete</button>
                 <button class="event-form-btn btn-cancel" id="cancel-event-btn">Cancel</button>
                 <button class="event-form-btn btn-save" id="save-event-btn">Save</button>
-      </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="settings-section" class="tab-content" style="display: none;">
+        <div class="header">
+            <div class="date">
+                Settings
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <div class="section-title">General Settings</div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="event-form-group">
+                    <label class="event-form-label">Display Name</label>
+                    <input type="text" class="event-form-input" id="settings-display-name" placeholder="Your Name" value="John Doe">
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Email</label>
+                    <input type="email" class="event-form-input" id="settings-email" placeholder="Your Email" value="john.doe@example.com">
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Language</label>
+                    <select class="event-form-select" id="settings-language">
+                        <option value="en">English</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Time Zone</label>
+                    <select class="event-form-select" id="settings-timezone">
+                        <option value="utc">UTC</option>
+                        <option value="est" selected>Eastern Standard Time</option>
+                        <option value="cst">Central Standard Time</option>
+                        <option value="mst">Mountain Standard Time</option>
+                        <option value="pst">Pacific Standard Time</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="calendar-new-btn" id="save-settings-btn">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="section-title">Appearance</div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="event-form-group">
+                    <label class="event-form-label">Theme</label>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div>
+                            <input type="radio" id="light-theme" name="theme" value="light" checked>
+                            <label for="light-theme" style="margin-left: 5px;">Light</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="dark-theme" name="theme" value="dark">
+                            <label for="dark-theme" style="margin-left: 5px;">Dark</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="auto-theme" name="theme" value="auto">
+                            <label for="auto-theme" style="margin-left: 5px;">System Default</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Font Size</label>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div>
+                            <input type="radio" id="small-font" name="font-size" value="small">
+                            <label for="small-font" style="margin-left: 5px;">Small</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="medium-font" name="font-size" value="medium" checked>
+                            <label for="medium-font" style="margin-left: 5px;">Medium</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="large-font" name="font-size" value="large">
+                            <label for="large-font" style="margin-left: 5px;">Large</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="calendar-new-btn" id="save-appearance-btn">
+                    Save Appearance
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- YouTube Manager Section -->
+    <div id="youtube-section" class="tab-content" style="display: none;">
+        <div class="header">
+            <div class="date">
+                YouTube Manager
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="youtube-container">
+            <div class="youtube-form">
+                <div id="youtube-success" style="display: none; background-color: var(--secondary); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
+                <div id="youtube-error" style="display: none; background-color: var(--danger); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"></div>
+                
+                <div class="youtube-input-container">
+                    <input 
+                        type="text" 
+                        id="youtube-url-input" 
+                        placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=...)" 
+                        class="youtube-input"
+                    />
+                    <button id="youtube-add-btn" class="youtube-add-button">Add Link</button>
+                </div>
+            </div>
+            
+            <div id="youtube-links-container" class="youtube-links">
+                <div class="empty-message">
+                    No YouTube links added yet. Add your first link above.
+                </div>
+            </div>
+        </div>
     </div>
   </div>
 
@@ -1698,7 +1837,7 @@
                     const savedLinks = JSON.parse(localStorage.getItem('youtube-links')) || [];
                     this.links = savedLinks;
                     this.renderLinks();
-      } catch (error) {
+                } catch (error) {
                     console.error('Error loading YouTube links:', error);
                     this.links = [];
                 }
@@ -1774,7 +1913,7 @@
                     youtubeContainer.innerHTML = `
                         <div class="empty-message">
                             No YouTube links added yet. Add your first link above.
-            </div>
+                        </div>
                     `;
                     return;
                 }
@@ -1788,11 +1927,11 @@
                     card.innerHTML = `
                         <div class="youtube-thumbnail">
                             <img src="https://img.youtube.com/vi/${link.videoId}/mqdefault.jpg" alt="${link.title}">
-          </div>
+                        </div>
                         <div class="youtube-content">
                             <div class="youtube-title">${link.title}</div>
                             <div class="youtube-url">${link.url}</div>
-          </div>
+                        </div>
                         <div class="youtube-actions">
                             <button class="youtube-open-btn" data-url="${link.url}">Open</button>
                             <button class="youtube-delete-btn" data-id="${link.id}">Delete</button>
@@ -1869,366 +2008,93 @@
                         }
                     });
                 }
-
-                // Add tab switching functionality
-                const tabs = document.querySelectorAll('.main-tab');
-                tabs.forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        // Hide all sections
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.style.display = 'none';
-                        });
-                        
-                        // Remove active class from all tabs
-                        tabs.forEach(t => t.classList.remove('active-tab'));
-                        
-                        // Add active class to clicked tab
-                        tab.classList.add('active-tab');
-                        
-                        // Show corresponding section
-                        const targetId = tab.getAttribute('data-target');
-                        document.getElementById(targetId).style.display = 'block';
-                    });
-                });
             }
         }
 
         // Initialize the YouTubeManager when the page loads
-        window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             const youtubeManager = new YouTubeManager();
+            
+            // Add tab switching functionality
+            const tabs = document.querySelectorAll('.main-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Hide all sections
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active-tab'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active-tab');
+                    
+                    // Show corresponding section
+                    const targetId = tab.getAttribute('data-target');
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                    }
+                });
+            });
             
             // Show dashboard by default
             document.getElementById('dashboard-section').style.display = 'block';
             document.querySelector('[data-target="dashboard-section"]').classList.add('active-tab');
-        });
-
-        // Create Calendar section
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add Calendar tab for navigation
-            const calendarTab = document.querySelector('.nav-item[data-target="calendar-section"]');
-            if (calendarTab) {
-                calendarTab.classList.add('main-tab');
-            }
-
-            // Create Calendar Section
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                // Create a container for Calendar
-                const calendarSection = document.createElement('div');
-                calendarSection.id = 'calendar-section';
-                calendarSection.className = 'tab-content';
-                calendarSection.style.display = 'none'; // Hide by default
-                calendarSection.innerHTML = `
-                    <div class="calendar-container">
-                        <div class="calendar-header">
-                            <div class="calendar-title">
-                                March 2024
-          </div>
-                            <div class="calendar-controls">
-                                <div class="calendar-nav">
-                                    <button class="calendar-nav-btn" id="prev-month">
-                                        <span>‹</span>
-                                    </button>
-                                    <button class="today-btn">Today</button>
-                                    <button class="calendar-nav-btn" id="next-month">
-                                        <span>›</span>
-                                    </button>
-          </div>
-                                <div class="view-controls">
-                                    <div class="view-control" data-view="month">Month</div>
-                                    <div class="view-control active" data-view="week">Week</div>
-                                    <div class="view-control" data-view="day">Day</div>
-                                </div>
-                                <button class="calendar-new-btn" id="add-event-btn">
-                                    <span>+</span> New
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="calendar-week-view" id="week-view">
-                            <div class="week-header">
-                                <div class="week-header-time"></div>
-                                <div class="week-header-day">
-                                    <div>Tue 19</div>
-                                </div>
-                                <div class="week-header-day">
-                                    <div>Wed 20</div>
-                                </div>
-                                <div class="week-header-day">
-                                    <div>Thu 20</div>
-                                </div>
-                                <div class="week-header-day">
-                                    <div>Fri 20</div>
-                                </div>
-                                <div class="week-header-day">
-                                    <div>Sat 20</div>
-                                </div>
-                            </div>
-                            <div class="week-body">
-                                <div class="week-time-column">
-                                    ${Array.from({length: 12}, (_, i) => {
-                                        const hour = i + 9;
-                                        return `<div class="week-time-slot">${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}</div>`;
-                                    }).join('')}
-                                </div>
-                                <div class="week-day-column">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                        <div class="week-event event-work" style="top: 40px; height: 60px;">
-                                            Report Progress Follow-up<br>
-                                            10:15 AM - 11:45 AM
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="week-day-column">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                        <div class="week-event event-meeting" style="top: 220px; height: 150px;">
-                                            Weekly Team Catchup<br>
-                                            1:00 PM - 3:00 PM
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="week-day-column">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                    </div>
-                                </div>
-                                <div class="week-day-column">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                        <div class="week-event event-personal" style="top: 40px; height: 60px;">
-                                            Cleaning Service Provider<br>
-                                            10:15 AM - 11:45 AM
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="week-day-column">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                        <div class="week-event event-reminder" style="top: 400px; height: 60px;">
-                                            Planning Next Week<br>
-                                            3:00 PM - 4:00 PM
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div id="month-view" style="display: none;">
-                            <div class="calendar-grid">
-                                ${Array.from({ length: 35 }, (_, i) => {
-                                    const day = i - 4; // Start from previous month (-4)
-                                    const isCurrentMonth = day > 0 && day <= 31;
-                                    const isCurrentDay = day === 20;
-                                    
-                                    return `
-                                        <div class="calendar-day ${isCurrentMonth ? '' : 'not-current-month'} ${isCurrentDay ? 'current-day' : ''}">
-                                            <div class="calendar-day-header">
-                                                <div class="day-number">${isCurrentMonth ? day : (day <= 0 ? 31 + day : day - 31)}</div>
-                                            </div>
-                                            ${isCurrentMonth && day === 5 ? '<div class="calendar-event event-work">Team Meeting 9:30 AM</div>' : ''}
-                                            ${isCurrentMonth && day === 12 ? '<div class="calendar-event event-personal">Lunch with Client 12:30 PM</div>' : ''}
-                                            ${isCurrentMonth && day === 15 ? '<div class="calendar-event event-reminder">Project Deadline 5:00 PM</div>' : ''}
-                                            ${isCurrentMonth && day === 20 ? '<div class="calendar-event event-meeting">Weekly Review 2:00 PM</div>' : ''}
-                                            ${isCurrentMonth && day === 20 ? '<div class="calendar-event event-personal">Dinner 7:30 PM</div>' : ''}
-                                            ${isCurrentMonth && day === 25 ? '<div class="calendar-event event-work">Product Launch 10:00 AM</div>' : ''}
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-                        
-                        <div id="day-view" style="display: none;">
-                            <div class="week-body" style="height: 100%;">
-                                <div class="week-time-column">
-                                    ${Array.from({length: 12}, (_, i) => {
-                                        const hour = i + 9;
-                                        return `<div class="week-time-slot">${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}</div>`;
-                                    }).join('')}
-          </div>
-                                <div class="week-day-column" style="flex: 1;">
-                                    <div class="week-time-grid">
-                                        ${Array.from({length: 12}, () => `<div class="week-grid-hour"></div>`).join('')}
-                                        <div class="week-event event-meeting" style="top: 220px; height: 150px;">
-                                            Weekly Team Catchup<br>
-                                            1:00 PM - 3:00 PM
-          </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // Add the Calendar section to the main content
-                mainContent.appendChild(calendarSection);
-
-                // Set up event listeners for calendar functionality
-                const addEventBtn = document.getElementById('add-event-btn');
-                const eventModal = document.getElementById('event-modal');
-                const closeEventModal = document.querySelector('.event-modal-close');
-                const cancelEventBtn = document.getElementById('cancel-event-btn');
-                const saveEventBtn = document.getElementById('save-event-btn');
-                const deleteEventBtn = document.getElementById('delete-event-btn');
-                const eventForm = document.getElementById('event-form');
-                const eventTitleInput = document.getElementById('event-title');
-                const eventDateInput = document.getElementById('event-date');
-                
-                // Set default date to today
-                eventDateInput.valueAsDate = new Date();
-                
-                // Show event modal
-                addEventBtn.addEventListener('click', function() {
-                    // Reset form
-                    eventForm.reset();
-                    eventDateInput.valueAsDate = new Date();
-                    deleteEventBtn.style.display = 'none';
-                    document.querySelector('.event-modal-title').textContent = 'Add Event';
-                    
-                    // Show modal
-                    eventModal.style.display = 'flex';
-                });
-                
-                // Close event modal
-                function closeModal() {
-                    eventModal.style.display = 'none';
-                }
-                
-                closeEventModal.addEventListener('click', closeModal);
-                cancelEventBtn.addEventListener('click', closeModal);
-                
-                // Close modal when clicking outside
-                eventModal.addEventListener('click', function(event) {
-                    if (event.target === eventModal) {
-                        closeModal();
-                    }
-                });
-                
-                // Save event
-                saveEventBtn.addEventListener('click', function() {
-                    if (eventTitleInput.value.trim() === '') {
-                        alert('Please enter an event title');
-                        return;
-                    }
-                    
-                    // Here would be the code to save the event data
-                    // For now, just close the modal
-                    closeModal();
-                });
-                
-                // Switch between calendar views
-                const viewControls = document.querySelectorAll('.calendar-controls .view-control');
-                const monthView = document.getElementById('month-view');
-                const weekView = document.getElementById('week-view');
-                const dayView = document.getElementById('day-view');
-                
-                viewControls.forEach(control => {
-                    control.addEventListener('click', function() {
-                        // Remove active class from all controls
-                        viewControls.forEach(c => c.classList.remove('active'));
-                        
-                        // Add active class to clicked control
-                        this.classList.add('active');
-                        
-                        // Show correct view
-                        const view = this.getAttribute('data-view');
-                        
-                        monthView.style.display = view === 'month' ? 'block' : 'none';
-                        weekView.style.display = view === 'week' ? 'block' : 'none';
-                        dayView.style.display = view === 'day' ? 'block' : 'none';
-                    });
-                });
-                
-                // Make calendar events clickable to edit
-                const calendarEvents = document.querySelectorAll('.calendar-event, .week-event');
-                
-                calendarEvents.forEach(event => {
-                    event.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        
-                        // Set form values (in a real app, you'd use the actual event data)
-                        eventTitleInput.value = this.textContent.split('\n')[0].trim();
-                        
-                        // Show delete button
-                        deleteEventBtn.style.display = 'block';
-                        
-                        // Update modal title
-                        document.querySelector('.event-modal-title').textContent = 'Edit Event';
-                        
-                        // Show modal
-                        eventModal.style.display = 'flex';
-                    });
-                });
-                
-                // Allow adding events by clicking on the calendar days (month view)
-                const calendarDays = document.querySelectorAll('.calendar-day');
-                
-                calendarDays.forEach(day => {
-                    day.addEventListener('click', function(e) {
-                        if (e.target === day || e.target.classList.contains('day-number') || e.target.classList.contains('calendar-day-header')) {
-                            // Get the day number
-                            const dayNumber = this.querySelector('.day-number').textContent;
-                            
-                            // Set the date in the form
-                            const date = new Date();
-                            date.setDate(parseInt(dayNumber));
-                            eventDateInput.valueAsDate = date;
-                            
-                            // Reset the form
-                            eventForm.reset();
-                            deleteEventBtn.style.display = 'none';
-                            document.querySelector('.event-modal-title').textContent = 'Add Event';
-                            
-                            // Show modal
-                            eventModal.style.display = 'flex';
-                        }
-                    });
-                });
-                
-                // Add basic click interactions for week view
-                const weekGridHours = document.querySelectorAll('.week-grid-hour');
-                
-                weekGridHours.forEach((hour, index) => {
-                    hour.addEventListener('click', function() {
-                        // Reset form
-                        eventForm.reset();
-                        
-                        // Set the start time based on the clicked hour
-                        const startHour = 9 + Math.floor(index / 12);
-                        document.getElementById('event-start-time').value = `${startHour.toString().padStart(2, '0')}:00`;
-                        
-                        // Set end time to 1 hour later
-                        document.getElementById('event-end-time').value = `${(startHour + 1).toString().padStart(2, '0')}:00`;
-                        
-                        // Show modal
-                        deleteEventBtn.style.display = 'none';
-                        document.querySelector('.event-modal-title').textContent = 'Add Event';
-                        eventModal.style.display = 'flex';
-                    });
+            
+            // Settings event listeners
+            const saveSettingsBtn = document.getElementById('save-settings-btn');
+            const saveAppearanceBtn = document.getElementById('save-appearance-btn');
+            
+            if (saveSettingsBtn) {
+                saveSettingsBtn.addEventListener('click', function() {
+                    alert('Settings saved successfully!');
                 });
             }
             
-            // Dark mode toggle functionality
+            if (saveAppearanceBtn) {
+                saveAppearanceBtn.addEventListener('click', function() {
+                    alert('Appearance settings saved successfully!');
+                    
+                    // Apply theme based on selection
+                    const themeSelection = document.querySelector('input[name="theme"]:checked').value;
+                    const themeToggle = document.getElementById('theme-toggle');
+                    
+                    if (themeSelection === 'dark') {
+                        themeToggle.checked = true;
+                        document.body.classList.add('dark-theme');
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else if (themeSelection === 'light') {
+                        themeToggle.checked = false;
+                        document.body.classList.remove('dark-theme');
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+            
+            // Theme sync between settings and toggle
+            const darkThemeRadio = document.getElementById('dark-theme');
+            const lightThemeRadio = document.getElementById('light-theme');
             const themeToggle = document.getElementById('theme-toggle');
-            const body = document.querySelector('body');
             
-            // Check if a theme preference is stored
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                body.classList.add('dark-theme');
-                themeToggle.checked = true;
-            }
-            
-            themeToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    body.classList.add('dark-theme');
-                    localStorage.setItem('darkMode', 'enabled');
+            if (darkThemeRadio && lightThemeRadio && themeToggle) {
+                // Set initial value based on current theme
+                if (document.body.classList.contains('dark-theme')) {
+                    darkThemeRadio.checked = true;
                 } else {
-                    body.classList.remove('dark-theme');
-                    localStorage.setItem('darkMode', 'disabled');
+                    lightThemeRadio.checked = true;
                 }
-            });
+                
+                // Listen for toggle changes
+                themeToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        darkThemeRadio.checked = true;
+                    } else {
+                        lightThemeRadio.checked = true;
+                    }
+                });
+            }
         });
   </script>
 </body>
