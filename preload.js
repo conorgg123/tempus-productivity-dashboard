@@ -30,6 +30,13 @@ contextBridge.exposeInMainWorld(
         });
         ipcRenderer.send('load-from-file', filename);
       });
+    },
+    getPersonalData: () => {
+      // Access the shared data from the main process
+      if (global.sharedData && global.sharedData.initialData) {
+        return global.sharedData.initialData;
+      }
+      return null;
     }
   }
 );

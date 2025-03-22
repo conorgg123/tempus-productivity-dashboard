@@ -71,12 +71,41 @@ function loadData() {
       const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
       return data;
     } else {
-      fs.writeFileSync(dataFilePath, JSON.stringify(defaultData));
-      return defaultData;
+      // Initialize with minimal structure instead of mock data
+      const initialData = {
+        date: new Date().toISOString().split('T')[0],
+        totalWorked: {
+          hours: 0,
+          minutes: 0
+        },
+        percentOfDay: 0,
+        taskBreakdown: {
+          focus: 0,
+          meetings: 0,
+          breaks: 0,
+          other: 0
+        },
+        projects: [],
+        apps: [],
+        categories: [],
+        timelineBlocks: []
+      };
+      fs.writeFileSync(dataFilePath, JSON.stringify(initialData));
+      return initialData;
     }
   } catch (error) {
     console.error('Error loading data:', error);
-    return defaultData;
+    // Return empty data structure on error
+    return {
+      date: new Date().toISOString().split('T')[0],
+      totalWorked: { hours: 0, minutes: 0 },
+      percentOfDay: 0,
+      taskBreakdown: { focus: 0, meetings: 0, breaks: 0, other: 0 },
+      projects: [],
+      apps: [],
+      categories: [],
+      timelineBlocks: []
+    };
   }
 }
 
@@ -92,6 +121,14 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'public/favicon.ico')
   });
+
+  // Load initial data
+  const initialData = loadData();
+
+  // Make data available to renderer process
+  global.sharedData = {
+    initialData
+  };
 
   // Load the app
   const startUrl = isDev 

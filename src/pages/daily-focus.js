@@ -57,20 +57,31 @@ export default function DailyFocus() {
 
   useEffect(() => {
     async function loadInitialData() {
+      // Try to get personal data from main process first
+      let personalData = null;
+      if (window.api && window.api.getPersonalData) {
+        personalData = window.api.getPersonalData();
+      }
+      
       // Load focus tasks
-      const savedTasks = await loadData('focus-tasks', []);
+      const savedTasks = await loadData('focus-tasks', personalData?.focusTasks || []);
       setTasks(savedTasks);
       
-      // Load projects
-      const projectsData = await loadData('projects', [
-        { id: 'work', name: 'Work', color: '#e74c3c' },
-        { id: 'personal', name: 'Personal', color: '#2ecc71' },
-        { id: 'learning', name: 'Learning', color: '#3498db' }
-      ]);
+      // Load projects from storage or personal data
+      let projectsData;
+      if (personalData?.projects && personalData.projects.length > 0) {
+        projectsData = personalData.projects;
+      } else {
+        projectsData = await loadData('projects', [
+          { id: 'work', name: 'Work', color: '#e74c3c' },
+          { id: 'personal', name: 'Personal', color: '#2ecc71' },
+          { id: 'learning', name: 'Learning', color: '#3498db' }
+        ]);
+      }
       setProjects(projectsData);
       
-      // Load todo tasks
-      const todosData = await loadData('todos', []);
+      // Load todo tasks from storage or personal data
+      const todosData = await loadData('todos', personalData?.todos || []);
       setTodos(todosData);
       
       // Set default project if available
@@ -78,7 +89,8 @@ export default function DailyFocus() {
         setSelectedProject(projectsData[0].id);
       }
       
-      const savedStats = await loadData('focus-stats', {
+      // Load stats from storage or personal data
+      const savedStats = await loadData('focus-stats', personalData?.focusStats || {
         date: new Date().toLocaleDateString(),
         totalTracked: 0,
         taskBreakdown: []

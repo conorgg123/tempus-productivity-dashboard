@@ -46,14 +46,27 @@ export default function TodoList() {
 
   useEffect(() => {
     async function loadInitialData() {
-      const todosData = await loadData('todos', []);
+      // Try to get personal data from main process first
+      let personalData = null;
+      if (window.api && window.api.getPersonalData) {
+        personalData = window.api.getPersonalData();
+      }
+      
+      // Load todos from storage or personal data
+      const todosData = await loadData('todos', personalData?.todos || []);
       setTodos(todosData);
       
-      const projectsData = await loadData('projects', [
-        { id: 'work', name: 'Work', color: '#e74c3c' },
-        { id: 'personal', name: 'Personal', color: '#2ecc71' },
-        { id: 'learning', name: 'Learning', color: '#3498db' }
-      ]);
+      // Load projects from storage or personal data
+      let projectsData;
+      if (personalData?.projects && personalData.projects.length > 0) {
+        projectsData = personalData.projects;
+      } else {
+        projectsData = await loadData('projects', [
+          { id: 'work', name: 'Work', color: '#e74c3c' },
+          { id: 'personal', name: 'Personal', color: '#2ecc71' },
+          { id: 'learning', name: 'Learning', color: '#3498db' }
+        ]);
+      }
       setProjects(projectsData);
       
       // Set default project if available
