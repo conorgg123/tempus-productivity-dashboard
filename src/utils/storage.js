@@ -1,6 +1,6 @@
 // Check if running in Electron
-const isElectron = () => {
-  return typeof window !== 'undefined' && window.api;
+export const isElectron = () => {
+  return typeof window !== 'undefined' && window.electron !== undefined;
 };
 
 // Load data from storage
@@ -18,7 +18,7 @@ export const loadData = async (key, defaultValue = null) => {
 
     // If running in Electron, try to load from file
     if (isElectron()) {
-      const fileData = await window.api.loadFromFile(`${key}.json`);
+      const fileData = await window.electron.loadFromFile(`${key}.json`);
       if (fileData) {
         // Save to localStorage for future quick access
         localStorage.setItem(key, JSON.stringify(fileData));
@@ -45,7 +45,7 @@ export const saveData = (key, data) => {
     
     // If running in Electron, also save to file for persistence
     if (isElectron()) {
-      window.api.saveToFile(`${key}.json`, data);
+      window.electron.saveToFile(`${key}.json`, data);
     }
   } catch (error) {
     console.error(`Error saving data for key ${key}:`, error);
@@ -78,7 +78,7 @@ export const setItem = (key, value) => {
     
     // If running in Electron, also save to file for persistence
     if (isElectron()) {
-      window.api.saveToFile(`${key}.json`, value);
+      window.electron.saveToFile(`${key}.json`, value);
     }
   } catch (error) {
     console.error(`Error setting item for key ${key}:`, error);
