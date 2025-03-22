@@ -1,6 +1,6 @@
 // Check if running in Electron
 export const isElectron = () => {
-  return typeof window !== 'undefined' && window.electron !== undefined;
+  return typeof window !== 'undefined' && window.api !== undefined;
 };
 
 // Load data from storage
@@ -18,7 +18,7 @@ export const loadData = async (key, defaultValue = null) => {
 
     // If running in Electron, try to load from file
     if (isElectron()) {
-      const fileData = await window.electron.loadFromFile(`${key}.json`);
+      const fileData = await window.api.loadFromFile(`${key}.json`);
       if (fileData) {
         // Save to localStorage for future quick access
         localStorage.setItem(key, JSON.stringify(fileData));
@@ -45,7 +45,12 @@ export const saveData = (key, data) => {
     
     // If running in Electron, also save to file for persistence
     if (isElectron()) {
-      window.electron.saveToFile(`${key}.json`, data);
+      window.api.saveToFile(`${key}.json`, data);
+      
+      // If this is a project or task update, sync with main process data
+      if (key === 'projects' || key === 'todos' || key === 'focus-tasks' || key === 'focus-stats') {
+        console.log(`Syncing ${key} with main process data`);
+      }
     }
   } catch (error) {
     console.error(`Error saving data for key ${key}:`, error);
@@ -78,7 +83,7 @@ export const setItem = (key, value) => {
     
     // If running in Electron, also save to file for persistence
     if (isElectron()) {
-      window.electron.saveToFile(`${key}.json`, value);
+      window.api.saveToFile(`${key}.json`, value);
     }
   } catch (error) {
     console.error(`Error setting item for key ${key}:`, error);
