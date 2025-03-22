@@ -3511,6 +3511,7 @@
                                     ${task.dueDate ? `<div class="task-due-date"><span>📅</span> ${dueDateFormatted}</div>` : ''}
                                     ${task.startTime ? `<div class="task-start-time"><span>🕒</span> ${startTimeFormatted}</div>` : ''}
                                     ${task.duration ? `<div class="task-duration"><span>⏱️</span> ${durationFormatted}</div>` : ''}
+                                    ${task.timeSpent ? `<div class="task-time-spent"><span>⌛</span> ${Math.floor(task.timeSpent / 60)}h ${task.timeSpent % 60}m spent</div>` : ''}
                                     <div class="task-priority">
                                         <div class="priority-indicator priority-${task.priority}"></div>
                                         ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
@@ -4351,6 +4352,14 @@
                     return;
                 }
                 
+                // Get tasks from localStorage for showing task names
+                let tasks = [];
+                try {
+                    tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                } catch (error) {
+                    console.error('Error loading tasks:', error);
+                }
+                
                 let activitiesHTML = `<h3 style="margin-bottom: 15px;">Recent Activities</h3>`;
                 
                 todayActivities.forEach(activity => {
@@ -4376,6 +4385,15 @@
                     
                     const color = colors[activity.categoryId] || colors.other;
                     
+                    // Get associated task name if exists
+                    let taskInfo = '';
+                    if (activity.taskId) {
+                        const task = tasks.find(t => t.id === activity.taskId);
+                        if (task) {
+                            taskInfo = `<div style="margin-top: 5px; font-size: 12px; background-color: rgba(0,0,0,0.05); padding: 3px 8px; border-radius: 4px; display: inline-block;">Task: ${task.title}</div>`;
+                        }
+                    }
+                    
                     activitiesHTML += `
                         <div class="activity-item" style="background-color: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -4389,6 +4407,7 @@
                                 <div>${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                 <div>${activity.categoryId.charAt(0).toUpperCase() + activity.categoryId.slice(1)}</div>
                             </div>
+                            ${taskInfo}
                         </div>
                     `;
                 });
