@@ -2538,6 +2538,119 @@
             </div>
         </div>
     </div>
+
+    <!-- Calendar Section -->
+    <div id="calendar-section" class="tab-content" style="display: none; width: 100%;">
+        <!-- Calendar content will be dynamically loaded by the CalendarManager -->
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-section" class="tab-content" style="display: none;">
+        <div class="header">
+            <div class="date">
+                Settings
+                <div class="status">
+                    <div class="status-indicator"></div>
+                    <span>Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <div class="section-title">General Settings</div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="event-form-group">
+                    <label class="event-form-label">Display Name</label>
+                    <input type="text" class="event-form-input" id="settings-display-name" placeholder="Your Name" value="John Doe">
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Email</label>
+                    <input type="email" class="event-form-input" id="settings-email" placeholder="Your Email" value="john.doe@example.com">
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Language</label>
+                    <select class="event-form-select" id="settings-language">
+                        <option value="en">English</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                    </select>
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Time Zone</label>
+                    <select class="event-form-select" id="settings-timezone">
+                        <option value="utc">UTC</option>
+                        <option value="est" selected>Eastern Standard Time</option>
+                        <option value="cst">Central Standard Time</option>
+                        <option value="mst">Mountain Standard Time</option>
+                        <option value="pst">Pacific Standard Time</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="calendar-new-btn" id="save-settings-btn">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="section-title">Appearance</div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="event-form-group">
+                    <label class="event-form-label">Theme</label>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div>
+                            <input type="radio" id="light-theme" name="theme" value="light" checked>
+                            <label for="light-theme" style="margin-left: 5px;">Light</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="dark-theme" name="theme" value="dark">
+                            <label for="dark-theme" style="margin-left: 5px;">Dark</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="auto-theme" name="theme" value="auto">
+                            <label for="auto-theme" style="margin-left: 5px;">System Default</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="event-form-group">
+                    <label class="event-form-label">Font Size</label>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div>
+                            <input type="radio" id="small-font" name="font-size" value="small">
+                            <label for="small-font" style="margin-left: 5px;">Small</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="medium-font" name="font-size" value="medium" checked>
+                            <label for="medium-font" style="margin-left: 5px;">Medium</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="large-font" name="font-size" value="large">
+                            <label for="large-font" style="margin-left: 5px;">Large</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="calendar-new-btn" id="save-appearance-btn">
+                    Save Appearance
+                </button>
+            </div>
+        </div>
+    </div>
   </div>
 
   <script>
