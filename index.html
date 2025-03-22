@@ -1545,6 +1545,63 @@
         </div>
     </div>
 
+    <!-- Event Modal -->
+    <div class="event-modal" id="event-modal">
+        <div class="event-modal-content">
+            <div class="event-modal-header">
+                <div class="event-modal-title">Add Event</div>
+                <button class="event-modal-close">&times;</button>
+            </div>
+            <div class="event-modal-body">
+                <form id="event-form">
+                    <div class="event-form-group">
+                        <label class="event-form-label">Title</label>
+                        <input type="text" class="event-form-input" id="event-title" placeholder="Add title" required>
+                    </div>
+                    <div class="event-form-row">
+                        <div class="event-form-group">
+                            <label class="event-form-label">Date</label>
+                            <input type="date" class="event-form-input" id="event-date" required>
+                        </div>
+                        <div class="event-form-group">
+                            <label class="event-form-label">Event type</label>
+                            <select class="event-form-select" id="event-type">
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="reminder">Reminder</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="event-form-row">
+                        <div class="event-form-group">
+                            <label class="event-form-label">Start time</label>
+                            <input type="time" class="event-form-input" id="event-start-time">
+                        </div>
+                        <div class="event-form-group">
+                            <label class="event-form-label">End time</label>
+                            <input type="time" class="event-form-input" id="event-end-time">
+                        </div>
+                    </div>
+                    <div class="event-form-group">
+                        <label class="event-form-label">Location</label>
+                        <input type="text" class="event-form-input" id="event-location" placeholder="Add location">
+                    </div>
+                    <div class="event-form-group">
+                        <label class="event-form-label">Description</label>
+                        <textarea class="event-form-textarea" id="event-description" rows="3" placeholder="Add description"></textarea>
+                    </div>
+                    <input type="hidden" id="event-id">
+                </form>
+            </div>
+            <div class="event-modal-footer">
+                <button class="event-form-btn btn-delete" id="delete-event-btn" style="display: none;">Delete</button>
+                <button class="event-form-btn btn-cancel" id="cancel-event-btn">Cancel</button>
+                <button class="event-form-btn btn-save" id="save-event-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Task checkbox functionality
         document.querySelectorAll('.task-checkbox').forEach(checkbox => {
