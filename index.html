@@ -2326,6 +2326,29 @@
                             </select>
                         </div>
                     </div>
+                    <div class="event-form-row">
+                        <div class="event-form-group">
+                            <label class="event-form-label">Start Time</label>
+                            <input type="time" id="task-start-time" class="event-form-input">
+                        </div>
+                        <div class="event-form-group">
+                            <label class="event-form-label">Estimated Duration</label>
+                            <select id="task-duration" class="event-form-select">
+                                <option value="30">30 minutes</option>
+                                <option value="60" selected>1 hour</option>
+                                <option value="90">1.5 hours</option>
+                                <option value="120">2 hours</option>
+                                <option value="150">2.5 hours</option>
+                                <option value="180">3 hours</option>
+                                <option value="210">3.5 hours</option>
+                                <option value="240">4 hours</option>
+                                <option value="300">5 hours</option>
+                                <option value="360">6 hours</option>
+                                <option value="420">7 hours</option>
+                                <option value="480">8 hours</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="event-form-group">
                         <label class="event-form-label">Notes (Optional)</label>
                         <textarea id="task-notes-input" class="event-form-textarea" rows="3" placeholder="Add notes about this task"></textarea>
@@ -3110,7 +3133,7 @@
             }
             
             // Add a new task
-            addTask(title, projectId, dueDate = null, priority = 'medium', notes = '') {
+            addTask(title, projectId, dueDate = null, priority = 'medium', notes = '', startTime = null, duration = 60) {
                 if (!title) {
                     alert('Please enter a task title');
                     return;
@@ -3123,6 +3146,8 @@
                     dueDate: dueDate,
                     priority: priority,
                     notes: notes,
+                    startTime: startTime,
+                    duration: duration, // in minutes
                     completed: false,
                     createdAt: new Date().toISOString()
                 };
