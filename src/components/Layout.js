@@ -70,19 +70,25 @@ export default function Layout({ children }) {
         </div>
         
         <nav className={styles.nav}>
-          <Link href="/" className={`${styles.navLink} ${isActive('dashboard') ? styles.active : ''}`}>
-            <span className="material-icons">dashboard</span>
-            <span>Dashboard</span>
+          <Link href="/">
+            <a className={`${styles.navLink} ${isActive('dashboard') ? styles.active : ''}`}>
+              <span className="material-icons">dashboard</span>
+              <span>Dashboard</span>
+            </a>
           </Link>
           
-          <Link href="/youtube-manager" className={`${styles.navLink} ${isActive('youtube-manager') ? styles.active : ''}`}>
-            <span className="material-icons">video_library</span>
-            <span>YouTube Manager</span>
+          <Link href="/youtube-manager">
+            <a className={`${styles.navLink} ${isActive('youtube-manager') ? styles.active : ''}`}>
+              <span className="material-icons">video_library</span>
+              <span>YouTube Manager</span>
+            </a>
           </Link>
           
-          <Link href="/settings" className={`${styles.navLink} ${isActive('settings') ? styles.active : ''}`}>
-            <span className="material-icons">settings</span>
-            <span>Settings</span>
+          <Link href="/settings">
+            <a className={`${styles.navLink} ${isActive('settings') ? styles.active : ''}`}>
+              <span className="material-icons">settings</span>
+              <span>Settings</span>
+            </a>
           </Link>
         </nav>
         
