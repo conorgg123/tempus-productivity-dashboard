@@ -1743,74 +1743,76 @@
     </div>
     
     <!-- Main Content -->
-  <div class="main-content">
-        <!-- Header -->
-    <div class="header">
-            <div class="date">
-                Wednesday, September 8, 2023
-                <div class="status">
-                    <div class="status-indicator"></div>
-                    <span>Active</span>
-      </div>
+    <div class="main-content">
+        <!-- Dashboard content will only be shown when dashboard is active -->
+        <div id="dashboard-content" class="dashboard-wrapper">
+            <!-- Header -->
+            <div class="header">
+                <div class="date">
+                    Wednesday, September 8, 2023
+                    <div class="status">
+                        <div class="status-indicator"></div>
+                        <span>Active</span>
+                    </div>
+                </div>
+                
+                <div class="view-controls-wrapper" style="display: flex; align-items: center;">
+                    <div class="view-controls">
+                        <div class="view-control active">Day</div>
+                        <div class="view-control">Week</div>
+                        <div class="view-control">Month</div>
+                    </div>
+                    <button class="today-btn">Today</button>
+                </div>
             </div>
             
-            <div class="view-controls-wrapper" style="display: flex; align-items: center;">
-                <div class="view-controls">
-                    <div class="view-control active">Day</div>
-                    <div class="view-control">Week</div>
-                    <div class="view-control">Month</div>
+            <!-- Timeline -->
+            <div class="timeline">
+                <div class="section-title">Timeline</div>
+                
+                <div class="timeline-grid">
+                    <div class="timeline-hour">
+                        <div class="hour-label">9:00</div>
+            </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">10:00</div>
+              </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">11:00</div>
+              </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">12:00</div>
+              </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">13:00</div>
+                        <div class="event design">Design</div>
+              </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">14:00</div>
+            </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">15:00</div>
+                    </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">16:00</div>
+                    </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">17:00</div>
+                    </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">18:00</div>
+                    </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">19:00</div>
+                        <div class="event meetings">Meetings</div>
+                    </div>
+                    <div class="timeline-hour">
+                        <div class="hour-label">20:00</div>
+                        <div class="event development">Development</div>
+                        <div class="event breaks">Breaks</div>
+          </div>
         </div>
-        <button class="today-btn">Today</button>
-      </div>
-    </div>
-    
-        <!-- Timeline -->
-        <div class="timeline">
-      <div class="section-title">Timeline</div>
             
-            <div class="timeline-grid">
-                <div class="timeline-hour">
-                    <div class="hour-label">9:00</div>
-        </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">10:00</div>
-          </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">11:00</div>
-          </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">12:00</div>
-          </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">13:00</div>
-                    <div class="event design">Design</div>
-          </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">14:00</div>
-        </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">15:00</div>
-                </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">16:00</div>
-                </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">17:00</div>
-                </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">18:00</div>
-                </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">19:00</div>
-                    <div class="event meetings">Meetings</div>
-                </div>
-                <div class="timeline-hour">
-                    <div class="hour-label">20:00</div>
-                    <div class="event development">Development</div>
-                    <div class="event breaks">Breaks</div>
-      </div>
-    </div>
-    
             <div class="legend">
                 <div class="legend-item">
                     <div class="legend-color" style="background-color: var(--primary);"></div>
@@ -2994,6 +2996,16 @@
                         content.style.display = 'none';
                     });
                     
+                    // Hide or show dashboard content based on which tab is selected
+                    const dashboardContent = document.getElementById('dashboard-content');
+                    if (dashboardContent) {
+                        if (tab.getAttribute('data-target') === 'dashboard-section') {
+                            dashboardContent.style.display = 'block';
+                        } else {
+                            dashboardContent.style.display = 'none';
+                        }
+                    }
+                    
                     // Remove active class from all tabs
                     tabs.forEach(t => t.classList.remove('active-tab'));
                     
@@ -3950,6 +3962,23 @@
             
             // Initialize the Reminders Manager
             const remindersManager = new RemindersManager();
+            
+            // Setup click handler for Timer tab to ensure it takes full page
+            document.querySelector('.nav-item[data-target="timer-section"]').addEventListener('click', () => {
+                // Hide dashboard content
+                const dashboardContent = document.getElementById('dashboard-content');
+                if (dashboardContent) {
+                    dashboardContent.style.display = 'none';
+                }
+                
+                // Show timer section
+                document.getElementById('timer-section').style.display = 'block';
+                
+                // Hide other tab content
+                document.querySelectorAll('.tab-content:not(#timer-section)').forEach(section => {
+                    section.style.display = 'none';
+                });
+            });
             
             // Make projects & tasks section active
             document.getElementById('projects-section').style.display = 'block';
