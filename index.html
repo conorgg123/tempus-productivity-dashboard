@@ -3872,12 +3872,570 @@
             // Initialize the Projects Manager
             const projectsManager = new ProjectsManager();
             
+            // Initialize the Timer Manager
+            const timerManager = new TimerManager();
+            
+            // Initialize the Reminders Manager
+            const remindersManager = new RemindersManager();
+            
             // Make projects & tasks section active
             document.getElementById('projects-section').style.display = 'block';
             document.querySelectorAll('.tab-content:not(#projects-section)').forEach(section => {
                 section.style.display = 'none';
             });
         });
+        
+        // Timer Manager
+        class TimerManager {
+            constructor() {
+                this.activities = [];
+                this.isRunning = false;
+                this.isPaused = false;
+                this.startTime = null;
+                this.pauseTime = null;
+                this.totalPausedTime = 0;
+                this.timerInterval = null;
+                this.activeView = 'day';
+                this.currentActivity = {
+                    name: '',
+                    categoryId: 'focus'
+                };
+                
+                this.loadActivities();
+                this.setupEventListeners();
+                this.updateStats();
+                this.renderTimeline();
+                this.renderActivities();
+            }
+            
+            // Load activities from localStorage
+            loadActivities() {
+                try {
+                    const savedActivities = JSON.parse(localStorage.getItem('time-tracking-activities')) || [];
+                    this.activities = savedActivities;
+                } catch (error) {
+                    console.error('Error loading activities:', error);
+                    this.activities = [];
+                }
+            }
+            
+            // Save activities to localStorage
+            saveActivities() {
+                localStorage.setItem('time-tracking-activities', JSON.stringify(this.activities));
+            }
+            
+            // Setup event listeners
+            setupEventListeners() {
+                // Timer control buttons
+                document.getElementById('timer-start-btn').addEventListener('click', () => this.startTimer());
+                document.getElementById('timer-pause-btn').addEventListener('click', () => this.pauseTimer());
+                document.getElementById('timer-stop-btn').addEventListener('click', () => this.stopTimer());
+                
+                // View controls
+                document.querySelectorAll('[data-timer-view]').forEach(control => {
+                    control.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-timer-view]').forEach(c => c.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.activeView = e.target.getAttribute('data-timer-view');
+                        this.renderTimeline();
+                    });
+                });
+            }
+            
+            // Start the timer
+            startTimer() {
+                const activityName = document.getElementById('activity-name').value;
+                const categoryId = document.getElementById('activity-category').value;
+                
+                if (!activityName) {
+                    alert('Please enter an activity name');
+                    return;
+                }
+                
+                if (this.isPaused) {
+                    // Resume from pause
+                    this.isPaused = false;
+                    this.totalPausedTime += (Date.now() - this.pauseTime);
+                } else {
+                    // Start new timer
+                    this.startTime = Date.now();
+                    this.totalPausedTime = 0;
+                    this.currentActivity = {
+                        name: activityName,
+                        categoryId: categoryId
+                    };
+                }
+                
+                this.isRunning = true;
+                this.updateTimerDisplay();
+                
+                document.getElementById('timer-start-btn').style.display = 'none';
+                document.getElementById('timer-pause-btn').style.display = 'block';
+                document.getElementById('timer-stop-btn').style.display = 'block';
+                document.querySelector('.timer-status').textContent = 'Timer running';
+                
+                // Update timer every second
+                this.timerInterval = setInterval(() => {
+                    this.updateTimerDisplay();
+                }, 1000);
+            }
+            
+            // Pause the timer
+            pauseTimer() {
+                if (!this.isRunning) return;
+                
+                this.isPaused = true;
+                this.pauseTime = Date.now();
+                clearInterval(this.timerInterval);
+                
+                document.getElementById('timer-start-btn').style.display = 'block';
+                document.getElementById('timer-pause-btn').style.display = 'none';
+                document.querySelector('.timer-status').textContent = 'Timer paused';
+            }
+            
+            // Stop the timer and save the activity
+            stopTimer() {
+                if (!this.isRunning) return;
+                
+                clearInterval(this.timerInterval);
+                
+                const endTime = Date.now();
+                const elapsedTime = endTime - this.startTime - this.totalPausedTime;
+                
+                // Only save if more than 5 seconds have elapsed
+                if (elapsedTime > 5000) {
+                    const newActivity = {
+                        id: Date.now().toString(),
+                        name: this.currentActivity.name,
+                        categoryId: this.currentActivity.categoryId,
+                        startTime: new Date(this.startTime).toISOString(),
+                        endTime: new Date(endTime).toISOString(),
+                        duration: Math.floor(elapsedTime / 1000), // duration in seconds
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    this.activities.push(newActivity);
+                    this.saveActivities();
+                    this.updateStats();
+                    this.renderTimeline();
+                    this.renderActivities();
+                }
+                
+                // Reset timer state
+                this.isRunning = false;
+                this.isPaused = false;
+                this.startTime = null;
+                this.pauseTime = null;
+                this.totalPausedTime = 0;
+                
+                // Reset UI
+                document.querySelector('.time-display').textContent = '00:00:00';
+                document.querySelector('.timer-status').textContent = 'Ready to start';
+                document.getElementById('timer-start-btn').style.display = 'block';
+                document.getElementById('timer-pause-btn').style.display = 'none';
+                document.getElementById('timer-stop-btn').style.display = 'none';
+            }
+            
+            // Update the timer display
+            updateTimerDisplay() {
+                if (!this.isRunning) return;
+                
+                const now = Date.now();
+                const elapsedTime = now - this.startTime - this.totalPausedTime;
+                
+                const seconds = Math.floor((elapsedTime / 1000) % 60);
+                const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+                const hours = Math.floor((elapsedTime / (1000 * 60 * 60)));
+                
+                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.querySelector('.time-display').textContent = display;
+            }
+            
+            // Update the statistics display
+            updateStats() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todayActivities = this.activities.filter(activity => {
+                    const activityDate = new Date(activity.startTime);
+                    activityDate.setHours(0, 0, 0, 0);
+                    return activityDate.getTime() === today.getTime();
+                });
+                
+                const totalSeconds = todayActivities.reduce((total, activity) => total + activity.duration, 0);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                
+                document.getElementById('today-total-time').textContent = `${hours}h ${minutes}m`;
+                document.getElementById('today-activities-count').textContent = todayActivities.length;
+                
+                // Also update history summary if on history page
+                this.updateHistorySummary();
+            }
+            
+            // Update the history summary
+            updateHistorySummary() {
+                const dateRangeSelect = document.getElementById('date-range');
+                const categoryFilter = document.getElementById('category-filter');
+                
+                if (!dateRangeSelect || !categoryFilter) return;
+                
+                const dateRange = dateRangeSelect.value;
+                const category = categoryFilter.value;
+                
+                let filteredActivities = [...this.activities];
+                
+                // Apply date filter
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (dateRange === 'today') {
+                    filteredActivities = filteredActivities.filter(activity => {
+                        const activityDate = new Date(activity.startTime);
+                        activityDate.setHours(0, 0, 0, 0);
+                        return activityDate.getTime() === today.getTime();
+                    });
+                } else if (dateRange === 'yesterday') {
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    filteredActivities = filteredActivities.filter(activity => {
+                        const activityDate = new Date(activity.startTime);
+                        activityDate.setHours(0, 0, 0, 0);
+                        return activityDate.getTime() === yesterday.getTime();
+                    });
+                } else if (dateRange === 'week') {
+                    const weekStart = new Date(today);
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                    
+                    filteredActivities = filteredActivities.filter(activity => {
+                        const activityDate = new Date(activity.startTime);
+                        return activityDate >= weekStart;
+                    });
+                } else if (dateRange === 'month') {
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    
+                    filteredActivities = filteredActivities.filter(activity => {
+                        const activityDate = new Date(activity.startTime);
+                        return activityDate >= monthStart;
+                    });
+                }
+                
+                // Apply category filter
+                if (category !== 'all') {
+                    filteredActivities = filteredActivities.filter(activity => activity.categoryId === category);
+                }
+                
+                // Update summary stats
+                const totalSeconds = filteredActivities.reduce((total, activity) => total + activity.duration, 0);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                
+                document.getElementById('summary-total-time').textContent = `${hours}h ${minutes}m`;
+                document.getElementById('summary-activities-count').textContent = filteredActivities.length;
+                
+                // Find most common activity
+                if (filteredActivities.length > 0) {
+                    const activityCounts = {};
+                    filteredActivities.forEach(activity => {
+                        activityCounts[activity.name] = (activityCounts[activity.name] || 0) + 1;
+                    });
+                    
+                    let mostCommonActivity = '';
+                    let maxCount = 0;
+                    
+                    for (const [activity, count] of Object.entries(activityCounts)) {
+                        if (count > maxCount) {
+                            mostCommonActivity = activity;
+                            maxCount = count;
+                        }
+                    }
+                    
+                    document.getElementById('most-common-activity').textContent = mostCommonActivity;
+                } else {
+                    document.getElementById('most-common-activity').textContent = 'None';
+                }
+                
+                // Render history list
+                this.renderHistoryList(filteredActivities);
+            }
+            
+            // Render the activity timeline
+            renderTimeline() {
+                // Would generate hour markers and position activities on timeline
+                // This is a simplified version
+            }
+            
+            // Render the activities list
+            renderActivities() {
+                const activitiesList = document.getElementById('activities-list');
+                if (!activitiesList) return;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todayActivities = this.activities.filter(activity => {
+                    const activityDate = new Date(activity.startTime);
+                    activityDate.setHours(0, 0, 0, 0);
+                    return activityDate.getTime() === today.getTime();
+                }).sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                
+                if (todayActivities.length === 0) {
+                    activitiesList.innerHTML = `
+                        <h3 style="margin-bottom: 15px;">Recent Activities</h3>
+                        <div class="empty-state" style="text-align: center; padding: 30px; color: var(--gray-dark);">
+                            No activities recorded yet. Start a timer to begin tracking.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let activitiesHTML = `<h3 style="margin-bottom: 15px;">Recent Activities</h3>`;
+                
+                todayActivities.forEach(activity => {
+                    const startTime = new Date(activity.startTime);
+                    const endTime = new Date(activity.endTime);
+                    const duration = activity.duration;
+                    
+                    const hours = Math.floor(duration / 3600);
+                    const minutes = Math.floor((duration % 3600) / 60);
+                    const seconds = Math.floor(duration % 60);
+                    
+                    const durationDisplay = hours > 0 
+                        ? `${hours}h ${minutes}m` 
+                        : `${minutes}m ${seconds}s`;
+                    
+                    // Get color based on category
+                    const colors = {
+                        focus: 'var(--primary)',
+                        meetings: 'var(--accent2)',
+                        breaks: 'var(--danger)',
+                        other: 'var(--gray-dark)'
+                    };
+                    
+                    const color = colors[activity.categoryId] || colors.other;
+                    
+                    activitiesHTML += `
+                        <div class="activity-item" style="background-color: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: ${color}; margin-right: 10px;"></div>
+                                    <div style="font-weight: 500;">${activity.name}</div>
+                                </div>
+                                <div style="color: var(--gray-dark);">${durationDisplay}</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; color: var(--gray-dark);">
+                                <div>${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                <div>${activity.categoryId.charAt(0).toUpperCase() + activity.categoryId.slice(1)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                activitiesList.innerHTML = activitiesHTML;
+            }
+            
+            // Render the history list
+            renderHistoryList(filteredActivities) {
+                const historyList = document.getElementById('history-list');
+                const emptyState = document.getElementById('empty-history');
+                
+                if (!historyList || !emptyState) return;
+                
+                if (filteredActivities.length === 0) {
+                    historyList.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                historyList.style.display = 'block';
+                
+                // Group activities by date
+                const groupedActivities = {};
+                
+                filteredActivities.sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+                    .forEach(activity => {
+                        const date = new Date(activity.startTime).toDateString();
+                        if (!groupedActivities[date]) {
+                            groupedActivities[date] = [];
+                        }
+                        groupedActivities[date].push(activity);
+                    });
+                
+                let historyHTML = '';
+                
+                for (const [date, activities] of Object.entries(groupedActivities)) {
+                    historyHTML += `
+                        <div class="history-date" style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--gray);">${date}</h4>
+                            <div class="date-activities">
+                    `;
+                    
+                    activities.forEach(activity => {
+                        const startTime = new Date(activity.startTime);
+                        const duration = activity.duration;
+                        
+                        const hours = Math.floor(duration / 3600);
+                        const minutes = Math.floor((duration % 3600) / 60);
+                        
+                        const durationDisplay = hours > 0 
+                            ? `${hours}h ${minutes}m` 
+                            : `${minutes}m`;
+                        
+                        // Get color based on category
+                        const colors = {
+                            focus: 'var(--primary)',
+                            meetings: 'var(--accent2)',
+                            breaks: 'var(--danger)',
+                            other: 'var(--gray-dark)'
+                        };
+                        
+                        const color = colors[activity.categoryId] || colors.other;
+                        
+                        historyHTML += `
+                            <div class="activity-item" style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--gray); align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; margin-right: 10px;"></div>
+                                    <div>
+                                        <div style="font-weight: 500;">${activity.name}</div>
+                                        <div style="font-size: 14px; color: var(--gray-dark);">${startTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="text-align: right; font-weight: 500;">${durationDisplay}</div>
+                                    <div style="font-size: 14px; color: var(--gray-dark); text-align: right;">${activity.categoryId}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    historyHTML += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                historyList.innerHTML = historyHTML;
+            }
+        }
+        
+        // Reminders Manager
+        class RemindersManager {
+            constructor() {
+                this.reminders = [];
+                this.loadReminders();
+                this.setupEventListeners();
+                this.checkNotificationPermission();
+                this.checkDueReminders();
+            }
+            
+            // Load reminders from localStorage
+            loadReminders() {
+                try {
+                    const savedReminders = JSON.parse(localStorage.getItem('reminders')) || [];
+                    this.reminders = savedReminders;
+                } catch (error) {
+                    console.error('Error loading reminders:', error);
+                    this.reminders = [];
+                }
+            }
+            
+            // Save reminders to localStorage
+            saveReminders() {
+                localStorage.setItem('reminders', JSON.stringify(this.reminders));
+            }
+            
+            // Setup event listeners
+            setupEventListeners() {
+                // Event listeners would be added here for the reminders UI
+                // This is a simplified version
+            }
+            
+            // Check notification permission
+            checkNotificationPermission() {
+                if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+            }
+            
+            // Check for due reminders
+            checkDueReminders() {
+                if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                
+                const now = new Date();
+                
+                this.reminders.forEach(reminder => {
+                    if (reminder.completed) return;
+                    
+                    const reminderTime = new Date(reminder.dateTime);
+                    const timeDiff = reminderTime - now;
+                    
+                    // If the reminder is due within the next minute and hasn't been shown
+                    if (timeDiff > 0 && timeDiff <= 60000 && !reminder.notificationShown) {
+                        this.showNotification(reminder);
+                        
+                        // Mark as notified
+                        this.reminders = this.reminders.map(r => 
+                            r.id === reminder.id ? { ...r, notificationShown: true } : r
+                        );
+                        this.saveReminders();
+                    }
+                });
+                
+                // Check again in 30 seconds
+                setTimeout(() => this.checkDueReminders(), 30000);
+            }
+            
+            // Show a notification for a reminder
+            showNotification(reminder) {
+                const notification = new Notification('Reminder: ' + reminder.title, {
+                    body: reminder.notes || 'Your reminder is due now.',
+                    icon: '/favicon.ico'
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+            
+            // Add a new reminder
+            addReminder(title, dateTime, priority = 'medium', notes = '') {
+                if (!title || !dateTime) return false;
+                
+                const newReminder = {
+                    id: Date.now().toString(),
+                    title,
+                    dateTime: new Date(dateTime).toISOString(),
+                    priority,
+                    notes,
+                    completed: false,
+                    notificationShown: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.reminders.push(newReminder);
+                this.saveReminders();
+                
+                return true;
+            }
+            
+            // Toggle reminder completion status
+            toggleReminder(id) {
+                this.reminders = this.reminders.map(reminder => 
+                    reminder.id === id ? { ...reminder, completed: !reminder.completed } : reminder
+                );
+                
+                this.saveReminders();
+            }
+            
+            // Delete a reminder
+            deleteReminder(id) {
+                this.reminders = this.reminders.filter(reminder => reminder.id !== id);
+                this.saveReminders();
+            }
+        }
   </script>
 </body>
 </html>
