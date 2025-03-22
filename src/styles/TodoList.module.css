@@ -1,0 +1,346 @@
+.todoContainer {
+  width: 100%;
+  color: var(--text-color);
+}
+
+.todoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerTitle h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.headerTitle p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filterGroup {
+  display: flex;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+}
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.filterBtn.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.priorityFilter {
+  position: relative;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.todoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.addTodoForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.addTodoInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+.addTodoInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.prioritySelector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priorityBtn {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  background-color: var(--button-bg);
+}
+
+.priorityBtn.highPriority.selected {
+  background-color: rgba(var(--danger-rgb), 0.1);
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.priorityBtn.mediumPriority.selected {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+.priorityBtn.lowPriority.selected {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: var(--info-color);
+  border-color: var(--info-color);
+}
+
+.addTodoBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.addTodoBtn:hover {
+  background-color: var(--primary-dark);
+}
+
+.todoList {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background-color: var(--list-item-bg);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.todoItem.completed {
+  opacity: 0.7;
+}
+
+.todoItem:last-child {
+  margin-bottom: 0;
+}
+
+.todoCheckbox {
+  margin-right: 1rem;
+}
+
+.todoCheckbox input[type="checkbox"] {
+  display: none;
+}
+
+.todoCheckbox label {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+}
+
+.todoCheckbox input[type="checkbox"]:checked + label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.todoContent {
+  flex: 1;
+}
+
+.todoText {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.todoItem.completed .todoText {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+.todoPriority {
+  font-size: 0.8rem;
+}
+
+.todoActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.todoActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.todoActionBtn:hover {
+  background-color: var(--hover-bg);
+}
+
+.priorityDropdown {
+  position: relative;
+}
+
+.dropdownBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.dropdownBtn:hover {
+  background-color: var(--hover-bg);
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 150px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+}
+
+.priorityDropdown:hover .dropdownContent {
+  display: block;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .todoHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .headerControls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .addTodoForm {
+    flex-direction: column;
+  }
+  
+  .prioritySelector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+} 
