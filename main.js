@@ -207,6 +207,10 @@ function createWindow() {
     // Create an array of HTML files to copy
     const filesToCopy = [
       { 
+        source: path.join(outDir, 'index.html'),
+        dest: path.join(tempDir, 'index.html')
+      },
+      { 
         source: path.join(outDir, 'calendar.html'),
         dest: path.join(tempDir, 'calendar.html')
       },
@@ -238,13 +242,14 @@ function createWindow() {
       }
     });
     
-    // In production mode, create a basic HTML page that loads our app
+    // Create template HTML
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
         <title>Tempus Productivity</title>
+        <base href="${url.format({pathname: tempDir, protocol: 'file:', slashes: true})}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -360,42 +365,7 @@ function createWindow() {
             gap: 24px;
           }
           
-          /* Card components */
-          .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            padding: 20px;
-            margin-bottom: 24px;
-          }
-          
-          .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-          }
-          
-          .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
-          }
-          
           /* Navigation */
-          .nav-section {
-            padding: 0 16px;
-            margin-bottom: 16px;
-          }
-          
-          .nav-section-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.6);
-            margin: 24px 0 8px 16px;
-          }
-          
           .nav-item {
             display: flex;
             align-items: center;
@@ -421,424 +391,6 @@ function createWindow() {
             margin-right: 12px;
             font-size: 20px;
           }
-          
-          /* Timeline */
-          .timeline-container {
-            position: relative;
-            margin-top: 16px;
-            height: 140px;
-            background: rgba(0,0,0,0.03);
-            border-radius: 8px;
-          }
-          
-          .timeline-scale {
-            display: flex;
-            position: relative;
-            padding: 8px 0;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-          }
-          
-          .time-label {
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-secondary);
-          }
-          
-          .timeline-events {
-            position: relative;
-            height: 100px;
-            padding: 20px 0;
-          }
-          
-          .timeline-event {
-            position: absolute;
-            height: 28px;
-            top: 30px;
-            border-radius: 4px;
-            padding: 0 8px;
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            font-weight: 500;
-            color: white;
-          }
-          
-          .current-time {
-            position: absolute;
-            height: 100%;
-            width: 2px;
-            background-color: var(--primary-color);
-            top: 0;
-          }
-          
-          .current-time-label {
-            position: absolute;
-            top: -20px;
-            background: var(--primary-color);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            transform: translateX(-50%);
-          }
-          
-          /* Project item */
-          .project-item {
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 16px;
-            overflow: hidden;
-          }
-          
-          .project-header {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            background: var(--card-bg);
-          }
-          
-          .project-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            color: white;
-          }
-          
-          .project-details {
-            flex: 1;
-          }
-          
-          .project-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-          }
-          
-          .project-progress-bar {
-            height: 6px;
-            background-color: rgba(0,0,0,0.05);
-            border-radius: 3px;
-            overflow: hidden;
-          }
-          
-          .project-progress-fill {
-            height: 100%;
-            background-color: var(--primary-color);
-          }
-          
-          .project-percentage {
-            margin-left: 16px;
-            font-weight: 600;
-          }
-          
-          .project-tasks {
-            border-top: 1px solid var(--border-color);
-            padding: 8px 16px;
-          }
-          
-          .task-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
-          }
-          
-          .task-checkbox {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 12px;
-            color: white;
-          }
-          
-          .task-checkbox.completed {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-          }
-          
-          .task-name {
-            flex: 1;
-            font-size: 14px;
-          }
-          
-          .task-time {
-            font-size: 12px;
-            color: var(--text-secondary);
-          }
-          
-          /* Tracking button */
-          .tracking-btn {
-            display: flex;
-            align-items: center;
-            background-color: #F3F4F6;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-          }
-          
-          .tracking-btn.active {
-            background-color: #EEF2FF;
-            color: var(--primary-color);
-            border-color: #C7D2FE;
-          }
-          
-          .tracking-btn .material-icons {
-            font-size: 16px;
-            margin-right: 6px;
-          }
-          
-          .tracking-btn.active .material-icons {
-            color: var(--primary-color);
-          }
-          
-          /* Buttons */
-          .btn {
-            background-color: #F3F4F6;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-          }
-          
-          .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-          }
-          
-          .view-toggle {
-            display: flex;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            overflow: hidden;
-          }
-          
-          .view-btn {
-            padding: 8px 16px;
-            background: var(--card-bg);
-            border: none;
-            border-right: 1px solid var(--border-color);
-            cursor: pointer;
-            font-size: 14px;
-          }
-          
-          .view-btn:last-child {
-            border-right: none;
-          }
-          
-          .view-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-          }
-          
-          /* Daily Summary */
-          .summary-highlight {
-            display: flex;
-            align-items: flex-start;
-            background-color: #EEF2FF;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-          }
-          
-          .summary-icon {
-            font-size: 24px;
-            margin-right: 16px;
-            color: var(--primary-color);
-          }
-          
-          .summary-text {
-            font-size: 14px;
-            line-height: 1.5;
-            color: var(--text-primary);
-            margin: 0;
-          }
-          
-          /* Stats */
-          .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-          }
-          
-          .stat-item {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-          }
-          
-          .stat-title {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-          }
-          
-          .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-          }
-          
-          .stat-unit {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-left: 4px;
-          }
-          
-          /* Activity Breakdown */
-          .breakdown-container {
-            margin-top: 20px;
-          }
-          
-          .breakdown-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-          }
-          
-          .breakdown-progress {
-            flex: 1;
-            height: 8px;
-            background-color: #F3F4F6;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 0 12px;
-          }
-          
-          .breakdown-fill {
-            height: 100%;
-          }
-          
-          .breakdown-percent {
-            font-weight: 600;
-            width: 36px;
-          }
-          
-          .breakdown-label {
-            width: 60px;
-            font-size: 14px;
-            color: var(--text-secondary);
-          }
-          
-          /* YouTube Manager */
-          .youtube-container {
-            margin-top: 16px;
-          }
-          
-          .youtube-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-          }
-          
-          .youtube-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-          }
-          
-          .youtube-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          }
-          
-          .youtube-thumbnail {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 aspect ratio */
-            overflow: hidden;
-          }
-          
-          .youtube-thumbnail img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-          
-          .youtube-play-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-          }
-          
-          .youtube-play-btn:before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 55%;
-            transform: translate(-50%, -50%);
-            border-style: solid;
-            border-width: 10px 0 10px 16px;
-            border-color: transparent transparent transparent white;
-          }
-          
-          .youtube-info {
-            padding: 12px;
-          }
-          
-          .youtube-title {
-            margin: 0 0 8px 0;
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-          }
-          
-          .youtube-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 12px;
-            color: var(--text-secondary);
-          }
-          
-          .youtube-actions {
-            display: flex;
-            justify-content: flex-end;
-          }
-          
-          .youtube-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 4px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-          }
-          
-          .youtube-btn:hover {
-            background-color: #5558de;
-          }
         </style>
       </head>
       <body>
@@ -852,7 +404,7 @@ function createWindow() {
             </div>
             
             <div class="nav-section">
-              <a class="nav-item active" href="#">
+              <a class="nav-item active" href="index.html">
                 <span class="material-icons nav-icon">dashboard</span>
                 <span>Dashboard</span>
               </a>
@@ -903,393 +455,48 @@ function createWindow() {
           </aside>
           
           <main class="main-content">
-            <header class="header">
-              <div class="date-display" id="date-display">Wednesday, September 8, 2023</div>
-              <div class="header-controls">
-                <div class="view-toggle">
-                  <button class="view-btn active">Day</button>
-                  <button class="view-btn">Week</button>
-                  <button class="view-btn">Month</button>
-                </div>
-                <button class="btn">Today</button>
-                <button class="tracking-btn active">
-                  <span class="material-icons">fiber_manual_record</span>
-                  Active
-                </button>
-              </div>
-            </header>
-            
-            <div class="content-area">
-              <div class="dashboard-layout">
-                <div class="left-column">
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">Timeline</h3>
-                    </div>
-                    <div class="timeline-container">
-                      <div class="timeline-scale">
-                        <div class="time-label">9:00</div>
-                        <div class="time-label">11:00</div>
-                        <div class="time-label">13:00</div>
-                        <div class="time-label">15:00</div>
-                        <div class="time-label">17:00</div>
-                        <div class="time-label">19:00</div>
-                      </div>
-                      <div class="timeline-events">
-                        <div class="current-time" style="left: 60%;">
-                          <div class="current-time-label">19:41</div>
-                        </div>
-                        <div class="timeline-event" style="left: 10%; width: 15%; background-color: var(--break-color);">
-                          Coding
-                        </div>
-                        <div class="timeline-event" style="left: 33%; width: 12%; background-color: var(--focus-color);">
-                          Meeting
-                        </div>
-                        <div class="timeline-event" style="left: 53%; width: 20%; background-color: var(--design-color);">
-                          Design
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">Projects & tasks</h3>
-                    </div>
-                    <div id="projects-list">
-                      <!-- Dynamic content will be added here -->
-                    </div>
-                  </div>
-                  
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">YouTube Videos</h3>
-                      <button class="btn">Add Video</button>
-                    </div>
-                    <div id="youtube-videos" class="youtube-container">
-                      <!-- Placeholder for recent YouTube videos -->
-                      <div class="youtube-grid">
-                        <div class="youtube-card">
-                          <div class="youtube-thumbnail">
-                            <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg" alt="YouTube Thumbnail">
-                            <div class="youtube-play-btn"></div>
-                          </div>
-                          <div class="youtube-info">
-                            <h4 class="youtube-title">Introduction to Productivity Systems</h4>
-                            <div class="youtube-meta">
-                              <span>Educational</span>
-                              <span>12:30</span>
-                            </div>
-                            <div class="youtube-actions">
-                              <button class="youtube-btn">Open</button>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="youtube-card">
-                          <div class="youtube-thumbnail">
-                            <img src="https://img.youtube.com/vi/jNQXAC9IVRw/mqdefault.jpg" alt="YouTube Thumbnail">
-                            <div class="youtube-play-btn"></div>
-                          </div>
-                          <div class="youtube-info">
-                            <h4 class="youtube-title">Time Management Tips</h4>
-                            <div class="youtube-meta">
-                              <span>Educational</span>
-                              <span>8:45</span>
-                            </div>
-                            <div class="youtube-actions">
-                              <button class="youtube-btn">Open</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="right-column">
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">Daily Summary</h3>
-                    </div>
-                    <div class="summary-highlight">
-                      <div class="summary-icon">⚡</div>
-                      <p class="summary-text">
-                        Today you had <strong>20%</strong> more meetings than usual, you closed <strong>2 tasks</strong> on two projects, but the focus was <strong>12%</strong> lower than yesterday.
-                      </p>
-                    </div>
-                    
-                    <div class="stats-container">
-                      <div class="stat-item">
-                        <div class="stat-title">Total time worked</div>
-                        <div>
-                          <span class="stat-value" id="total-time">6</span>
-                          <span class="stat-unit">hr 18 min</span>
-                        </div>
-                      </div>
-                      <div class="stat-item">
-                        <div class="stat-title">Percent of work day</div>
-                        <div>
-                          <span class="stat-value" id="percent-day">79%</span>
-                          <span class="stat-unit">of 8 hr 0 min</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="breakdown-container">
-                      <div class="breakdown-item">
-                        <span class="breakdown-percent">62%</span>
-                        <div class="breakdown-progress">
-                          <div class="breakdown-fill" style="width: 62%; background-color: var(--focus-color);"></div>
-                        </div>
-                        <span class="breakdown-label">Focus</span>
-                      </div>
-                      <div class="breakdown-item">
-                        <span class="breakdown-percent">15%</span>
-                        <div class="breakdown-progress">
-                          <div class="breakdown-fill" style="width: 15%; background-color: var(--design-color);"></div>
-                        </div>
-                        <span class="breakdown-label">Meetings</span>
-                      </div>
-                      <div class="breakdown-item">
-                        <span class="breakdown-percent">11%</span>
-                        <div class="breakdown-progress">
-                          <div class="breakdown-fill" style="width: 11%; background-color: var(--break-color);"></div>
-                        </div>
-                        <span class="breakdown-label">Breaks</span>
-                      </div>
-                      <div class="breakdown-item">
-                        <span class="breakdown-percent">12%</span>
-                        <div class="breakdown-progress">
-                          <div class="breakdown-fill" style="width: 12%; background-color: var(--other-color);"></div>
-                        </div>
-                        <span class="breakdown-label">Other</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">Apps & Websites</h3>
-                    </div>
-                    <div id="apps-list">
-                      <!-- Dynamic content will be added here -->
-                    </div>
-                  </div>
-                </div>
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+              <h2>Welcome to Tempus Productivity Dashboard</h2>
+              <p>Please use the sidebar to navigate to different sections of the app.</p>
+              <div style="margin-top: 20px;">
+                <a href="index.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Dashboard</a>
+                <a href="calendar.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Calendar</a>
+                <a href="youtube-manager.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">YouTube Manager</a>
+                <a href="settings.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Settings</a>
               </div>
             </div>
           </main>
         </div>
-        
-        <script>
-          // Set current date
-          document.getElementById('date-display').textContent = new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          });
-          
-          // Load data from the Electron API
-          window.addEventListener('DOMContentLoaded', () => {
-            if (window.api && window.api.getPersonalData) {
-              const data = window.api.getPersonalData();
-              if (data) {
-                renderDashboard(data);
-              }
-            }
-          });
-          
-          function renderDashboard(data) {
-            // Update stats
-            if (data.totalWorked) {
-              document.getElementById('total-time').textContent = data.totalWorked.hours;
-              document.getElementById('total-time').nextElementSibling.textContent = 'hr ' + data.totalWorked.minutes + ' min';
-            }
-            
-            if (data.percentOfDay) {
-              document.getElementById('percent-day').textContent = data.percentOfDay + '%';
-            }
-            
-            // Render projects
-            const projectsList = document.getElementById('projects-list');
-            projectsList.innerHTML = '';
-            
-            if (data.projects && data.projects.length > 0) {
-              data.projects.forEach(project => {
-                const projectElement = document.createElement('div');
-                projectElement.className = 'project-item';
-                
-                const projectHeader = document.createElement('div');
-                projectHeader.className = 'project-header';
-                
-                const iconColor = project.name.includes('Finwall') ? 'var(--focus-color)' : 'var(--break-color)';
-                
-                projectHeader.innerHTML = 
-                  '<div class="project-icon" style="background-color: ' + iconColor + '">' +
-                  '<span class="material-icons">folder</span>' +
-                  '</div>' +
-                  '<div class="project-details">' +
-                  '<div class="project-name">' + project.name + '</div>' +
-                  '<div class="project-progress-bar">' +
-                  '<div class="project-progress-fill" style="width: ' + project.percent + '%"></div>' +
-                  '</div>' +
-                  '</div>' +
-                  '<div class="project-percentage">' + project.percent + '%</div>';
-                
-                projectElement.appendChild(projectHeader);
-                
-                // Add tasks if available
-                if (project.tasks && project.tasks.length > 0) {
-                  const tasksList = document.createElement('div');
-                  tasksList.className = 'project-tasks';
-                  
-                  project.tasks.forEach(task => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-item';
-                    
-                    taskItem.innerHTML = 
-                      '<div class="task-checkbox ' + (task.completed ? 'completed' : '') + '">' +
-                      (task.completed ? '✓' : '') +
-                      '</div>' +
-                      '<div class="task-name">' + task.name + '</div>' +
-                      '<div class="task-time">' + task.time + '</div>';
-                    
-                    tasksList.appendChild(taskItem);
-                  });
-                  
-                  projectElement.appendChild(tasksList);
-                }
-                
-                projectsList.appendChild(projectElement);
-              });
-            } else {
-              projectsList.innerHTML = '<p style="padding: 16px; text-align: center;">No projects available.</p>';
-            }
-            
-            // Render apps
-            const appsList = document.getElementById('apps-list');
-            appsList.innerHTML = '';
-            
-            if (data.apps && data.apps.length > 0) {
-              data.apps.slice(0, 3).forEach(app => {
-                const appItem = document.createElement('div');
-                appItem.className = 'breakdown-item';
-                appItem.style.padding = '8px 0';
-                
-                appItem.innerHTML = 
-                  '<span class="breakdown-percent">' + app.percent + '%</span>' +
-                  '<div class="breakdown-progress">' +
-                  '<div class="breakdown-fill" style="width: ' + app.percent + '%; background-color: var(--design-color);"></div>' +
-                  '</div>' +
-                  '<span style="width: 120px; font-size: 14px;">' + app.name + '</span>' +
-                  '<span style="font-size: 12px; color: var(--text-secondary);">' + app.time + '</span>';
-                
-                appsList.appendChild(appItem);
-              });
-              
-              // Add categories section
-              if (data.categories && data.categories.length > 0) {
-                const categoriesTitle = document.createElement('h4');
-                categoriesTitle.textContent = 'Top categories';
-                categoriesTitle.style.margin = '20px 0 12px 0';
-                categoriesTitle.style.fontSize = '14px';
-                categoriesTitle.style.fontWeight = '600';
-                
-                appsList.appendChild(categoriesTitle);
-                
-                data.categories.forEach(category => {
-                  const categoryItem = document.createElement('div');
-                  categoryItem.className = 'breakdown-item';
-                  categoryItem.style.padding = '8px 0';
-                  
-                  categoryItem.innerHTML = 
-                    '<span class="breakdown-percent">' + category.percent + '%</span>' +
-                    '<div class="breakdown-progress">' +
-                    '<div class="breakdown-fill" style="width: ' + category.percent + '%; background-color: var(--focus-color);"></div>' +
-                    '</div>' +
-                    '<span style="width: 120px; font-size: 14px;">' + category.name + '</span>' +
-                    '<span style="font-size: 12px; color: var(--text-secondary);">' + category.time + '</span>';
-                  
-                  appsList.appendChild(categoryItem);
-                });
-              }
-            } else {
-              appsList.innerHTML = '<p style="padding: 16px; text-align: center;">No app data available.</p>';
-            }
-            
-            // Render YouTube videos
-            const youtubeContainer = document.getElementById('youtube-videos');
-            if (youtubeContainer) {
-              const youtubeGrid = document.createElement('div');
-              youtubeGrid.className = 'youtube-grid';
-              
-              if (data.youtubeLinks && data.youtubeLinks.length > 0) {
-                // Display up to 4 most recent YouTube videos
-                const recentVideos = data.youtubeLinks.slice(0, 4);
-                
-                recentVideos.forEach(video => {
-                  const videoId = extractYouTubeVideoId(video.link);
-                  if (!videoId) return;
-                  
-                  const thumbnailUrl = "https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg";
-                  
-                  const videoCard = document.createElement('div');
-                  videoCard.className = 'youtube-card';
-                  
-                  videoCard.innerHTML = 
-                    '<div class="youtube-thumbnail">' +
-                    '<img src="' + thumbnailUrl + '" alt="' + video.title + '">' +
-                    '<div class="youtube-play-btn"></div>' +
-                    '</div>' +
-                    '<div class="youtube-info">' +
-                    '<h4 class="youtube-title">' + video.title + '</h4>' +
-                    '<div class="youtube-meta">' +
-                    '<span>' + (video.category || 'Uncategorized') + '</span>' +
-                    '<span>' + (video.duration || '--:--') + '</span>' +
-                    '</div>' +
-                    '<div class="youtube-actions">' +
-                    '<button class="youtube-btn" onclick="window.open(\'' + video.link + '\', \'_blank\')">Open</button>' +
-                    '</div>' +
-                    '</div>';
-                  
-                  youtubeGrid.appendChild(videoCard);
-                });
-                
-                // Clear the container first
-                youtubeContainer.innerHTML = '';
-                youtubeContainer.appendChild(youtubeGrid);
-              } else {
-                youtubeContainer.innerHTML = '<p style="padding: 16px; text-align: center;">No YouTube videos saved yet.</p>';
-              }
-            }
-          }
-          
-          // Helper function to extract YouTube video ID
-          function extractYouTubeVideoId(url) {
-            if (!url) return null;
-            const regex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|shorts\/)([^#&?]*).*/;
-            const match = url.match(regex);
-            return (match && match[2].length === 11) ? match[2] : null;
-          }
-        </script>
       </body>
       </html>
     `;
     
-    const tempPath = path.join(os.tmpdir(), 'tempus-productivity.html');
-    fs.writeFileSync(tempPath, htmlContent);
+    // First try to load the index.html file
+    const indexPath = path.join(tempDir, 'index.html');
+    let fileToLoad;
     
-    const fileUrl = url.format({
-      pathname: tempPath,
-      protocol: 'file:',
-      slashes: true
-    });
+    if (fs.existsSync(indexPath)) {
+      // If index.html exists, load it
+      fileToLoad = url.format({
+        pathname: indexPath,
+        protocol: 'file:',
+        slashes: true
+      });
+      console.log('Loading index.html from:', fileToLoad);
+    } else {
+      // Otherwise create and load a fallback HTML file
+      const fallbackPath = path.join(tempDir, 'fallback.html');
+      fs.writeFileSync(fallbackPath, htmlContent);
+      
+      fileToLoad = url.format({
+        pathname: fallbackPath,
+        protocol: 'file:',
+        slashes: true
+      });
+      console.log('Loading fallback HTML from:', fileToLoad);
+    }
     
-    console.log('Running in production mode with temporary HTML file');
-    console.log('Loading from:', fileUrl);
-    
-    mainWindow.loadURL(fileUrl);
+    mainWindow.loadURL(fileToLoad);
   }
   
   // Register error handler for page load failures
