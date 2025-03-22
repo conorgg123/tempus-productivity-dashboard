@@ -9,6 +9,33 @@ let mainWindow;
 const userDataPath = app.getPath('userData');
 const dataFilePath = path.join(userDataPath, 'dashboard-data.json');
 
+// Ensure data directory exists for the app
+const appDir = path.join(__dirname);
+const dataDir = path.join(appDir, 'data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+  console.log('Created data directory at:', dataDir);
+}
+
+// Create JSON files if they don't exist
+const schedulerFile = path.join(dataDir, 'scheduler.json');
+if (!fs.existsSync(schedulerFile)) {
+  fs.writeFileSync(schedulerFile, JSON.stringify({ events: [] }));
+  console.log('Created scheduler.json');
+}
+
+const remindersFile = path.join(dataDir, 'reminders.json');
+if (!fs.existsSync(remindersFile)) {
+  fs.writeFileSync(remindersFile, JSON.stringify({ reminders: [] }));
+  console.log('Created reminders.json');
+}
+
+const youtubeLinksFile = path.join(dataDir, 'youtube_links.json');
+if (!fs.existsSync(youtubeLinksFile)) {
+  fs.writeFileSync(youtubeLinksFile, JSON.stringify({ links: [] }));
+  console.log('Created youtube_links.json');
+}
+
 // Default data for today's activities
 const defaultData = {
   date: new Date().toISOString().split('T')[0],
@@ -87,7 +114,8 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false
     },
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    icon: path.join(__dirname, 'icon.svg')
   });
 
   // Load index.html
