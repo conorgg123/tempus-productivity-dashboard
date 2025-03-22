@@ -1,86 +1,117 @@
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import styles from '@/styles/Layout.module.css';
+import Link from 'next/link';
+import styles from './Layout.module.css';
+import { loadData, saveData, isElectron } from '@/utils/storage';
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activePage, setActivePage] = useState('');
+  const [theme, setTheme] = useState('light');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // Set active page based on current route
+    const path = router.pathname;
+    const page = path === '/' ? 'dashboard' : path.substring(1);
+    setActivePage(page);
+    
+    // Load theme preference from storage
+    async function loadThemePreference() {
+      const settings = await loadData('user-settings', { theme: 'light' });
+      
+      if (settings.theme === 'system') {
+        // Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+      } else {
+        setTheme(settings.theme);
+      }
+    }
+    
+    loadThemePreference();
+  }, [router.pathname]);
   
+  // Apply theme change to document
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [theme]);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const isActive = (page) => {
+    return activePage === page;
+  };
+  
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    
+    // Save theme preference
+    const settings = await loadData('user-settings', { theme: 'light' });
+    settings.theme = newTheme;
+    saveData('user-settings', settings);
+  };
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Tempus Dashboard</title>
-        <meta name="description" content="A comprehensive productivity management tool" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      
-      <div className={`${styles.sidebar} ${mobileMenuOpen ? styles.open : ''}`}>
-        <div className={styles.sidebarLogo}>
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="40" rx="8" fill="#7646F4"/>
-            <path d="M12 20C12 15.5817 15.5817 12 20 12C24.4183 12 28 15.5817 28 20C28 24.4183 24.4183 28 20 28" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-            <path d="M20 28C20 28 16 28 14 26" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-            <circle cx="20" cy="20" r="2" fill="white"/>
-          </svg>
-          <h1>tempus.</h1>
-        </div>
-        
-        <ul className={styles.sidebarNav}>
-          <li>
-            <Link href="/" className={router.pathname === '/' ? styles.active : ''}>
-              <span className={styles.navIcon}>📊</span> Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link href="/youtube-manager" className={router.pathname === '/youtube-manager' ? styles.active : ''}>
-              <span className={styles.navIcon}>🎬</span> YouTube Manager
-            </Link>
-          </li>
-          <li>
-            <Link href="/calendar" className={router.pathname === '/calendar' ? styles.active : ''}>
-              <span className={styles.navIcon}>📅</span> Calendar
-            </Link>
-          </li>
-          <li>
-            <Link href="/tasks" className={router.pathname === '/tasks' ? styles.active : ''}>
-              <span className={styles.navIcon}>✓</span> Tasks
-            </Link>
-          </li>
-          <li>
-            <Link href="/timer" className={router.pathname === '/timer' ? styles.active : ''}>
-              <span className={styles.navIcon}>⏱️</span> Timer
-            </Link>
-          </li>
-          <li>
-            <Link href="/settings" className={router.pathname === '/settings' ? styles.active : ''}>
-              <span className={styles.navIcon}>⚙️</span> Settings
-            </Link>
-          </li>
-          <li>
-            <Link href="/help" className={router.pathname === '/help' ? styles.active : ''}>
-              <span className={styles.navIcon}>❓</span> Help
-            </Link>
-          </li>
-        </ul>
-        
-        <div className={styles.sidebarFooter}>
-          {/* Footer content if needed */}
-        </div>
-      </div>
-      
-      <div className={styles.mainContent}>
-        <div className={styles.mobileHeader}>
-          <button 
-            className={styles.menuToggle}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            ☰
+    <div className={styles.layout}>
+      <aside className={`${styles.sidebar} ${menuOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <div className={styles.logo}>Tempus</div>
+          <button className={styles.closeMenuBtn} onClick={toggleMenu}>
+            <span className="material-icons">close</span>
           </button>
         </div>
-        {children}
-      </div>
+        
+        <nav className={styles.nav}>
+          <Link href="/" className={`${styles.navLink} ${isActive('dashboard') ? styles.active : ''}`}>
+            <span className="material-icons">dashboard</span>
+            <span>Dashboard</span>
+          </Link>
+          
+          <Link href="/youtube-manager" className={`${styles.navLink} ${isActive('youtube-manager') ? styles.active : ''}`}>
+            <span className="material-icons">video_library</span>
+            <span>YouTube Manager</span>
+          </Link>
+          
+          <Link href="/settings" className={`${styles.navLink} ${isActive('settings') ? styles.active : ''}`}>
+            <span className="material-icons">settings</span>
+            <span>Settings</span>
+          </Link>
+        </nav>
+        
+        {isElectron() && (
+          <div className={styles.sidebarFooter}>
+            <div className={styles.versionInfo}>
+              Tempus Productivity v1.0.0
+            </div>
+          </div>
+        )}
+      </aside>
+      
+      <main className={styles.main}>
+        <header className={styles.header}>
+          <button className={styles.menuBtn} onClick={toggleMenu}>
+            <span className="material-icons">menu</span>
+          </button>
+          
+          <div className={styles.headerControls}>
+            <button className={styles.themeToggle} onClick={toggleTheme}>
+              <span className="material-icons">
+                {theme === 'light' ? 'dark_mode' : 'light_mode'}
+              </span>
+            </button>
+          </div>
+        </header>
+        
+        <div className={styles.content}>{children}</div>
+      </main>
     </div>
   );
 } 
