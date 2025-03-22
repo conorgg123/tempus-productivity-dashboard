@@ -223,6 +223,22 @@ function createWindow() {
         dest: path.join(tempDir, 'youtube-manager.html')
       },
       { 
+        source: path.join(outDir, 'projects-tasks.html'),
+        dest: path.join(tempDir, 'projects-tasks.html')
+      },
+      { 
+        source: path.join(outDir, 'timer.html'),
+        dest: path.join(tempDir, 'timer.html')
+      },
+      { 
+        source: path.join(outDir, 'history.html'),
+        dest: path.join(tempDir, 'history.html')
+      },
+      { 
+        source: path.join(outDir, 'help.html'),
+        dest: path.join(tempDir, 'help.html')
+      },
+      { 
         source: path.join(outDir, 'production-fix.css'),
         dest: path.join(tempDir, 'production-fix.css')
       }
