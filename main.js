@@ -6,6 +6,7 @@ const os = require('os');
 
 // Global reference
 let mainWindow;
+let darkMode = false;
 
 // Store data in user's app data folder
 const userDataPath = app.getPath('userData');
@@ -520,6 +521,20 @@ function createWindow() {
     console.error('Failed to load:', errorCode, errorDescription);
   });
   
+  // Load dark mode preference from settings if it exists
+  loadSettings();
+  
+  // IPC handlers for settings
+  ipcMain.handle('get-dark-mode', () => {
+    return darkMode;
+  });
+  
+  ipcMain.handle('set-dark-mode', (event, value) => {
+    darkMode = value;
+    saveSettings();
+    return true;
+  });
+
   // Open DevTools in development mode
   if (isDev) {
     mainWindow.webContents.openDevTools();
@@ -836,6 +851,36 @@ ipcMain.on('save-settings', (event, settings) => {
     event.reply('settings-saved', { success: false, error: error.message });
   }
 });
+
+function loadSettings() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingsPath = path.join(userDataPath, 'settings.json');
+    
+    if (fs.existsSync(settingsPath)) {
+      const data = fs.readFileSync(settingsPath, 'utf8');
+      const settings = JSON.parse(data);
+      darkMode = settings.darkMode || false;
+    }
+  } catch (err) {
+    console.error('Error loading settings:', err);
+  }
+}
+
+function saveSettings() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingsPath = path.join(userDataPath, 'settings.json');
+    
+    const settings = {
+      darkMode: darkMode
+    };
+    
+    fs.writeFileSync(settingsPath, JSON.stringify(settings));
+  } catch (err) {
+    console.error('Error saving settings:', err);
+  }
+}
 
 // When Electron is ready
 app.on('ready', createWindow);
