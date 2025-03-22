@@ -1,84 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tempus Productivity Dashboard
 
-# Productivity Dashboard Desktop App
+A modern productivity dashboard built with Next.js and React that helps you track your time, organize YouTube videos, manage tasks, and more.
 
-This application combines Next.js and Electron to provide a full-featured productivity dashboard as a standalone desktop application.
+## Features
+
+- **Dashboard**: View productivity statistics, project progress, and application usage
+- **YouTube Manager**: Save and organize video links by categories
+- **Calendar**: Visualize your schedule and upcoming events (coming soon)
+- **Tasks**: Manage your to-do list and track progress (coming soon)
+- **Timer**: Track your work sessions with a Pomodoro timer (coming soon)
+- **Settings**: Customize your dashboard experience (coming soon)
 
 ## Getting Started
 
-### Running as a Desktop Application
+### Prerequisites
 
-To run this application as a desktop app:
+- Node.js (v14.x or later)
+- npm or yarn
 
+### Installation
+
+1. Clone the repository
 ```bash
-# From the project root
-npm run electron-dev
+git clone https://github.com/yourusername/tempus-productivity-dashboard.git
+cd tempus-productivity-dashboard
 ```
 
-This will start both the Next.js development server and Electron app together.
-
-Alternatively, use the provided batch scripts from the parent directory:
-- `run-dev.bat` - Starts the app in development mode
-- `start-app.bat` - Interactive script that lets you choose development or production mode
-
-### Build for Production
-
-To build the desktop application for distribution:
-
+2. Install dependencies
 ```bash
-npm run build
+npm install
+# or
+yarn
 ```
 
-This will build both the Next.js application and package it with Electron.
-
-### Running as a Web Application
-
-You can still run the application as a regular web app:
-
+3. Run the development server
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-For more information about Electron:
-- [Electron Documentation](https://www.electronjs.org/docs) - learn about Electron features.
-
-## Features
-
-- **Daily Focus**: Manage your tasks for the current day
-- **YouTube Manager**: Save and organize video links
-- **Todo List**: Keep track of all your tasks
-- **Reminders**: Set reminders for important events
-- **Scheduler**: Plan your activities with a visual timeline
-
-## Deployment
-
-The easiest way to deploy the web version of your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-For desktop distribution, the app can be packaged using electron-builder with:
-
-```bash
-npm run dist
+```
+├── public/             # Static assets and data files
+│   ├── data/           # JSON data files
+│   └── favicon.ico     # Favicon
+├── src/                # Source files
+│   ├── components/     # React components
+│   ├── pages/          # Next.js pages
+│   └── styles/         # CSS modules
+├── .gitignore          # Git ignore file
+├── next.config.js      # Next.js configuration
+├── package.json        # Package information
+└── README.md           # This file
 ```
 
-This will create distributable packages in the `dist` directory.
+## Technologies Used
 
-## Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js](https://nextjs.org/) - React framework
+- [React](https://reactjs.org/) - JavaScript library for building user interfaces
+- [CSS Modules](https://github.com/css-modules/css-modules) - For component-scoped styling
+
+## Data Storage
+
+This application uses browser localStorage to persist your data, so all your information is stored locally on your device.
+
+## Contributing
+
+Contributions are welcome! Feel free to open an issue or submit a pull request if you have any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.

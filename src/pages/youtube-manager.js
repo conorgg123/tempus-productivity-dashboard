@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Layout from '@/components/Layout';
 import styles from '@/styles/YouTubeManager.module.css';
 
 export default function YouTubeManager() {
@@ -19,34 +20,36 @@ export default function YouTubeManager() {
 
   // Load data on component mount
   useEffect(() => {
-    // Load from localStorage if available
-    const storedLinks = localStorage.getItem('youtube-links');
-    const storedCategories = localStorage.getItem('youtube-categories');
-    
-    if (storedLinks) {
-      setYoutubeLinks(JSON.parse(storedLinks).links || []);
-    } else {
-      // Fetch default data
-      fetch('/data/youtube_links.json')
-        .then(response => response.json())
-        .then(data => {
-          setYoutubeLinks(data.links);
-          localStorage.setItem('youtube-links', JSON.stringify(data));
-        })
-        .catch(error => console.error('Error loading YouTube links:', error));
-    }
-    
-    if (storedCategories) {
-      setCategories(JSON.parse(storedCategories).categories || []);
-    } else {
-      // Fetch default categories
-      fetch('/data/youtube_categories.json')
-        .then(response => response.json())
-        .then(data => {
-          setCategories(data.categories);
-          localStorage.setItem('youtube-categories', JSON.stringify(data));
-        })
-        .catch(error => console.error('Error loading YouTube categories:', error));
+    if (typeof window !== 'undefined') {
+      // Load from localStorage if available
+      const storedLinks = localStorage.getItem('youtube-links');
+      const storedCategories = localStorage.getItem('youtube-categories');
+      
+      if (storedLinks) {
+        setYoutubeLinks(JSON.parse(storedLinks).links || []);
+      } else {
+        // Fetch default data
+        fetch('/data/youtube_links.json')
+          .then(response => response.json())
+          .then(data => {
+            setYoutubeLinks(data.links);
+            localStorage.setItem('youtube-links', JSON.stringify(data));
+          })
+          .catch(error => console.error('Error loading YouTube links:', error));
+      }
+      
+      if (storedCategories) {
+        setCategories(JSON.parse(storedCategories).categories || []);
+      } else {
+        // Fetch default categories
+        fetch('/data/youtube_categories.json')
+          .then(response => response.json())
+          .then(data => {
+            setCategories(data.categories);
+            localStorage.setItem('youtube-categories', JSON.stringify(data));
+          })
+          .catch(error => console.error('Error loading YouTube categories:', error));
+      }
     }
   }, []);
 
@@ -150,128 +153,126 @@ export default function YouTubeManager() {
   }
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>YouTube Manager - Tempus Dashboard</title>
       </Head>
       
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.headerTitle}>
-            <h2>YouTube Manager</h2>
-            <p>Save and organize your YouTube videos</p>
+      <div className={styles.header}>
+        <div className={styles.headerTitle}>
+          <h2>YouTube Manager</h2>
+          <p>Save and organize your YouTube videos</p>
+        </div>
+        <div className={styles.headerControls}>
+          <input 
+            type="text" 
+            placeholder="Search videos..." 
+            className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+      
+      <div className={styles.youtubeContainer}>
+        <div className={styles.youtubeControls}>
+          <div className={styles.categoryFilter}>
+            <span>Filter by:</span>
+            <select 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={styles.select}
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category === 'All' ? 'All Categories' : category}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className={styles.headerControls}>
-            <input 
-              type="text" 
-              placeholder="Search videos..." 
-              className={styles.searchInput}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+          <button 
+            className={styles.actionBtn}
+            onClick={() => setShowCategoryModal(true)}
+          >
+            + Add Category
+          </button>
         </div>
         
-        <div className={styles.youtubeContainer}>
-          <div className={styles.youtubeControls}>
-            <div className={styles.categoryFilter}>
-              <span>Filter by:</span>
-              <select 
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className={styles.select}
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category === 'All' ? 'All Categories' : category}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button 
-              className={styles.actionBtn}
-              onClick={() => setShowCategoryModal(true)}
+        <div className={styles.youtubeForm}>
+          <h3>Add New Video</h3>
+          <form onSubmit={handleAddVideo} className={styles.formRow}>
+            <input 
+              type="text" 
+              placeholder="YouTube URL" 
+              className={styles.formInput}
+              value={newLinkData.url}
+              onChange={(e) => setNewLinkData({...newLinkData, url: e.target.value})}
+            />
+            <input 
+              type="text" 
+              placeholder="Video title (optional)" 
+              className={styles.formInput}
+              value={newLinkData.title}
+              onChange={(e) => setNewLinkData({...newLinkData, title: e.target.value})}
+            />
+            <select 
+              className={styles.formInput}
+              value={newLinkData.category}
+              onChange={(e) => setNewLinkData({...newLinkData, category: e.target.value})}
             >
-              + Add Category
-            </button>
-          </div>
-          
-          <div className={styles.youtubeForm}>
-            <h3>Add New Video</h3>
-            <form onSubmit={handleAddVideo} className={styles.formRow}>
-              <input 
-                type="text" 
-                placeholder="YouTube URL" 
-                className={styles.formInput}
-                value={newLinkData.url}
-                onChange={(e) => setNewLinkData({...newLinkData, url: e.target.value})}
-              />
-              <input 
-                type="text" 
-                placeholder="Video title (optional)" 
-                className={styles.formInput}
-                value={newLinkData.title}
-                onChange={(e) => setNewLinkData({...newLinkData, title: e.target.value})}
-              />
-              <select 
-                className={styles.formInput}
-                value={newLinkData.category}
-                onChange={(e) => setNewLinkData({...newLinkData, category: e.target.value})}
-              >
-                {categories.filter(cat => cat !== 'All').map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-              <button type="submit" className={styles.primaryBtn}>Add Video</button>
-            </form>
-          </div>
-          
-          {filteredVideos.length > 0 ? (
-            <div className={styles.youtubeGrid}>
-              {filteredVideos.map((video, index) => {
-                const videoId = extractYouTubeVideoId(video.link);
-                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-                
-                return (
-                  <div key={index} className={styles.youtubeCard}>
-                    <div className={styles.youtubeThumbnail}>
-                      <img src={thumbnailUrl} alt={video.title} />
-                      <div className={styles.youtubePlayBtn}></div>
+              {categories.filter(cat => cat !== 'All').map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <button type="submit" className={styles.primaryBtn}>Add Video</button>
+          </form>
+        </div>
+        
+        {filteredVideos.length > 0 ? (
+          <div className={styles.youtubeGrid}>
+            {filteredVideos.map((video, index) => {
+              const videoId = extractYouTubeVideoId(video.link);
+              const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+              
+              return (
+                <div key={index} className={styles.youtubeCard}>
+                  <div className={styles.youtubeThumbnail}>
+                    <img src={thumbnailUrl} alt={video.title} />
+                    <div className={styles.youtubePlayBtn}></div>
+                  </div>
+                  <div className={styles.youtubeInfo}>
+                    <h3 className={styles.youtubeTitle}>{video.title}</h3>
+                    <div className={styles.youtubeMeta}>
+                      <span>{formatDate(video.added_on)}</span>
+                      <span>{video.duration}</span>
                     </div>
-                    <div className={styles.youtubeInfo}>
-                      <h3 className={styles.youtubeTitle}>{video.title}</h3>
-                      <div className={styles.youtubeMeta}>
-                        <span>{formatDate(video.added_on)}</span>
-                        <span>{video.duration}</span>
-                      </div>
-                      <div className={styles.youtubeCategory}>{video.category || 'Uncategorized'}</div>
-                      <div className={styles.youtubeActions}>
-                        <a 
-                          href={video.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className={styles.youtubeBtn}
-                        >
-                          Open
-                        </a>
-                        <button 
-                          className={styles.youtubeBtn}
-                          onClick={() => handleDeleteVideo(index)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                    <div className={styles.youtubeCategory}>{video.category || 'Uncategorized'}</div>
+                    <div className={styles.youtubeActions}>
+                      <a 
+                        href={video.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={styles.youtubeBtn}
+                      >
+                        Open
+                      </a>
+                      <button 
+                        className={styles.youtubeBtn}
+                        onClick={() => handleDeleteVideo(index)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className={styles.youtubeEmpty}>
-              <p>No videos found. Add some videos to get started!</p>
-            </div>
-          )}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={styles.youtubeEmpty}>
+            <p>No videos found. Add some videos to get started!</p>
+          </div>
+        )}
       </div>
       
       {/* Category Modal */}
@@ -314,6 +315,6 @@ export default function YouTubeManager() {
           </div>
         </div>
       )}
-    </>
+    </Layout>
   );
 } 
