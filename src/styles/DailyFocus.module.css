@@ -225,6 +225,63 @@
   margin-bottom: 0.5rem;
 }
 
+.timerContainer {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 4px 8px;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.timerIcon {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.timerIcon .material-icons {
+  font-size: 14px;
+}
+
+.taskTime {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.timerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.timerButton:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.timerButton .material-icons {
+  font-size: 16px;
+}
+
+.timerButton.activeBtn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 .taskProject {
   display: inline-flex;
   align-items: center;
@@ -233,11 +290,6 @@
   font-size: 0.75rem;
   color: white;
   font-weight: 500;
-}
-
-.taskTime {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
 }
 
 .progressContainer {
@@ -257,11 +309,11 @@
 }
 
 .progressText {
-  position: absolute;
-  right: 0;
-  top: -16px;
+  position: relative;
   font-size: 0.75rem;
   color: var(--text-secondary);
+  margin-top: 0.25rem;
+  text-align: right;
 }
 
 .taskItem.completed .taskText {
@@ -419,22 +471,107 @@
   text-align: left;
 }
 
-.sessionProgress label {
-  display: block;
-  margin-bottom: 0.5rem;
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
   font-size: 0.9rem;
   color: var(--text-secondary);
-  width: 100%;
+}
+
+.progressValue {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.progressControlsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progressControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.progressButton:hover:not(:disabled) {
+  background-color: var(--hover-bg);
+}
+
+.progressButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progressButton .material-icons {
+  font-size: 16px;
+}
+
+.progressBarContainer {
+  height: 12px;
+  background-color: var(--progress-bg);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: #4CAF50; /* Green progress bar */
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.progressSliderContainer {
+  height: 8px;
+  background-color: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  position: relative;
 }
 
 .progressSlider {
+  position: absolute;
+  top: -2px;
+  left: 0;
   width: 100%;
-  margin: 0.5rem 0;
+  margin: 0;
   appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--progress-bg);
-  outline: none;
+  height: 12px;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.progressSlider:disabled {
+  cursor: not-allowed;
+}
+
+.progressSliderFill {
+  height: 100%;
+  background-color: #4CAF50; /* Green progress bar */
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 .progressSlider::-webkit-slider-thumb {
@@ -452,21 +589,6 @@
   border-radius: 50%;
   background: var(--primary-color);
   cursor: pointer;
-}
-
-.progressSliderContainer {
-  height: 8px;
-  background-color: var(--progress-bg);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 0.5rem;
-}
-
-.progressSliderFill {
-  height: 100%;
-  background-color: #4CAF50; /* Green progress bar */
-  border-radius: 4px;
-  transition: width 0.3s ease;
 }
 
 .stopBtn {

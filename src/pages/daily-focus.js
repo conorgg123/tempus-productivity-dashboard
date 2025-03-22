@@ -406,34 +406,67 @@ export default function DailyFocus() {
                               {project.name}
                             </span>
                           )}
-                          <span className={styles.taskTime}>
-                            {isActive ? formatTime(elapsedTime) : formatTime(task.tracked)}
-                          </span>
+                          <div className={styles.timerContainer}>
+                            <span className={styles.timerIcon}>
+                              <span className="material-icons">timer</span>
+                            </span>
+                            <span className={styles.taskTime}>
+                              {isActive ? formatTime(elapsedTime) : formatTime(task.tracked)}
+                            </span>
+                            {!task.isCompleted && (
+                              <button 
+                                className={`${styles.timerButton} ${isActive ? styles.activeBtn : ''}`}
+                                onClick={() => isActive ? stopTracking() : startTracking(task.id)}
+                                title={isActive ? "Pause Timer" : "Start Timer"}
+                              >
+                                <span className="material-icons">
+                                  {isActive ? 'pause' : 'play_arrow'}
+                                </span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className={styles.progressContainer}>
+                        <div className={styles.progressSliderContainer}>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={isActive ? progress : task.progress} 
+                            onChange={(e) => {
+                              const newProgress = parseInt(e.target.value);
+                              if (isActive) {
+                                setProgress(newProgress);
+                              } else {
+                                const updatedTasks = tasks.map(t => {
+                                  if (t.id === task.id) {
+                                    return { ...t, progress: newProgress };
+                                  }
+                                  return t;
+                                });
+                                setTasks(updatedTasks);
+                                saveData('focus-tasks', updatedTasks);
+                                
+                                // If task reaches 100%, auto-complete it
+                                if (newProgress === 100) {
+                                  toggleTaskCompleted(task.id);
+                                }
+                              }
+                            }}
+                            className={styles.progressSlider}
+                            disabled={task.isCompleted}
+                          />
                           <div 
-                            className={styles.progressBar}
+                            className={styles.progressSliderFill} 
                             style={{ width: `${isActive ? progress : task.progress}%` }}
                           ></div>
-                          <span className={styles.progressText}>
-                            {isActive ? progress : task.progress}%
-                          </span>
+                        </div>
+                        <div className={styles.progressText}>
+                          Progress: {isActive ? progress : task.progress}%
                         </div>
                       </div>
                       
                       <div className={styles.taskActions}>
-                        {!task.isCompleted && (
-                          <button 
-                            className={`${styles.taskActionBtn} ${isActive ? styles.activeBtn : ''}`}
-                            onClick={() => isActive ? stopTracking() : startTracking(task.id)}
-                          >
-                            <span className="material-icons">
-                              {isActive ? 'pause' : 'play_arrow'}
-                            </span>
-                          </button>
-                        )}
-                        
                         <button 
                           className={styles.taskActionBtn}
                           onClick={() => deleteTask(task.id)}
@@ -508,22 +541,40 @@ export default function DailyFocus() {
                 </div>
                 
                 <div className={styles.sessionProgress}>
-                  <label>
-                    Progress: {progress}%
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
-                      value={progress} 
-                      onChange={handleProgressChange}
-                      className={styles.progressSlider}
-                    />
-                  </label>
-                  <div className={styles.progressSliderContainer}>
-                    <div 
-                      className={styles.progressSliderFill} 
-                      style={{ width: `${progress}%` }}
-                    ></div>
+                  <div className={styles.progressLabel}>
+                    Progress: <span className={styles.progressValue}>{progress}%</span>
+                  </div>
+                  <div className={styles.progressControlsContainer}>
+                    <div className={styles.progressControls}>
+                      <button 
+                        className={styles.progressButton}
+                        onClick={() => setProgress(Math.max(0, progress - 5))}
+                        disabled={progress <= 0}
+                      >
+                        <span className="material-icons">remove</span>
+                      </button>
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={progress} 
+                        onChange={handleProgressChange}
+                        className={styles.progressSlider}
+                      />
+                      <button 
+                        className={styles.progressButton}
+                        onClick={() => setProgress(Math.min(100, progress + 5))}
+                        disabled={progress >= 100}
+                      >
+                        <span className="material-icons">add</span>
+                      </button>
+                    </div>
+                    <div className={styles.progressBarContainer}>
+                      <div 
+                        className={styles.progressBarFill} 
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
                 
