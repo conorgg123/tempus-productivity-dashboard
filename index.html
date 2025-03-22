@@ -729,11 +729,6 @@
             border-left: 3px solid white !important;
         }
         
-        .tab-content {
-            display: none;
-            height: 100%;
-        }
-
         /* Calendar Styles */
         .calendar-container {
             padding: 0;
@@ -1675,6 +1670,14 @@
 
     body.dark-theme .color-option.selected {
         border-color: white;
+    }
+    
+    /* Tab content styles */
+    .tab-content {
+        display: none;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
     }
   </style>
 </head>
@@ -3969,45 +3972,45 @@
             // Initialize the Reminders Manager
             const remindersManager = new RemindersManager();
             
-            // Setup click handler for Timer tab to ensure it takes full page
-            document.querySelector('.nav-item[data-target="timer-section"]').addEventListener('click', () => {
-                // Hide dashboard content
-                const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) {
-                    dashboardContent.style.display = 'none';
-                }
-                
-                // Show timer section
-                document.getElementById('timer-section').style.display = 'block';
-                
-                // Hide other tab content
-                document.querySelectorAll('.tab-content:not(#timer-section)').forEach(section => {
-                    section.style.display = 'none';
+            // Setup click handlers for all sidebar navigation items
+            document.querySelectorAll('.nav-item').forEach(navItem => {
+                navItem.addEventListener('click', () => {
+                    const targetSection = navItem.getAttribute('data-target');
+                    if (!targetSection) return;
+                    
+                    // Hide dashboard content
+                    const dashboardContent = document.getElementById('dashboard-content');
+                    if (dashboardContent) {
+                        dashboardContent.style.display = 'none';
+                    }
+                    
+                    // Show targeted section
+                    const targetElement = document.getElementById(targetSection);
+                    if (targetElement) {
+                        targetElement.style.display = 'block';
+                        // Set full width for the section
+                        targetElement.style.width = '100%';
+                    }
+                    
+                    // Hide other tab content
+                    document.querySelectorAll(`.tab-content:not(#${targetSection})`).forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Update active navigation item
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    navItem.classList.add('active');
                 });
             });
             
-            // Setup click handler for YouTube Manager tab to ensure it takes full page
-            document.querySelector('.nav-item[data-target="youtube-section"]').addEventListener('click', () => {
-                // Hide dashboard content
-                const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) {
-                    dashboardContent.style.display = 'none';
-                }
-                
-                // Show YouTube Manager section
-                document.getElementById('youtube-section').style.display = 'block';
-                
-                // Hide other tab content
-                document.querySelectorAll('.tab-content:not(#youtube-section)').forEach(section => {
-                    section.style.display = 'none';
-                });
-            });
-            
-            // Make projects & tasks section active
+            // Make projects & tasks section active by default
             document.getElementById('projects-section').style.display = 'block';
             document.querySelectorAll('.tab-content:not(#projects-section)').forEach(section => {
                 section.style.display = 'none';
             });
+            document.querySelector('.nav-item[data-target="projects-section"]').classList.add('active');
         });
         
         // Timer Manager
