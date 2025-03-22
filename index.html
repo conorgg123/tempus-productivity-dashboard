@@ -3460,6 +3460,249 @@
                 progressBar.style.width = `${percentage}%`;
                 progressPercentage.textContent = `${percentage}%`;
             }
+            
+            // Show the project modal
+            showProjectModal() {
+                document.getElementById('project-modal').style.display = 'flex';
+                document.getElementById('project-name-input').value = '';
+                document.getElementById('project-description-input').value = '';
+                document.getElementById('project-color-input').value = 'var(--primary)';
+                
+                // Reset color options
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                document.querySelector('.color-option[data-color="var(--primary)"]').classList.add('selected');
+            }
+            
+            // Close project modal
+            closeProjectModal() {
+                document.getElementById('project-modal').style.display = 'none';
+            }
+            
+            // Show task modal
+            showTaskModal() {
+                const taskModal = document.getElementById('task-modal');
+                const titleInput = document.getElementById('task-name-input');
+                const projectSelect = document.getElementById('task-project-select');
+                const dueDateInput = document.getElementById('task-due-date');
+                const prioritySelect = document.getElementById('task-priority');
+                const notesInput = document.getElementById('task-notes-input');
+                const deleteTaskBtn = document.getElementById('delete-task-btn');
+                
+                // Reset form
+                titleInput.value = '';
+                projectSelect.value = this.activeProjectId === 'all' || this.activeProjectId === 'today' || this.activeProjectId === 'upcoming' ? 'none' : this.activeProjectId;
+                dueDateInput.value = '';
+                prioritySelect.value = 'medium';
+                notesInput.value = '';
+                
+                // Hide delete button for new tasks
+                deleteTaskBtn.style.display = 'none';
+                
+                // Update modal title
+                document.querySelector('#task-modal .event-modal-title').textContent = 'Add New Task';
+                
+                // Set data attribute for save button
+                document.getElementById('save-task-btn').setAttribute('data-mode', 'add');
+                
+                taskModal.style.display = 'flex';
+            }
+            
+            // Show edit task modal
+            showEditTaskModal(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (!task) return;
+                
+                const taskModal = document.getElementById('task-modal');
+                const titleInput = document.getElementById('task-name-input');
+                const projectSelect = document.getElementById('task-project-select');
+                const dueDateInput = document.getElementById('task-due-date');
+                const prioritySelect = document.getElementById('task-priority');
+                const notesInput = document.getElementById('task-notes-input');
+                const deleteTaskBtn = document.getElementById('delete-task-btn');
+                
+                // Fill form with task data
+                titleInput.value = task.title;
+                projectSelect.value = task.projectId;
+                dueDateInput.value = task.dueDate || '';
+                prioritySelect.value = task.priority;
+                notesInput.value = task.notes || '';
+                
+                // Show delete button
+                deleteTaskBtn.style.display = 'block';
+                deleteTaskBtn.setAttribute('data-task-id', taskId);
+                
+                // Update modal title
+                document.querySelector('#task-modal .event-modal-title').textContent = 'Edit Task';
+                
+                // Set data attribute for save button
+                document.getElementById('save-task-btn').setAttribute('data-mode', 'edit');
+                document.getElementById('save-task-btn').setAttribute('data-task-id', taskId);
+                
+                taskModal.style.display = 'flex';
+            }
+            
+            // Close task modal
+            closeTaskModal() {
+                document.getElementById('task-modal').style.display = 'none';
+            }
+            
+            // Set up event listeners
+            setupEventListeners() {
+                // Project list item clicks are handled in renderProjects()
+                
+                // View switcher
+                document.querySelectorAll('[data-project-view]').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const view = item.getAttribute('data-project-view');
+                        this.switchView(view);
+                    });
+                });
+                
+                // Add project buttons
+                const addProjectBtn = document.getElementById('add-project-btn');
+                const addNewProjectBtn = document.getElementById('add-new-project-btn');
+                
+                if (addProjectBtn) {
+                    addProjectBtn.addEventListener('click', () => {
+                        this.showProjectModal();
+                    });
+                }
+                
+                if (addNewProjectBtn) {
+                    addNewProjectBtn.addEventListener('click', () => {
+                        this.showProjectModal();
+                    });
+                }
+                
+                // Project modal close button
+                const closeProjectModalBtn = document.getElementById('close-project-modal');
+                if (closeProjectModalBtn) {
+                    closeProjectModalBtn.addEventListener('click', () => {
+                        this.closeProjectModal();
+                    });
+                }
+                
+                // Project modal cancel button
+                const cancelProjectBtn = document.getElementById('cancel-project-btn');
+                if (cancelProjectBtn) {
+                    cancelProjectBtn.addEventListener('click', () => {
+                        this.closeProjectModal();
+                    });
+                }
+                
+                // Project modal save button
+                const saveProjectBtn = document.getElementById('save-project-btn');
+                if (saveProjectBtn) {
+                    saveProjectBtn.addEventListener('click', () => {
+                        const name = document.getElementById('project-name-input').value;
+                        const color = document.getElementById('project-color-input').value;
+                        const description = document.getElementById('project-description-input').value;
+                        
+                        this.addProject(name, color, description);
+                    });
+                }
+                
+                // Color option selection
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        // Remove selected class from all options
+                        document.querySelectorAll('.color-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // Add selected class to clicked option
+                        option.classList.add('selected');
+                        
+                        // Update hidden input
+                        document.getElementById('project-color-input').value = option.getAttribute('data-color');
+                    });
+                });
+                
+                // Add task button (quick add)
+                const addTaskBtn = document.getElementById('add-task-btn');
+                if (addTaskBtn) {
+                    addTaskBtn.addEventListener('click', () => {
+                        const newTaskInput = document.getElementById('new-task-input');
+                        const taskTitle = newTaskInput.value.trim();
+                        
+                        this.quickAddTask(taskTitle);
+                    });
+                }
+                
+                // Add task on Enter key
+                const newTaskInput = document.getElementById('new-task-input');
+                if (newTaskInput) {
+                    newTaskInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const taskTitle = e.target.value.trim();
+                            this.quickAddTask(taskTitle);
+                        }
+                    });
+                }
+                
+                // Task modal close button
+                const closeTaskModalBtn = document.getElementById('close-task-modal');
+                if (closeTaskModalBtn) {
+                    closeTaskModalBtn.addEventListener('click', () => {
+                        this.closeTaskModal();
+                    });
+                }
+                
+                // Task modal cancel button
+                const cancelTaskBtn = document.getElementById('cancel-task-btn');
+                if (cancelTaskBtn) {
+                    cancelTaskBtn.addEventListener('click', () => {
+                        this.closeTaskModal();
+                    });
+                }
+                
+                // Task modal save button
+                const saveTaskBtn = document.getElementById('save-task-btn');
+                if (saveTaskBtn) {
+                    saveTaskBtn.addEventListener('click', () => {
+                        const mode = saveTaskBtn.getAttribute('data-mode');
+                        const title = document.getElementById('task-name-input').value;
+                        const projectId = document.getElementById('task-project-select').value;
+                        const dueDate = document.getElementById('task-due-date').value;
+                        const priority = document.getElementById('task-priority').value;
+                        const notes = document.getElementById('task-notes-input').value;
+                        
+                        if (mode === 'add') {
+                            this.addTask(title, projectId, dueDate, priority, notes);
+                        } else if (mode === 'edit') {
+                            const taskId = saveTaskBtn.getAttribute('data-task-id');
+                            this.editTask(taskId, title, projectId, dueDate, priority, notes);
+                        }
+                    });
+                }
+                
+                // Delete task button in modal
+                const deleteTaskBtn = document.getElementById('delete-task-btn');
+                if (deleteTaskBtn) {
+                    deleteTaskBtn.addEventListener('click', () => {
+                        const taskId = deleteTaskBtn.getAttribute('data-task-id');
+                        this.deleteTask(taskId);
+                        this.closeTaskModal();
+                    });
+                }
+                
+                // Close modals when clicking outside
+                window.addEventListener('click', (e) => {
+                    const projectModal = document.getElementById('project-modal');
+                    const taskModal = document.getElementById('task-modal');
+                    
+                    if (e.target === projectModal) {
+                        this.closeProjectModal();
+                    }
+                    
+                    if (e.target === taskModal) {
+                        this.closeTaskModal();
+                    }
+                });
+            }
         }
   </script>
 </body>
