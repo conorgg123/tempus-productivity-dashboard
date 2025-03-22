@@ -40,7 +40,12 @@ export default function App({ Component, pageProps }) {
         date: new Date().toISOString().split('T')[0],
         totalWorked: { hours: 0, minutes: 0 },
         percentOfDay: 0,
-        taskBreakdown: { focus: 0, meetings: 0, breaks: 0, other: 0 },
+        taskBreakdown: [
+          { name: "Coding", time: "0h 0m", percent: 0 },
+          { name: "Meetings", time: "0h 0m", percent: 0 },
+          { name: "Learning", time: "0h 0m", percent: 0 },
+          { name: "Admin", time: "0h 0m", percent: 0 }
+        ],
         projects: [],
         apps: []
       });
