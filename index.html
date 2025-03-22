@@ -1420,6 +1420,262 @@
     body.dark-theme #active-filter {
         color: var(--primary-light);
     }
+
+    body.dark-theme #active-filter {
+        color: var(--primary-light);
+    }
+
+    /* Projects & Tasks styles */
+    .project-sidebar {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .section-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--dark);
+    }
+
+    .project-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .project-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .project-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .project-item.active {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .project-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .project-name {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .project-count {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 12px;
+    }
+
+    .mini-add-btn:hover {
+        color: var(--primary);
+    }
+
+    #project-detail-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .task-input {
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .task-input:focus {
+        border-color: var(--primary);
+    }
+
+    /* Task list styles */
+    .task-item {
+        padding: 15px;
+        background-color: white;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .task-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-checkbox {
+        margin-right: 15px;
+    }
+
+    .task-content {
+        flex: 1;
+    }
+
+    .task-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .task-completed .task-title {
+        text-decoration: line-through;
+        color: var(--gray-dark);
+    }
+
+    .task-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 13px;
+        color: var(--gray-dark);
+    }
+
+    .task-project-tag {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: white;
+    }
+
+    .task-due-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .task-priority {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .priority-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .priority-low {
+        background-color: var(--gray);
+    }
+
+    .priority-medium {
+        background-color: var(--warning);
+    }
+
+    .priority-high {
+        background-color: var(--danger);
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .task-action-btn {
+        background: none;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .task-action-btn:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .color-option.selected {
+        border-color: black;
+    }
+
+    /* Kanban view */
+    .kanban-container {
+        display: flex;
+        gap: 20px;
+        height: 100%;
+        overflow-x: auto;
+        padding-bottom: 20px;
+    }
+
+    .kanban-column {
+        min-width: 300px;
+        width: 300px;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kanban-column-header {
+        padding: 15px;
+        border-bottom: 1px solid var(--gray);
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .kanban-column-content {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .kanban-count {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 12px;
+    }
+
+    /* Calendar view */
+    .project-calendar {
+        height: 100%;
+    }
+
+    /* Dark theme adjustments */
+    body.dark-theme .task-item {
+        background-color: #222240;
+    }
+
+    body.dark-theme .task-action-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-theme .project-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-theme .project-item.active {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    body.dark-theme .section-title {
+        color: var(--light);
+    }
+
+    body.dark-theme .kanban-column {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-theme .color-option.selected {
+        border-color: white;
+    }
   </style>
 </head>
 <body>
