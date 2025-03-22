@@ -13,7 +13,8 @@
     "lint": "next lint",
     "electron": "electron .",
     "package": "electron-builder build --publish never",
-    "dist": "npm run build && npm run package"
+    "dist": "npm run build && npm run package",
+    "prod": "npm run build && electron ."
   },
   "dependencies": {
     "electron-is-dev": "^2.0.0",
