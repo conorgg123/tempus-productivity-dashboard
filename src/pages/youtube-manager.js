@@ -18,6 +18,8 @@ export default function YouTubeManager() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState('');
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load data on component mount
   useEffect(() => {
@@ -37,6 +39,79 @@ export default function YouTubeManager() {
     
     fetchData();
   }, []);
+
+  // Effect to handle URL changes and fetch video info
+  useEffect(() => {
+    const fetchVideoInfo = async () => {
+      const url = newLinkData.url.trim();
+      if (!url || !isValidYouTubeUrl(url)) {
+        setVideoPreview(null);
+        return;
+      }
+
+      setIsLoading(true);
+      
+      try {
+        const videoId = extractYouTubeVideoId(url);
+        if (!videoId) {
+          setVideoPreview(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Get video metadata using YouTube oEmbed API
+        const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+        if (response.ok) {
+          const data = await response.json();
+          setVideoPreview({
+            id: videoId,
+            title: data.title,
+            author: data.author_name,
+            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+          });
+          
+          // Auto-fill the title if it's empty
+          if (!newLinkData.title) {
+            setNewLinkData(prev => ({
+              ...prev,
+              title: data.title
+            }));
+          }
+        } else {
+          // If oEmbed fails (may be restricted video), still show basic preview
+          setVideoPreview({
+            id: videoId,
+            title: 'Video title unavailable',
+            author: 'Unknown',
+            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching video info:', error);
+        const videoId = extractYouTubeVideoId(url);
+        if (videoId) {
+          setVideoPreview({
+            id: videoId,
+            title: 'Video title unavailable',
+            thumbnailUrl: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Use a debounce to prevent too many requests while typing
+    const handler = setTimeout(() => {
+      if (newLinkData.url) {
+        fetchVideoInfo();
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [newLinkData.url]);
 
   // Filter videos based on search and category
   const filteredVideos = youtubeLinks.filter(video => {
@@ -63,7 +138,9 @@ export default function YouTubeManager() {
     
     // If no title provided, use the video ID as a placeholder
     let title = newLinkData.title;
-    if (!title) {
+    if (!title && videoPreview) {
+      title = videoPreview.title;
+    } else if (!title) {
       const videoId = extractYouTubeVideoId(newLinkData.url);
       title = `YouTube Video: ${videoId}`;
     }
@@ -88,6 +165,7 @@ export default function YouTubeManager() {
       title: '',
       category: 'Watch Later'
     });
+    setVideoPreview(null);
   };
 
   // Add new category
@@ -185,31 +263,54 @@ export default function YouTubeManager() {
         
         <div className={styles.youtubeForm}>
           <h3>Add New Video</h3>
-          <form onSubmit={handleAddVideo} className={styles.formRow}>
-            <input 
-              type="text" 
-              placeholder="YouTube URL" 
-              className={styles.formInput}
-              value={newLinkData.url}
-              onChange={(e) => setNewLinkData({...newLinkData, url: e.target.value})}
-            />
-            <input 
-              type="text" 
-              placeholder="Video title (optional)" 
-              className={styles.formInput}
-              value={newLinkData.title}
-              onChange={(e) => setNewLinkData({...newLinkData, title: e.target.value})}
-            />
-            <select 
-              className={styles.formInput}
-              value={newLinkData.category}
-              onChange={(e) => setNewLinkData({...newLinkData, category: e.target.value})}
-            >
-              {categories.filter(cat => cat !== 'All').map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-            <button type="submit" className={styles.primaryBtn}>Add Video</button>
+          <form onSubmit={handleAddVideo}>
+            <div className={styles.formRow}>
+              <input 
+                type="text" 
+                placeholder="YouTube URL" 
+                className={styles.formInput}
+                value={newLinkData.url}
+                onChange={(e) => setNewLinkData({...newLinkData, url: e.target.value})}
+              />
+              <input 
+                type="text" 
+                placeholder="Video title (optional)" 
+                className={styles.formInput}
+                value={newLinkData.title}
+                onChange={(e) => setNewLinkData({...newLinkData, title: e.target.value})}
+              />
+              <select 
+                className={styles.formInput}
+                value={newLinkData.category}
+                onChange={(e) => setNewLinkData({...newLinkData, category: e.target.value})}
+              >
+                {categories.filter(cat => cat !== 'All').map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+              <button type="submit" className={styles.primaryBtn}>Add Video</button>
+            </div>
+            
+            {isLoading && (
+              <div className={styles.loadingPreview}>
+                <p>Loading preview...</p>
+              </div>
+            )}
+            
+            {videoPreview && !isLoading && (
+              <div className={styles.videoPreviewContainer}>
+                <div className={styles.videoPreview}>
+                  <div className={styles.previewThumbnail}>
+                    <img src={videoPreview.thumbnailUrl} alt={videoPreview.title} />
+                    <div className={styles.previewPlayBtn}></div>
+                  </div>
+                  <div className={styles.previewInfo}>
+                    <h4>{videoPreview.title}</h4>
+                    {videoPreview.author && <p className={styles.previewAuthor}>{videoPreview.author}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
           </form>
         </div>
         
