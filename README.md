@@ -36,6 +36,18 @@ A modern desktop application built with Electron and a clean, professional UI th
 - Set priorities and estimated time
 - Mark tasks complete with satisfying visual feedback
 
+### Projects and Tasks
+- **Visual Progress Tracking**: Monitor task completion with intuitive progress bars showing percentage complete (0-100%)
+- **Project Organization**: Group related tasks into custom projects with color-coding for easy identification
+- **Priority Levels**: Assign High, Medium, or Low priority to tasks for better workload management
+- **Time Estimation**: Add estimated time requirements to better plan your day and measure productivity
+- **Completion Tracking**: Mark tasks as completed with a satisfying visual indicator and automatic progress updates
+- **Filtering System**: Filter tasks by completion status, priority level, or project association
+- **Drag and Drop Interface**: Easily reorganize tasks within projects using intuitive drag and drop functionality
+- **Quick Actions**: Access common actions like edit, delete, or mark complete through convenient action buttons
+- **Deadline Management**: Set and track task deadlines with visual indicators for approaching due dates
+- **Progress History**: View historical data on task completion patterns and productivity trends
+
 ### Settings & Personalization
 - Toggle between light and dark mode
 - Customize accent colors
