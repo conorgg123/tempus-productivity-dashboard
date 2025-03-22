@@ -3986,6 +3986,23 @@
                 });
             });
             
+            // Setup click handler for YouTube Manager tab to ensure it takes full page
+            document.querySelector('.nav-item[data-target="youtube-section"]').addEventListener('click', () => {
+                // Hide dashboard content
+                const dashboardContent = document.getElementById('dashboard-content');
+                if (dashboardContent) {
+                    dashboardContent.style.display = 'none';
+                }
+                
+                // Show YouTube Manager section
+                document.getElementById('youtube-section').style.display = 'block';
+                
+                // Hide other tab content
+                document.querySelectorAll('.tab-content:not(#youtube-section)').forEach(section => {
+                    section.style.display = 'none';
+                });
+            });
+            
             // Make projects & tasks section active
             document.getElementById('projects-section').style.display = 'block';
             document.querySelectorAll('.tab-content:not(#projects-section)').forEach(section => {
