@@ -1,0 +1,373 @@
+.calendarContainer {
+  width: 100%;
+  color: var(--text-color);
+}
+
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerTitle h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.headerTitle p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.viewToggle {
+  display: flex;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+}
+
+.viewBtn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.viewBtn.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.dateNavigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.navBtn:hover {
+  background-color: var(--hover-bg);
+}
+
+.todayBtn {
+  padding: 0.5rem 1rem;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.todayBtn:hover {
+  background-color: var(--hover-bg);
+}
+
+.addEventBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.addEventBtn:hover {
+  background-color: var(--primary-dark);
+}
+
+.calendarContent {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Week View */
+.weekView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.daysHeader {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+
+.timeColumn {
+  width: 60px;
+  min-width: 60px;
+  border-right: 1px solid var(--border-color);
+}
+
+.dayColumn {
+  flex: 1;
+  padding: 0.75rem 0;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+}
+
+.dayColumn:last-child {
+  border-right: none;
+}
+
+.dayName {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.dayDate {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.timeGrid {
+  display: flex;
+  height: 720px; /* 12 hours * 60px per hour */
+  position: relative;
+}
+
+.timeLabels {
+  width: 60px;
+  min-width: 60px;
+  border-right: 1px solid var(--border-color);
+}
+
+.timeLabel {
+  height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 0.25rem 0.5rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+}
+
+.dayEvents {
+  flex: 1;
+  position: relative;
+  border-right: 1px solid var(--border-color);
+}
+
+.dayEvents:last-child {
+  border-right: none;
+}
+
+.hourCell {
+  height: 60px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.hourCell:hover {
+  background-color: var(--hover-bg);
+}
+
+.eventItem {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 4px;
+  color: white;
+  padding: 0.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.eventTitle {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventTime {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--modal-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.formInput:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.colorPicker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.colorPicker input[type="color"] {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+}
+
+.selectedColor {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.modalFooter {
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.cancelBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.submitBtn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.submitBtn:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendarHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .headerControls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+} 
