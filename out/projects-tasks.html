@@ -4150,5 +4150,739 @@
       setupProjectOptionsMenu();
     }
   </script>
+
+  <!-- Add Edit Project Modal HTML -->
+  <div id="edit-project-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Project</h3>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="edit-project-form">
+          <div class="form-group">
+            <label for="edit-project-name">Project Name</label>
+            <input type="text" id="edit-project-name" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-project-color">Project Color</label>
+            <input type="color" id="edit-project-color">
+          </div>
+          <input type="hidden" id="edit-project-id">
+          <div class="form-actions">
+            <button type="button" class="btn secondary close-modal">Cancel</button>
+            <button type="submit" class="btn primary">Save Project</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Updated script for edit project functionality -->
+  <script>
+    // Function to handle the project editing
+    function setupProjectEdit() {
+      console.log('Setting up project edit functionality');
+      
+      // Get the edit project modal
+      const editProjectModal = document.getElementById('edit-project-modal');
+      const editProjectForm = document.getElementById('edit-project-form');
+      const editProjectNameInput = document.getElementById('edit-project-name');
+      const editProjectColorInput = document.getElementById('edit-project-color');
+      const editProjectIdInput = document.getElementById('edit-project-id');
+      
+      if (!editProjectModal || !editProjectForm) {
+        console.error('Edit project modal elements not found');
+        return;
+      }
+
+      // Event listener for form submission
+      editProjectForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const projectId = editProjectIdInput.value;
+        const projectName = editProjectNameInput.value;
+        const projectColor = editProjectColorInput.value;
+        
+        if (!projectName.trim()) {
+          alert('Project name cannot be empty');
+          return;
+        }
+        
+        // Find the project card by ID
+        const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
+        if (!projectCard) {
+          console.error('Project card not found for ID:', projectId);
+          return;
+        }
+        
+        // Update the project title
+        const projectTitle = projectCard.querySelector('.project-title');
+        if (projectTitle) {
+          projectTitle.textContent = projectName;
+        }
+        
+        // Update the project color
+        projectCard.style.setProperty('--project-color', projectColor);
+        
+        // Save projects data
+        try {
+          saveProjectsData();
+          showNotification(`Project "${projectName}" updated successfully!`, 'success');
+        } catch (err) {
+          console.error('Error saving project data:', err);
+          showNotification('Error updating project', 'error');
+        }
+        
+        // Close the modal
+        editProjectModal.classList.remove('active');
+      });
+      
+      // Event listeners for modal close buttons
+      editProjectModal.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+          editProjectModal.classList.remove('active');
+        });
+      });
+      
+      // Update the edit project event listener in setupProjectOptionsMenu
+      function openEditProjectModal(projectCard) {
+        const projectTitle = projectCard.querySelector('.project-title').textContent;
+        const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color').trim();
+        const projectId = projectCard.getAttribute('data-project-id') || Date.now().toString();
+        
+        // Ensure the project card has an ID
+        if (!projectCard.hasAttribute('data-project-id')) {
+          projectCard.setAttribute('data-project-id', projectId);
+        }
+        
+        // Populate the form fields
+        editProjectNameInput.value = projectTitle;
+        editProjectColorInput.value = projectColor || '#3b82f6';
+        editProjectIdInput.value = projectId;
+        
+        // Show the modal
+        editProjectModal.classList.add('active');
+      }
+      
+      // Expose function to be used by other scripts
+      window.openEditProject = openEditProjectModal;
+    }
+    
+    // Update the dropdown menu event listener in the setupProjectOptionsMenu function
+    // This function should be updated to call openEditProject instead of showing an alert
+    function updateProjectEditListener() {
+      document.querySelectorAll('.dropdown-item.edit-project').forEach(editBtn => {
+        editBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const projectCard = this.closest('.project-card');
+          const dropdownMenu = this.closest('.dropdown-menu');
+          
+          if (projectCard) {
+            if (typeof window.openEditProject === 'function') {
+              window.openEditProject(projectCard);
+            } else {
+              console.error('Edit project function not available');
+            }
+          }
+          
+          if (dropdownMenu) {
+            dropdownMenu.classList.remove('active');
+          }
+        });
+      });
+    }
+    
+    // Execute when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      setupProjectEdit();
+      // Run this after setupProjectOptionsMenu has been executed
+      setTimeout(updateProjectEditListener, 500);
+    });
+    
+    // Also run when window is loaded
+    window.addEventListener('load', function() {
+      setupProjectEdit();
+      setTimeout(updateProjectEditListener, 500);
+    });
+    
+    // Run now if DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setupProjectEdit();
+      setTimeout(updateProjectEditListener, 500);
+    }
+  </script>
+
+  <!-- Script to add unique IDs to project cards -->
+  <script>
+    // Function to assign unique IDs to all project cards
+    function assignProjectIds() {
+      console.log('Assigning IDs to project cards');
+      
+      document.querySelectorAll('.project-card').forEach((projectCard, index) => {
+        if (!projectCard.hasAttribute('data-project-id')) {
+          const projectId = `project-${Date.now()}-${index}`;
+          projectCard.setAttribute('data-project-id', projectId);
+          console.log(`Assigned ID ${projectId} to project card`);
+        }
+      });
+    }
+    
+    // Function to improve the New Project modal with color picker
+    function enhanceNewProjectModal() {
+      const newProjectModal = document.getElementById('new-project-modal');
+      
+      if (!newProjectModal) {
+        console.log('Creating new project modal');
+        
+        // Create the new project modal
+        const modalHTML = `
+          <div id="new-project-modal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3>Create New Project</h3>
+                <span class="close-modal">&times;</span>
+              </div>
+              <div class="modal-body">
+                <form id="new-project-form">
+                  <div class="form-group">
+                    <label for="new-project-name">Project Name</label>
+                    <input type="text" id="new-project-name" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="new-project-color">Project Color</label>
+                    <input type="color" id="new-project-color" value="#3b82f6">
+                  </div>
+                  <div class="form-actions">
+                    <button type="button" class="btn secondary close-modal">Cancel</button>
+                    <button type="submit" class="btn primary">Create Project</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Append the modal to the body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Get the new modal
+        const modal = document.getElementById('new-project-modal');
+        const form = document.getElementById('new-project-form');
+        
+        // Add event listeners
+        modal.querySelectorAll('.close-modal').forEach(btn => {
+          btn.addEventListener('click', function() {
+            modal.classList.remove('active');
+          });
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const projectName = document.getElementById('new-project-name').value;
+          const projectColor = document.getElementById('new-project-color').value;
+          
+          if (!projectName.trim()) {
+            alert('Project name cannot be empty');
+            return;
+          }
+          
+          // Create new project
+          createNewProject(projectName, projectColor);
+          
+          // Reset form and close modal
+          form.reset();
+          modal.classList.remove('active');
+        });
+      }
+    }
+    
+    // Function to create a new project
+    function createNewProject(name, color) {
+      const projectsContainer = document.querySelector('.projects-container');
+      
+      if (!projectsContainer) {
+        console.error('Projects container not found');
+        return;
+      }
+      
+      const projectId = `project-${Date.now()}`;
+      
+      // Create project HTML
+      const projectHTML = `
+        <div class="project-card" data-project-id="${projectId}" style="--project-color: ${color};">
+          <div class="project-header">
+            <div>
+              <h3 class="project-title">${name}</h3>
+              <p class="project-progress">0% complete</p>
+            </div>
+            <div class="task-actions">
+              <button class="task-action-btn">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="task-action-btn">
+                <span class="material-icons">more_vert</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%;"></div>
+          </div>
+          
+          <div class="task-list">
+            <!-- Tasks will be added here -->
+            <div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>
+          </div>
+        </div>
+      `;
+      
+      // Add the project to the container
+      projectsContainer.insertAdjacentHTML('beforeend', projectHTML);
+      
+      // Save projects data
+      try {
+        saveProjectsData();
+        showNotification(`Project "${name}" created successfully!`, 'success');
+        
+        // Re-initialize the project options menu
+        setupProjectOptionsMenu();
+      } catch (err) {
+        console.error('Error saving project data:', err);
+        showNotification('Error creating project', 'error');
+      }
+    }
+    
+    // Add button to create a new project
+    function addNewProjectButton() {
+      const headerActions = document.querySelector('.dashboard-actions');
+      
+      if (!headerActions) {
+        console.error('Dashboard actions container not found');
+        return;
+      }
+      
+      // Check if button already exists
+      if (!document.getElementById('new-project-btn')) {
+        const newProjectButton = document.createElement('button');
+        newProjectButton.className = 'btn primary';
+        newProjectButton.id = 'new-project-btn';
+        newProjectButton.innerHTML = '<span class="material-icons">add</span> New Project';
+        
+        newProjectButton.addEventListener('click', function() {
+          const modal = document.getElementById('new-project-modal');
+          if (modal) {
+            modal.classList.add('active');
+          } else {
+            console.error('New project modal not found');
+          }
+        });
+        
+        headerActions.appendChild(newProjectButton);
+      }
+    }
+    
+    // Function to initialize everything
+    function initializeProjectFeatures() {
+      assignProjectIds();
+      enhanceNewProjectModal();
+      addNewProjectButton();
+    }
+    
+    // Execute when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initializeProjectFeatures);
+    
+    // Also run when window is loaded
+    window.addEventListener('load', initializeProjectFeatures);
+    
+    // Run now if DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      initializeProjectFeatures();
+    }
+  </script>
+
+  <!-- Script to save and load project data -->
+  <script>
+    // Function to save project data to localStorage
+    function saveProjectsData() {
+      console.log('Saving projects data to localStorage');
+      
+      const projectsData = [];
+      
+      // Get all project cards
+      document.querySelectorAll('.project-card').forEach(projectCard => {
+        const projectId = projectCard.getAttribute('data-project-id');
+        const projectTitle = projectCard.querySelector('.project-title').textContent;
+        const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color').trim();
+        const progressElement = projectCard.querySelector('.progress-fill');
+        const progressText = projectCard.querySelector('.project-progress').textContent;
+        const progressValue = progressElement ? 
+          parseFloat(progressElement.style.width) || 0 : 
+          parseFloat(progressText) || 0;
+        
+        // Get tasks for this project
+        const tasks = [];
+        projectCard.querySelectorAll('.task-item').forEach(taskItem => {
+          // Skip the empty tasks message if it exists
+          if (taskItem.classList.contains('empty-tasks-message')) return;
+          
+          const taskId = taskItem.getAttribute('data-task-id') || `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+          const taskName = taskItem.querySelector('.task-name').textContent;
+          const completed = taskItem.querySelector('.task-checkbox').checked;
+          
+          // Get task details
+          let priority = 'medium';
+          let estTime = '';
+          let deadline = '';
+          let notes = '';
+          
+          // Extract priority from the icon if it exists
+          const priorityIcon = taskItem.querySelector('.priority-high, .priority-medium, .priority-low');
+          if (priorityIcon) {
+            if (priorityIcon.classList.contains('priority-high')) priority = 'high';
+            else if (priorityIcon.classList.contains('priority-low')) priority = 'low';
+            else priority = 'medium';
+          }
+          
+          // Extract time, deadline, and notes if they exist
+          const taskDetails = taskItem.querySelectorAll('.task-detail');
+          taskDetails.forEach(detail => {
+            const iconText = detail.querySelector('.material-icons')?.textContent;
+            
+            if (iconText === 'schedule') {
+              estTime = detail.textContent.trim().replace('schedule', '').trim();
+            } else if (iconText === 'event') {
+              deadline = detail.textContent.trim().replace('event', '').trim();
+            } else if (iconText === 'note') {
+              notes = detail.textContent.trim().replace('note', '').trim();
+            }
+          });
+          
+          // Save task data
+          tasks.push({
+            id: taskId,
+            name: taskName,
+            completed: completed,
+            priority: priority,
+            estimatedTime: estTime,
+            deadline: deadline,
+            notes: notes
+          });
+          
+          // Ensure the task has an ID attribute
+          if (!taskItem.hasAttribute('data-task-id')) {
+            taskItem.setAttribute('data-task-id', taskId);
+          }
+        });
+        
+        // Create project data object
+        projectsData.push({
+          id: projectId,
+          name: projectTitle,
+          color: projectColor,
+          progress: progressValue,
+          tasks: tasks
+        });
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('projectsData', JSON.stringify(projectsData));
+      console.log('Saved projects data:', projectsData);
+      
+      // Also update the project select in the new task modal
+      updateProjectSelect();
+      
+      return projectsData;
+    }
+    
+    // Function to load project data from localStorage
+    function loadProjectsData() {
+      console.log('Loading projects data from localStorage');
+      
+      const projectsDataString = localStorage.getItem('projectsData');
+      
+      if (!projectsDataString) {
+        console.log('No projects data found in localStorage');
+        return;
+      }
+      
+      try {
+        const projectsData = JSON.parse(projectsDataString);
+        console.log('Loaded projects data:', projectsData);
+        
+        // Clear the container
+        const projectsContainer = document.querySelector('.projects-container');
+        if (!projectsContainer) {
+          console.error('Projects container not found');
+          return;
+        }
+        
+        // Remove all existing projects
+        projectsContainer.innerHTML = '';
+        
+        // Create project cards from the data
+        projectsData.forEach(project => {
+          // Create project HTML
+          const progressWidth = typeof project.progress === 'number' ? project.progress : parseFloat(project.progress) || 0;
+          
+          const projectHTML = `
+            <div class="project-card" data-project-id="${project.id}" style="--project-color: ${project.color};">
+              <div class="project-header">
+                <div>
+                  <h3 class="project-title">${project.name}</h3>
+                  <p class="project-progress">${progressWidth}% complete</p>
+                </div>
+                <div class="task-actions">
+                  <button class="task-action-btn">
+                    <span class="material-icons">edit</span>
+                  </button>
+                  <button class="task-action-btn">
+                    <span class="material-icons">more_vert</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${progressWidth}%;"></div>
+              </div>
+              
+              <div class="task-list">
+                ${project.tasks && project.tasks.length > 0 ? '' : 
+                  '<div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>'}
+              </div>
+            </div>
+          `;
+          
+          // Add the project to the container
+          projectsContainer.insertAdjacentHTML('beforeend', projectHTML);
+          
+          // Get the project card just added
+          const projectCard = projectsContainer.lastElementChild;
+          
+          // If there are tasks, add them
+          if (project.tasks && project.tasks.length > 0) {
+            const taskList = projectCard.querySelector('.task-list');
+            
+            project.tasks.forEach(task => {
+              // Create priority class
+              let priorityClass = 'priority-medium';
+              if (task.priority === 'high') priorityClass = 'priority-high';
+              else if (task.priority === 'low') priorityClass = 'priority-low';
+              
+              // Create deadline class
+              let deadlineClass = '';
+              if (task.deadline && task.deadline.toLowerCase().includes('tomorrow')) {
+                deadlineClass = 'deadline-approaching';
+              }
+              
+              // Create task HTML
+              const taskHTML = `
+                <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+                  <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                  <div class="task-content">
+                    <h4 class="task-name">${task.name}</h4>
+                    <div class="task-details">
+                      ${task.priority ? `
+                        <span class="task-detail">
+                          <span class="material-icons ${priorityClass}">flag</span>
+                          ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                        </span>
+                      ` : ''}
+                      
+                      ${task.estimatedTime ? `
+                        <span class="task-detail">
+                          <span class="material-icons">schedule</span>
+                          ${task.estimatedTime}
+                        </span>
+                      ` : ''}
+                      
+                      ${task.deadline ? `
+                        <span class="task-detail ${deadlineClass}">
+                          <span class="material-icons">event</span>
+                          ${task.deadline}
+                        </span>
+                      ` : ''}
+                      
+                      ${task.notes ? `
+                        <span class="task-detail">
+                          <span class="material-icons">note</span>
+                          ${task.notes}
+                        </span>
+                      ` : ''}
+                    </div>
+                  </div>
+                  <div class="task-actions">
+                    <button class="task-action-btn edit-task-btn">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button class="task-action-btn delete-task-btn">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </div>
+              `;
+              
+              // Add the task to the project
+              taskList.insertAdjacentHTML('beforeend', taskHTML);
+            });
+          }
+        });
+        
+        // Re-initialize all functionality
+        setupProjectOptionsMenu();
+        setupTaskCheckboxListeners();
+        setupDeleteButtons();
+        updateProjectSelect();
+        
+        return projectsData;
+      } catch (error) {
+        console.error('Error loading projects data:', error);
+        return null;
+      }
+    }
+    
+    // Function to set up task checkbox listeners
+    function setupTaskCheckboxListeners() {
+      document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+        // Remove existing listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+        
+        // Add new listener
+        newCheckbox.addEventListener('change', function() {
+          const taskItem = this.closest('.task-item');
+          
+          if (this.checked) {
+            taskItem.classList.add('completed');
+          } else {
+            taskItem.classList.remove('completed');
+          }
+          
+          // Update project progress
+          updateProjectProgress(this.closest('.project-card'));
+          
+          // Save data
+          saveProjectsData();
+        });
+      });
+    }
+    
+    // Function to update project progress
+    function updateProjectProgress(projectCard) {
+      if (!projectCard) return;
+      
+      const taskItems = projectCard.querySelectorAll('.task-item');
+      const totalTasks = taskItems.length;
+      
+      if (totalTasks === 0) {
+        // No tasks, set progress to 0
+        projectCard.querySelector('.progress-fill').style.width = '0%';
+        projectCard.querySelector('.project-progress').textContent = '0% complete';
+        return;
+      }
+      
+      const completedTasks = projectCard.querySelectorAll('.task-item.completed').length;
+      const progressPercentage = Math.round((completedTasks / totalTasks) * 100);
+      
+      // Update progress bar and text
+      projectCard.querySelector('.progress-fill').style.width = `${progressPercentage}%`;
+      projectCard.querySelector('.project-progress').textContent = `${progressPercentage}% complete`;
+    }
+    
+    // Function to update project select in new task modal
+    function updateProjectSelect() {
+      const projectSelect = document.getElementById('new-task-project');
+      
+      if (!projectSelect) {
+        console.log('Project select element not found');
+        return;
+      }
+      
+      // Clear existing options
+      projectSelect.innerHTML = '';
+      
+      // Add default option
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select a project';
+      projectSelect.appendChild(defaultOption);
+      
+      // Add options for each project
+      document.querySelectorAll('.project-card').forEach(projectCard => {
+        const projectId = projectCard.getAttribute('data-project-id');
+        const projectTitle = projectCard.querySelector('.project-title').textContent;
+        
+        const option = document.createElement('option');
+        option.value = projectId;
+        option.textContent = projectTitle;
+        
+        projectSelect.appendChild(option);
+      });
+    }
+    
+    // Setup delete buttons for tasks
+    function setupDeleteButtons() {
+      // For task deletion
+      document.querySelectorAll('.delete-task-btn').forEach(btn => {
+        // Remove existing listeners
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        // Add new listener
+        newBtn.addEventListener('click', function() {
+          const taskItem = this.closest('.task-item');
+          const taskName = taskItem.querySelector('.task-name').textContent;
+          
+          if (confirm(`Are you sure you want to delete task "${taskName}"?`)) {
+            // Remove the task
+            taskItem.remove();
+            
+            // Update project progress
+            updateProjectProgress(this.closest('.project-card'));
+            
+            // Save data
+            saveProjectsData();
+            
+            showNotification(`Task "${taskName}" deleted successfully!`, 'success');
+          }
+        });
+      });
+    }
+    
+    // Load projects when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProjectsData();
+    });
+    
+    // Also run when window is loaded
+    window.addEventListener('load', function() {
+      loadProjectsData();
+    });
+    
+    // Run now if DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      loadProjectsData();
+    }
+    
+    // Update the save function for the new task form
+    document.addEventListener('DOMContentLoaded', function() {
+      const saveNewTaskOriginal = window.saveNewTask;
+      
+      if (typeof saveNewTaskOriginal === 'function') {
+        window.saveNewTask = function() {
+          const result = saveNewTaskOriginal.apply(this, arguments);
+          
+          // After saving the task, save all projects data
+          if (result !== false) {
+            saveProjectsData();
+          }
+          
+          return result;
+        };
+      }
+    });
+  </script>
 </body>
 </html> 
