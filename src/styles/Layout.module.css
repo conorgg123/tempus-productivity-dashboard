@@ -86,6 +86,14 @@
   padding: 20px;
 }
 
+.mobileHeader {
+  display: none;
+}
+
+.menuToggle {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
@@ -99,5 +107,21 @@
   .mainContent {
     margin-left: 0;
     width: 100%;
+  }
+
+  .mobileHeader {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 15px;
+  }
+
+  .menuToggle {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
   }
 } 
