@@ -2397,6 +2397,14 @@
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="task-select" style="display: block; margin-bottom: 5px; font-weight: 500;">Select Task (Optional)</label>
+                        <select id="task-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
+                            <option value="">-- Select a task --</option>
+                            <!-- Tasks will be populated here -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 15px;">
                         <label for="activity-category" style="display: block; margin-bottom: 5px; font-weight: 500;">Category</label>
                         <select id="activity-category" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--gray);">
                             <option value="focus">Focus Work</option>
@@ -3962,7 +3970,8 @@
                 this.activeView = 'day';
                 this.currentActivity = {
                     name: '',
-                    categoryId: 'focus'
+                    categoryId: 'focus',
+                    taskId: null
                 };
                 
                 this.loadActivities();
@@ -3970,6 +3979,7 @@
                 this.updateStats();
                 this.renderTimeline();
                 this.renderActivities();
+                this.populateTaskDropdown();
             }
             
             // Load activities from localStorage
@@ -3980,6 +3990,35 @@
                 } catch (error) {
                     console.error('Error loading activities:', error);
                     this.activities = [];
+                }
+            }
+            
+            // Populate the task dropdown with tasks from ProjectsManager
+            populateTaskDropdown() {
+                const taskSelect = document.getElementById('task-select');
+                if (!taskSelect) return;
+                
+                // Clear existing options except the first one
+                while (taskSelect.options.length > 1) {
+                    taskSelect.remove(1);
+                }
+                
+                // Get tasks from localStorage
+                try {
+                    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                    
+                    // Only show incomplete tasks
+                    const incompleteTasks = tasks.filter(task => !task.completed);
+                    
+                    // Add tasks as options
+                    incompleteTasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task.id;
+                        option.textContent = task.title;
+                        taskSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading tasks for dropdown:', error);
                 }
             }
             
@@ -4010,6 +4049,7 @@
             startTimer() {
                 const activityName = document.getElementById('activity-name').value;
                 const categoryId = document.getElementById('activity-category').value;
+                const taskId = document.getElementById('task-select').value || null;
                 
                 if (!activityName) {
                     alert('Please enter an activity name');
@@ -4026,8 +4066,17 @@
                     this.totalPausedTime = 0;
                     this.currentActivity = {
                         name: activityName,
-                        categoryId: categoryId
+                        categoryId: categoryId,
+                        taskId: taskId
                     };
+                    
+                    // If a task was selected, use its name if activity name is empty
+                    if (taskId && !activityName.trim()) {
+                        const taskSelect = document.getElementById('task-select');
+                        const selectedOption = taskSelect.options[taskSelect.selectedIndex];
+                        this.currentActivity.name = selectedOption.textContent;
+                        document.getElementById('activity-name').value = selectedOption.textContent;
+                    }
                 }
                 
                 this.isRunning = true;
