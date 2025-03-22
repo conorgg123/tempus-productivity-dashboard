@@ -16,6 +16,10 @@
     "dist": "npm run build && npm run package"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.8",
+    "@mui/material": "^6.4.8",
     "electron-is-dev": "^2.0.0",
     "next": "13.4.12",
     "react": "18.2.0",
