@@ -200,6 +200,44 @@ function createWindow() {
     console.log('Running in development mode, connecting to Next.js server at:', startUrl);
     mainWindow.loadURL(startUrl);
   } else {
+    // In production mode, copy the HTML files from the output directory to the temp directory
+    const tempDir = os.tmpdir();
+    const outDir = path.join(__dirname, 'out');
+    
+    // Create an array of HTML files to copy
+    const filesToCopy = [
+      { 
+        source: path.join(outDir, 'calendar.html'),
+        dest: path.join(tempDir, 'calendar.html')
+      },
+      { 
+        source: path.join(outDir, 'settings.html'),
+        dest: path.join(tempDir, 'settings.html')
+      },
+      { 
+        source: path.join(outDir, 'youtube-manager.html'),
+        dest: path.join(tempDir, 'youtube-manager.html')
+      },
+      { 
+        source: path.join(outDir, 'production-fix.css'),
+        dest: path.join(tempDir, 'production-fix.css')
+      }
+    ];
+    
+    // Copy each file
+    filesToCopy.forEach(file => {
+      try {
+        if (fs.existsSync(file.source)) {
+          fs.copyFileSync(file.source, file.dest);
+          console.log(`Successfully copied ${file.source} to ${file.dest}`);
+        } else {
+          console.error(`Source file does not exist: ${file.source}`);
+        }
+      } catch (error) {
+        console.error(`Error copying file ${file.source}: ${error.message}`);
+      }
+    });
+    
     // In production mode, create a basic HTML page that loads our app
     const htmlContent = `
       <!DOCTYPE html>
@@ -211,6 +249,7 @@ function createWindow() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="production-fix.css">
         <style>
           :root {
             --primary-color: #6366f1;
@@ -817,7 +856,7 @@ function createWindow() {
                 <span class="material-icons nav-icon">dashboard</span>
                 <span>Dashboard</span>
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="calendar.html">
                 <span class="material-icons nav-icon">calendar_today</span>
                 <span>Calendar</span>
               </a>
@@ -852,7 +891,7 @@ function createWindow() {
                 <span class="material-icons nav-icon">help</span>
                 <span>Help</span>
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="settings.html">
                 <span class="material-icons nav-icon">settings</span>
                 <span>Settings</span>
               </a>
