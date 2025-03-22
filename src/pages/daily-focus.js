@@ -38,10 +38,15 @@ import { loadData, saveData } from '@/utils/storage';
 
 export default function DailyFocus() {
   const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [todos, setTodos] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedTodo, setSelectedTodo] = useState('');
   const [newTask, setNewTask] = useState('');
   const [activeTask, setActiveTask] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [progress, setProgress] = useState(0);
   const timerRef = useRef(null);
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const [dailyStats, setDailyStats] = useState({
@@ -51,9 +56,27 @@ export default function DailyFocus() {
   });
 
   useEffect(() => {
-    async function loadTasks() {
+    async function loadInitialData() {
+      // Load focus tasks
       const savedTasks = await loadData('focus-tasks', []);
       setTasks(savedTasks);
+      
+      // Load projects
+      const projectsData = await loadData('projects', [
+        { id: 'work', name: 'Work', color: '#e74c3c' },
+        { id: 'personal', name: 'Personal', color: '#2ecc71' },
+        { id: 'learning', name: 'Learning', color: '#3498db' }
+      ]);
+      setProjects(projectsData);
+      
+      // Load todo tasks
+      const todosData = await loadData('todos', []);
+      setTodos(todosData);
+      
+      // Set default project if available
+      if (projectsData.length > 0 && !selectedProject) {
+        setSelectedProject(projectsData[0].id);
+      }
       
       const savedStats = await loadData('focus-stats', {
         date: new Date().toLocaleDateString(),
@@ -73,7 +96,7 @@ export default function DailyFocus() {
       }
     }
     
-    loadTasks();
+    loadInitialData();
     
     return () => {
       if (timerRef.current) {
@@ -95,6 +118,17 @@ export default function DailyFocus() {
     ].join(':');
   };
   
+  // Get project by ID
+  const getProject = (projectId) => {
+    return projects.find(p => p.id === projectId) || null;
+  };
+  
+  // Get todo tasks for selected project
+  const getProjectTodos = () => {
+    if (!selectedProject) return [];
+    return todos.filter(todo => todo.projectId === selectedProject && !todo.completed);
+  };
+  
   // Add new task
   const handleAddTask = (e) => {
     e.preventDefault();
@@ -104,7 +138,10 @@ export default function DailyFocus() {
     const task = {
       id: Date.now().toString(),
       name: newTask,
+      projectId: selectedProject,
+      todoId: selectedTodo || null,
       tracked: 0,
+      progress: 0,
       isCompleted: false
     };
     
@@ -124,9 +161,10 @@ export default function DailyFocus() {
     setActiveTask(taskId);
     setIsTracking(true);
     
-    // Get current elapsed time from the task
+    // Get current elapsed time and progress from the task
     const task = tasks.find(t => t.id === taskId);
     setElapsedTime(task.tracked);
+    setProgress(task.progress || 0);
     
     // Start the timer
     timerRef.current = setInterval(() => {
@@ -142,10 +180,14 @@ export default function DailyFocus() {
     clearInterval(timerRef.current);
     timerRef.current = null;
     
-    // Update task tracked time
+    // Update task tracked time and progress
     const updatedTasks = tasks.map(task => {
       if (task.id === activeTask) {
-        return { ...task, tracked: elapsedTime };
+        return { 
+          ...task, 
+          tracked: elapsedTime,
+          progress: progress
+        };
       }
       return task;
     });
@@ -165,16 +207,45 @@ export default function DailyFocus() {
     } else {
       updatedStats.taskBreakdown.push({
         name: task.name,
-        tracked: elapsedTime - task.tracked
+        tracked: elapsedTime - task.tracked,
+        projectId: task.projectId
       });
     }
     
     setDailyStats(updatedStats);
     saveData('focus-stats', updatedStats);
     
+    // Update todo if linked
+    if (task.todoId) {
+      const updatedTodos = todos.map(todo => {
+        if (todo.id === task.todoId) {
+          return {
+            ...todo,
+            progress: progress,
+            completed: progress >= 100
+          };
+        }
+        return todo;
+      });
+      
+      setTodos(updatedTodos);
+      saveData('todos', updatedTodos);
+    }
+    
     // Reset tracking state
     setIsTracking(false);
     setActiveTask(null);
+  };
+  
+  // Change progress
+  const handleProgressChange = (e) => {
+    const newProgress = parseInt(e.target.value);
+    setProgress(newProgress);
+    
+    // If task is completed at 100%, auto-stop tracking
+    if (newProgress === 100 && isTracking) {
+      stopTracking();
+    }
   };
   
   // Toggle task completion status
@@ -186,7 +257,12 @@ export default function DailyFocus() {
     
     const updatedTasks = tasks.map(task => {
       if (task.id === taskId) {
-        return { ...task, isCompleted: !task.isCompleted };
+        const newCompletionStatus = !task.isCompleted;
+        return { 
+          ...task, 
+          isCompleted: newCompletionStatus,
+          progress: newCompletionStatus ? 100 : task.progress
+        };
       }
       return task;
     });
@@ -240,16 +316,58 @@ export default function DailyFocus() {
             <h3>Tasks</h3>
             
             <form className={styles.addTaskForm} onSubmit={handleAddTask}>
-              <input 
-                type="text"
-                placeholder="Add a new task..."
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                className={styles.addTaskInput}
-              />
-              <button type="submit" className={styles.addTaskBtn}>
-                <span className="material-icons">add</span>
-              </button>
+              <div className={styles.formRow}>
+                <input 
+                  type="text"
+                  placeholder="Add a new task..."
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  className={styles.addTaskInput}
+                />
+                <button type="submit" className={styles.addTaskBtn}>
+                  <span className="material-icons">add</span>
+                </button>
+              </div>
+              
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Project</label>
+                  <select 
+                    value={selectedProject}
+                    onChange={(e) => {
+                      setSelectedProject(e.target.value);
+                      setSelectedTodo('');
+                    }}
+                    className={styles.selectInput}
+                  >
+                    {projects.length === 0 ? (
+                      <option value="">No projects yet</option>
+                    ) : (
+                      projects.map(project => (
+                        <option key={project.id} value={project.id}>
+                          {project.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Task (optional)</label>
+                  <select 
+                    value={selectedTodo}
+                    onChange={(e) => setSelectedTodo(e.target.value)}
+                    className={styles.selectInput}
+                  >
+                    <option value="">Select a task</option>
+                    {getProjectTodos().map(todo => (
+                      <option key={todo.id} value={todo.id}>
+                        {todo.text}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </form>
             
             <div className={styles.taskList}>
@@ -258,49 +376,74 @@ export default function DailyFocus() {
                   <p>No tasks yet. Add one to get started!</p>
                 </div>
               ) : (
-                filteredTasks.map(task => (
-                  <div 
-                    key={task.id} 
-                    className={`${styles.taskItem} ${task.isCompleted ? styles.completed : ''} ${activeTask === task.id ? styles.active : ''}`}
-                  >
-                    <div className={styles.taskCheckbox}>
-                      <input 
-                        type="checkbox"
-                        checked={task.isCompleted}
-                        onChange={() => toggleTaskCompleted(task.id)}
-                        id={`task-${task.id}`}
-                      />
-                      <label htmlFor={`task-${task.id}`}></label>
-                    </div>
-                    
-                    <div className={styles.taskDetails}>
-                      <div className={styles.taskName}>{task.name}</div>
-                      <div className={styles.taskTime}>
-                        {activeTask === task.id ? formatTime(elapsedTime) : formatTime(task.tracked)}
+                filteredTasks.map(task => {
+                  const project = getProject(task.projectId);
+                  const isActive = activeTask === task.id;
+                  
+                  return (
+                    <div 
+                      key={task.id} 
+                      className={`${styles.taskItem} ${task.isCompleted ? styles.completed : ''} ${isActive ? styles.active : ''}`}
+                    >
+                      <div className={styles.taskCheckbox}>
+                        <input 
+                          type="checkbox"
+                          checked={task.isCompleted}
+                          onChange={() => toggleTaskCompleted(task.id)}
+                          id={`task-${task.id}`}
+                        />
+                        <label htmlFor={`task-${task.id}`}></label>
+                      </div>
+                      
+                      <div className={styles.taskDetails}>
+                        <div className={styles.taskName}>{task.name}</div>
+                        <div className={styles.taskMeta}>
+                          {project && (
+                            <span 
+                              className={styles.taskProject}
+                              style={{ backgroundColor: project.color }}
+                            >
+                              {project.name}
+                            </span>
+                          )}
+                          <span className={styles.taskTime}>
+                            {isActive ? formatTime(elapsedTime) : formatTime(task.tracked)}
+                          </span>
+                        </div>
+                        
+                        <div className={styles.progressContainer}>
+                          <div 
+                            className={styles.progressBar}
+                            style={{ width: `${isActive ? progress : task.progress}%` }}
+                          ></div>
+                          <span className={styles.progressText}>
+                            {isActive ? progress : task.progress}%
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.taskActions}>
+                        {!task.isCompleted && (
+                          <button 
+                            className={`${styles.taskActionBtn} ${isActive ? styles.activeBtn : ''}`}
+                            onClick={() => isActive ? stopTracking() : startTracking(task.id)}
+                          >
+                            <span className="material-icons">
+                              {isActive ? 'pause' : 'play_arrow'}
+                            </span>
+                          </button>
+                        )}
+                        
+                        <button 
+                          className={styles.taskActionBtn}
+                          onClick={() => deleteTask(task.id)}
+                        >
+                          <span className="material-icons">delete</span>
+                        </button>
                       </div>
                     </div>
-                    
-                    <div className={styles.taskActions}>
-                      {!task.isCompleted && (
-                        <button 
-                          className={`${styles.taskActionBtn} ${activeTask === task.id ? styles.activeBtn : ''}`}
-                          onClick={() => activeTask === task.id ? stopTracking() : startTracking(task.id)}
-                        >
-                          <span className="material-icons">
-                            {activeTask === task.id ? 'pause' : 'play_arrow'}
-                          </span>
-                        </button>
-                      )}
-                      
-                      <button 
-                        className={styles.taskActionBtn}
-                        onClick={() => deleteTask(task.id)}
-                      >
-                        <span className="material-icons">delete</span>
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -324,18 +467,32 @@ export default function DailyFocus() {
                     <p>No tasks tracked yet today</p>
                   </div>
                 ) : (
-                  dailyStats.taskBreakdown.map((task, index) => (
-                    <div key={index} className={styles.breakdownItem}>
-                      <div className={styles.breakdownName}>{task.name}</div>
-                      <div className={styles.breakdownTime}>{formatTime(task.tracked)}</div>
-                      <div className={styles.breakdownBar}>
-                        <div 
-                          className={styles.breakdownFill} 
-                          style={{ width: `${(task.tracked / dailyStats.totalTracked) * 100}%` }}
-                        ></div>
+                  dailyStats.taskBreakdown.map((task, index) => {
+                    const project = task.projectId ? getProject(task.projectId) : null;
+                    
+                    return (
+                      <div key={index} className={styles.breakdownItem}>
+                        <div className={styles.breakdownName}>
+                          {task.name}
+                          {project && (
+                            <span 
+                              className={styles.breakdownProject}
+                              style={{ backgroundColor: project.color }}
+                            >
+                              {project.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.breakdownTime}>{formatTime(task.tracked)}</div>
+                        <div className={styles.breakdownBar}>
+                          <div 
+                            className={styles.breakdownFill} 
+                            style={{ width: `${(task.tracked / dailyStats.totalTracked) * 100}%` }}
+                          ></div>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -349,6 +506,27 @@ export default function DailyFocus() {
                 <div className={styles.sessionTimer}>
                   {formatTime(elapsedTime)}
                 </div>
+                
+                <div className={styles.sessionProgress}>
+                  <label>
+                    Progress: {progress}%
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="100" 
+                      value={progress} 
+                      onChange={handleProgressChange}
+                      className={styles.progressSlider}
+                    />
+                  </label>
+                  <div className={styles.progressSliderContainer}>
+                    <div 
+                      className={styles.progressSliderFill} 
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
                 <button 
                   className={styles.stopBtn}
                   onClick={stopTracking}
