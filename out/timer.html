@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Mode - Tempus Productivity Dashboard</title>
+  <link rel="stylesheet" href="production-fix.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .timer-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      height: 100%;
+    }
+    
+    .timer-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .timer-display {
+      font-size: 72px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-color);
+    }
+    
+    .timer-controls {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .timer-settings {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 32px;
+    }
+    
+    .timer-settings-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .timer-settings-label {
+      flex: 1;
+      font-weight: 500;
+    }
+    
+    .timer-settings-input {
+      flex: 2;
+    }
+    
+    .timer-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+    }
+    
+    .timer-history {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .timer-history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .timer-history-title {
+      font-weight: 600;
+      font-size: 18px;
+      margin: 0;
+    }
+    
+    .timer-history-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .timer-session {
+      background-color: var(--background-secondary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .timer-session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .timer-session-task {
+      font-weight: 500;
+    }
+    
+    .timer-session-duration {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .timer-session-details {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .timer-session-project {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .project-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--project-color, #4f46e5);
+    }
+    
+    .timer-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .timer-stat {
+      background-color: var(--background-secondary);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    
+    .timer-stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--accent-color);
+    }
+    
+    .timer-stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Project list styling */
+    .projects-list {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .project-item {
+      margin-bottom: 16px;
+      background-color: var(--background-secondary);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 4px solid var(--project-color, #4f46e5);
+    }
+
+    .project-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .project-item-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .project-item-progress {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .project-tasks {
+      margin-top: 8px;
+      display: none;
+    }
+
+    .project-item.expanded .project-tasks {
+      display: block;
+    }
+
+    .task-item-focus {
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      background-color: var(--background-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .task-item-focus:hover {
+      background-color: var(--background-hover);
+    }
+
+    .task-item-focus.selected {
+      background-color: var(--accent-color-light, rgba(79, 70, 229, 0.1));
+      border-left: 3px solid var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">
+          <span class="material-icons">schedule</span>
+        </div>
+        <span>tempus.</span>
+      </div>
+      
+      <div class="nav-section">
+        <a href="index.html" class="nav-item">
+          <span class="material-icons nav-icon">dashboard</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="calendar.html" class="nav-item">
+          <span class="material-icons nav-icon">calendar_today</span>
+          <span>Calendar</span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">PRODUCTIVITY</div>
+        <a href="projects-tasks.html" class="nav-item">
+          <span class="material-icons nav-icon">folder</span>
+          <span>Projects & tasks</span>
+        </a>
+        <a href="timer.html" class="nav-item active">
+          <span class="material-icons nav-icon">psychology</span>
+          <span>Focus Mode</span>
+        </a>
+        <a href="history.html" class="nav-item">
+          <span class="material-icons nav-icon">history</span>
+          <span>History</span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">RESOURCES</div>
+        <a href="youtube-manager.html" class="nav-item">
+          <span class="material-icons nav-icon">video_library</span>
+          <span>YouTube Manager</span>
+        </a>
+      </div>
+      
+      <div class="nav-section" style="margin-top: auto; padding-bottom: 16px;">
+        <a href="help.html" class="nav-item">
+          <span class="material-icons nav-icon">help_outline</span>
+          <span>Help</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="material-icons nav-icon">settings</span>
+          <span>Settings</span>
+        </a>
+        <a href="#" class="nav-item" id="logout-btn">
+          <span class="material-icons nav-icon">logout</span>
+          <span>Log Out</span>
+        </a>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div class="header">
+        <div class="header-title">
+          <h2>Focus Mode</h2>
+          <p>Track your time spent on tasks and stay focused</p>
+        </div>
+        <div class="header-controls">
+          <button class="btn primary-btn" id="start-new-btn">Start New Session</button>
+        </div>
+      </div>
+      
+      <div class="content-area">
+        <div class="timer-container">
+          <div class="timer-main">
+            <div class="timer-display">00:00:00</div>
+            
+            <div class="timer-controls">
+              <button class="btn primary-btn" id="start-btn">
+                <span class="material-icons">play_arrow</span>
+                Start
+              </button>
+              <button class="btn secondary-btn" id="pause-btn" disabled>
+                <span class="material-icons">pause</span>
+                Pause
+              </button>
+              <button class="btn secondary-btn" id="reset-btn">
+                <span class="material-icons">restart_alt</span>
+                Reset
+              </button>
+            </div>
+            
+            <div class="timer-settings">
+              <div class="timer-settings-row">
+                <div class="timer-settings-label">Project:</div>
+                <div class="timer-settings-input">
+                  <select class="timer-select" id="project-select">
+                    <option value="">Select Project</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="timer-settings-row">
+                <div class="timer-settings-label">Task:</div>
+                <div class="timer-settings-input">
+                  <select class="timer-select" id="task-select" disabled>
+                    <option value="">Select Task</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project List -->
+            <div class="projects-list" id="projects-list">
+              <!-- Projects will be populated here -->
+            </div>
+            
+            <div class="timer-stats">
+              <div class="timer-stat">
+                <div class="timer-stat-value">4h 32m</div>
+                <div class="timer-stat-label">Today</div>
+              </div>
+              <div class="timer-stat">
+                <div class="timer-stat-value">18h 45m</div>
+                <div class="timer-stat-label">This Week</div>
+              </div>
+              <div class="timer-stat">
+                <div class="timer-stat-value">3</div>
+                <div class="timer-stat-label">Sessions Today</div>
+              </div>
+              <div class="timer-stat">
+                <div class="timer-stat-value">12</div>
+                <div class="timer-stat-label">Sessions This Week</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="timer-history">
+            <div class="timer-history-header">
+              <h3 class="timer-history-title">Recent Sessions</h3>
+              <a href="history.html" class="btn-text">View all</a>
+            </div>
+            
+            <div class="timer-history-items">
+              <div class="timer-session">
+                <div class="timer-session-header">
+                  <div class="timer-session-task">Update homepage design</div>
+                  <div class="timer-session-duration">1h 15m</div>
+                </div>
+                <div class="timer-session-details">
+                  <div class="timer-session-project">
+                    <div class="project-indicator" style="--project-color: #4f46e5;"></div>
+                    Website Redesign
+                  </div>
+                  <div class="timer-session-time">Today, 11:30 AM</div>
+                </div>
+              </div>
+              
+              <div class="timer-session">
+                <div class="timer-session-header">
+                  <div class="timer-session-task">Create wireframes</div>
+                  <div class="timer-session-duration">2h 30m</div>
+                </div>
+                <div class="timer-session-details">
+                  <div class="timer-session-project">
+                    <div class="project-indicator" style="--project-color: #4f46e5;"></div>
+                    Website Redesign
+                  </div>
+                  <div class="timer-session-time">Today, 8:45 AM</div>
+                </div>
+              </div>
+              
+              <div class="timer-session">
+                <div class="timer-session-header">
+                  <div class="timer-session-task">Design user profile screen</div>
+                  <div class="timer-session-duration">1h 45m</div>
+                </div>
+                <div class="timer-session-details">
+                  <div class="timer-session-project">
+                    <div class="project-indicator" style="--project-color: #10b981;"></div>
+                    Mobile App
+                  </div>
+                  <div class="timer-session-time">Yesterday, 3:15 PM</div>
+                </div>
+              </div>
+              
+              <div class="timer-session">
+                <div class="timer-session-header">
+                  <div class="timer-session-task">Implement login system</div>
+                  <div class="timer-session-duration">3h 10m</div>
+                </div>
+                <div class="timer-session-details">
+                  <div class="timer-session-project">
+                    <div class="project-indicator" style="--project-color: #10b981;"></div>
+                    Mobile App
+                  </div>
+                  <div class="timer-session-time">Yesterday, 10:20 AM</div>
+                </div>
+              </div>
+              
+              <div class="timer-session">
+                <div class="timer-session-header">
+                  <div class="timer-session-task">Define target audience</div>
+                  <div class="timer-session-duration">1h 30m</div>
+                </div>
+                <div class="timer-session-details">
+                  <div class="timer-session-project">
+                    <div class="project-indicator" style="--project-color: #f59e0b;"></div>
+                    Marketing Campaign
+                  </div>
+                  <div class="timer-session-time">Apr 16, 2:00 PM</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize dark mode
+    function loadDarkModePreference() {
+      const isDarkMode = localStorage.getItem('tempus-dark-mode') === 'true';
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+    
+    // Load dark mode on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDarkModePreference();
+      loadProjects();
+    });
+    
+    // Timer functionality
+    let timerInterval;
+    let seconds = 0;
+    let minutes = 0;
+    let hours = 0;
+    let isRunning = false;
+    let currentProjectId = '';
+    let currentTaskId = '';
+    
+    const timerDisplay = document.querySelector('.timer-display');
+    const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const startNewBtn = document.getElementById('start-new-btn');
+    const projectSelect = document.getElementById('project-select');
+    const taskSelect = document.getElementById('task-select');
+    const projectsList = document.getElementById('projects-list');
+    
+    function formatTime(value) {
+      return value.toString().padStart(2, '0');
+    }
+    
+    function updateTimerDisplay() {
+      timerDisplay.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
+    }
+    
+    function startTimer() {
+      if (!isRunning) {
+        // Check if project and task are selected
+        if (!currentProjectId || !currentTaskId) {
+          alert('Please select a project and task before starting the timer');
+          return;
+        }
+        
+        isRunning = true;
+        startBtn.innerHTML = '<span class="material-icons">pause</span> Pause';
+        pauseBtn.disabled = false;
+        
+        timerInterval = setInterval(() => {
+          seconds++;
+          if (seconds >= 60) {
+            seconds = 0;
+            minutes++;
+            if (minutes >= 60) {
+              minutes = 0;
+              hours++;
+            }
+          }
+          updateTimerDisplay();
+        }, 1000);
+      } else {
+        pauseTimer();
+      }
+    }
+    
+    function pauseTimer() {
+      isRunning = false;
+      startBtn.innerHTML = '<span class="material-icons">play_arrow</span> Start';
+      pauseBtn.disabled = true;
+      clearInterval(timerInterval);
+    }
+    
+    function resetTimer() {
+      pauseTimer();
+      seconds = 0;
+      minutes = 0;
+      hours = 0;
+      updateTimerDisplay();
+    }
+    
+    function startNewSession() {
+      // Reset the current timer
+      resetTimer();
+      
+      // Clear the project and task dropdowns
+      projectSelect.value = '';
+      taskSelect.value = '';
+      currentProjectId = '';
+      currentTaskId = '';
+      
+      // Reset task selection visuals
+      document.querySelectorAll('.task-item-focus').forEach(task => {
+        task.classList.remove('selected');
+      });
+      
+      // Focus on the project dropdown
+      projectSelect.focus();
+    }
+
+    // Load projects from localStorage
+    function loadProjects() {
+      const projectsData = localStorage.getItem('tempus-projects');
+      const projectsContainer = document.getElementById('projects-list');
+      
+      // Clear existing content
+      projectsContainer.innerHTML = '';
+      projectSelect.innerHTML = '<option value="">Select Project</option>';
+      
+      if (!projectsData) {
+        projectsContainer.innerHTML = '<p>No projects found. Create projects in the Projects & Tasks section.</p>';
+        return;
+      }
+      
+      try {
+        const projects = JSON.parse(projectsData);
+        console.log('Loaded projects data:', projects.length, 'projects');
+        
+        // Populate projects
+        projects.forEach(project => {
+          // Add to dropdown
+          const option = document.createElement('option');
+          option.value = project.title;
+          option.textContent = project.title;
+          projectSelect.appendChild(option);
+          
+          // Create project item in the visual list
+          const projectItem = document.createElement('div');
+          projectItem.className = 'project-item';
+          projectItem.style.borderLeftColor = project.color;
+          projectItem.dataset.project = project.title;
+          
+          // Calculate numeric percentage
+          let completion = '0%';
+          if (project.progressValue) {
+            completion = project.progressValue;
+          }
+          
+          projectItem.innerHTML = `
+            <div class="project-item-header">
+              <div class="project-item-title">${project.title}</div>
+              <div class="project-item-progress">${project.progress || '0% complete'}</div>
+            </div>
+            <div class="project-tasks">
+              <!-- Tasks will be populated here -->
+            </div>
+          `;
+          
+          // Add tasks
+          const tasksContainer = projectItem.querySelector('.project-tasks');
+          
+          if (project.tasks && project.tasks.length > 0) {
+            project.tasks.forEach(task => {
+              const taskItem = document.createElement('div');
+              taskItem.className = 'task-item-focus';
+              taskItem.dataset.project = project.title;
+              taskItem.dataset.task = task.name;
+              
+              // Determine priority class
+              let priorityIcon = '◯';
+              switch(task.priority) {
+                case 'high':
+                  priorityIcon = '🔴';
+                  break;
+                case 'medium':
+                  priorityIcon = '🟠';
+                  break;
+                case 'low':
+                  priorityIcon = '🟢';
+                  break;
+              }
+              
+              taskItem.innerHTML = `
+                <div class="task-item-name">${task.name}</div>
+                <div class="task-item-details">
+                  <span class="task-item-priority">${priorityIcon}</span>
+                  <span class="task-item-time">${task.estimatedTime}h</span>
+                </div>
+              `;
+              
+              // Task selection
+              taskItem.addEventListener('click', () => {
+                selectTask(project.title, task.name, taskItem);
+              });
+              
+              tasksContainer.appendChild(taskItem);
+            });
+          } else {
+            tasksContainer.innerHTML = '<p>No tasks in this project</p>';
+          }
+          
+          // Toggle tasks visibility
+          projectItem.querySelector('.project-item-header').addEventListener('click', () => {
+            projectItem.classList.toggle('expanded');
+          });
+          
+          projectsContainer.appendChild(projectItem);
+        });
+        
+      } catch (error) {
+        console.error('Error loading projects data:', error);
+        projectsContainer.innerHTML = '<p>Error loading projects. Please refresh the page.</p>';
+      }
+    }
+    
+    // Select a task
+    function selectTask(projectName, taskName, taskElement) {
+      // Update variables
+      currentProjectId = projectName;
+      currentTaskId = taskName;
+      
+      // Update dropdowns
+      projectSelect.value = projectName;
+      loadTasksForProject();
+      
+      // Find the task in the dropdown and select it
+      for (let i = 0; i < taskSelect.options.length; i++) {
+        if (taskSelect.options[i].text === taskName) {
+          taskSelect.selectedIndex = i;
+          break;
+        }
+      }
+      
+      // Update visual selection
+      document.querySelectorAll('.task-item-focus').forEach(task => {
+        task.classList.remove('selected');
+      });
+      
+      if (taskElement) {
+        taskElement.classList.add('selected');
+      }
+    }
+    
+    // Load tasks based on selected project
+    function loadTasksForProject() {
+      const projectName = projectSelect.value;
+      currentProjectId = projectName;
+      
+      // Clear existing options (except the first placeholder option)
+      while (taskSelect.options.length > 1) {
+        taskSelect.remove(1);
+      }
+      
+      // Disable task select if no project is selected
+      if (!projectName) {
+        taskSelect.disabled = true;
+        currentTaskId = '';
+        return;
+      }
+      
+      taskSelect.disabled = false;
+      
+      // Load tasks from localStorage
+      const projectsData = localStorage.getItem('tempus-projects');
+      if (!projectsData) return;
+      
+      try {
+        const projects = JSON.parse(projectsData);
+        const selectedProject = projects.find(p => p.title === projectName);
+        
+        if (selectedProject && selectedProject.tasks) {
+          selectedProject.tasks.forEach(task => {
+            const option = document.createElement('option');
+            option.value = task.name;
+            option.textContent = task.name;
+            taskSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+      }
+    }
+    
+    // Event listeners
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    startNewBtn.addEventListener('click', startNewSession);
+    projectSelect.addEventListener('change', loadTasksForProject);
+    taskSelect.addEventListener('change', function() {
+      currentTaskId = this.value;
+      
+      // Update visual selection in the projects list
+      if (currentProjectId && currentTaskId) {
+        document.querySelectorAll('.task-item-focus').forEach(task => {
+          if (task.dataset.project === currentProjectId && task.dataset.task === currentTaskId) {
+            task.classList.add('selected');
+          } else {
+            task.classList.remove('selected');
+          }
+        });
+      }
+    });
+    
+    // Save session to localStorage
+    function saveSession(projectId, taskId, duration) {
+      const sessions = JSON.parse(localStorage.getItem('tempus-sessions') || '[]');
+      const newSession = {
+        project: projectId,
+        task: taskId,
+        duration: duration,
+        timestamp: new Date().toISOString()
+      };
+      
+      sessions.push(newSession);
+      localStorage.setItem('tempus-sessions', JSON.stringify(sessions));
+      
+      // Add session to recent sessions list
+      addSessionToRecentList(newSession);
+    }
+    
+    // Add session to recent list
+    function addSessionToRecentList(session) {
+      const recentList = document.querySelector('.timer-history-items');
+      const sessionElement = document.createElement('div');
+      sessionElement.className = 'timer-session';
+      
+      // Format duration
+      const durationFormatted = formatDuration(session.duration);
+      
+      // Format time
+      const now = new Date();
+      const sessionDate = new Date(session.timestamp);
+      let timeStr = '';
+      
+      if (sessionDate.toDateString() === now.toDateString()) {
+        timeStr = 'Today, ' + sessionDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      } else {
+        timeStr = sessionDate.toLocaleDateString([], {month: 'short', day: 'numeric'}) + 
+                 ', ' + sessionDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      }
+      
+      // Get project color from localStorage
+      let projectColor = '#4f46e5'; // Default color
+      const projectsData = localStorage.getItem('tempus-projects');
+      if (projectsData) {
+        try {
+          const projects = JSON.parse(projectsData);
+          const project = projects.find(p => p.title === session.project);
+          if (project) {
+            projectColor = project.color;
+          }
+        } catch (error) {
+          console.error('Error getting project color:', error);
+        }
+      }
+      
+      sessionElement.innerHTML = `
+        <div class="timer-session-header">
+          <div class="timer-session-task">${session.task}</div>
+          <div class="timer-session-duration">${durationFormatted}</div>
+        </div>
+        <div class="timer-session-details">
+          <div class="timer-session-project">
+            <div class="project-indicator" style="--project-color: ${projectColor};"></div>
+            ${session.project}
+          </div>
+          <div class="timer-session-time">${timeStr}</div>
+        </div>
+      `;
+      
+      // Add to the top of the list
+      recentList.insertBefore(sessionElement, recentList.firstChild);
+      
+      // Remove oldest if more than 5
+      if (recentList.children.length > 5) {
+        recentList.removeChild(recentList.lastChild);
+      }
+    }
+    
+    // Format duration (seconds) to hours and minutes
+    function formatDuration(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      } else {
+        return `${minutes}m`;
+      }
+    }
+    
+    // Initialize timer display
+    updateTimerDisplay();
+  </script>
+</body>
+</html> 
