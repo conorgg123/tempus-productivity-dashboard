@@ -65,8 +65,31 @@
 
 .addTaskForm {
   display: flex;
+  flex-direction: column;
   margin-bottom: 1.5rem;
+  gap: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.formRow {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.formGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .addTaskInput {
@@ -80,6 +103,26 @@
 }
 
 .addTaskInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.selectInput {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+}
+
+.selectInput:focus {
   outline: none;
   border-color: var(--primary-color);
 }
@@ -175,8 +218,54 @@
   margin-bottom: 0.25rem;
 }
 
+.taskMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.taskProject {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: 500;
+}
+
 .taskTime {
   font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.progressContainer {
+  height: 8px;
+  background-color: var(--progress-bg);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #4CAF50; /* Green progress bar */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  position: absolute;
+  right: 0;
+  top: -16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.taskItem.completed .taskText {
+  text-decoration: line-through;
   color: var(--text-secondary);
 }
 
@@ -268,7 +357,19 @@
 .breakdownName {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.25rem;
+}
+
+.breakdownProject {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: 500;
+  margin-left: auto;
 }
 
 .breakdownTime {
@@ -313,6 +414,61 @@
   font-family: monospace;
 }
 
+.sessionProgress {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.sessionProgress label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  width: 100%;
+}
+
+.progressSlider {
+  width: 100%;
+  margin: 0.5rem 0;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--progress-bg);
+  outline: none;
+}
+
+.progressSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+}
+
+.progressSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+}
+
+.progressSliderContainer {
+  height: 8px;
+  background-color: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progressSliderFill {
+  height: 100%;
+  background-color: #4CAF50; /* Green progress bar */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
 .stopBtn {
   padding: 0.75rem 1.5rem;
   background-color: var(--danger-color);
@@ -337,5 +493,9 @@
   
   .focusContent {
     grid-template-columns: 1fr;
+  }
+  
+  .formRow {
+    flex-direction: column;
   }
 } 
