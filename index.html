@@ -1682,13 +1682,11 @@
     <!-- Sidebar -->
   <div class="sidebar">
         <div class="logo">
-            <div class="logo-icon">
-                <span style="color: var(--primary); font-weight: bold;">T</span>
-            </div>
+            <div class="logo-icon">T</div>
             <div class="logo-text">tempus.</div>
-    </div>
-    
-        <div class="nav-item active main-tab" data-target="dashboard-section">
+        </div>
+        
+        <div class="nav-item main-tab" data-target="dashboard-section">
             <span class="nav-icon">📊</span>
             <span>Dashboard</span>
         </div>
@@ -1703,7 +1701,7 @@
             <span>YouTube Manager</span>
         </div>
         
-        <div class="nav-item main-tab" data-target="projects-section">
+        <div class="nav-item active main-tab" data-target="projects-section">
             <span class="nav-icon">📝</span>
             <span>Projects & tasks</span>
         </div>
@@ -2178,7 +2176,7 @@
     </div>
 
     <!-- Projects & Tasks Section -->
-    <div id="projects-section" class="tab-content" style="display: none;">
+    <div id="projects-section" class="tab-content">
         <div class="header">
             <div class="date">
                 Projects & Tasks
@@ -2824,8 +2822,8 @@
             });
             
             // Show dashboard by default
-            document.getElementById('dashboard-section').style.display = 'block';
-            document.querySelector('[data-target="dashboard-section"]').classList.add('active-tab');
+            document.getElementById('projects-section').style.display = 'block';
+            document.querySelector('[data-target="projects-section"]').classList.add('active-tab');
             
             // Settings event listeners
             const saveSettingsBtn = document.getElementById('save-settings-btn');
