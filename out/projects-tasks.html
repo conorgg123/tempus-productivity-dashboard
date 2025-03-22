@@ -35,6 +35,7 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 16px;
+      position: relative;
     }
     
     .project-title {
@@ -158,25 +159,33 @@
       display: flex;
       gap: 4px;
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s ease;
     }
     
-    .task-item:hover .task-actions {
+    .task-item:hover .task-actions,
+    .project-header:hover .task-actions {
       opacity: 1;
     }
     
     .task-action-btn {
       background: none;
       border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
+      padding: 4px;
       border-radius: 4px;
-      padding: 2px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .task-action-btn:hover {
-      background-color: var(--background-primary);
-      color: var(--text-primary);
+      background-color: rgba(0, 0, 0, 0.05);
+      color: var(--accent-color);
+    }
+    
+    .task-action-btn .material-icons {
+      font-size: 18px;
     }
     
     .filters {
@@ -950,6 +959,46 @@
     @keyframes highlight-fade {
       0% { background-color: rgba(79, 70, 229, 0.1); }
       100% { background-color: transparent; }
+    }
+
+    /* Add styles for dropdown menu */
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      z-index: 1000;
+      min-width: 150px;
+      display: none;
+    }
+
+    .dropdown-menu.active {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: background-color 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-item .material-icons {
+      font-size: 18px;
+    }
+
+    /* Make sure the project header has correct positioning */
+    .project-header {
+      position: relative;
     }
   </style>
 </head>
@@ -3891,6 +3940,215 @@
             });
         }
     });
+  </script>
+
+  <!-- Script to ensure delete functionality works on page load -->
+  <script>
+    // Function to set up delete functionality for tasks and projects
+    function setupDeleteFunctionality() {
+      console.log('Setting up delete functionality for tasks and projects');
+      
+      // Initialize project buttons for deletion
+      document.querySelectorAll('.project-header .task-actions').forEach(actionsContainer => {
+        // Create delete button if it doesn't exist
+        if (!actionsContainer.querySelector('.delete-project-btn')) {
+          console.log('Adding delete button to project');
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'task-action-btn delete-project-btn';
+          deleteBtn.innerHTML = '<span class="material-icons">delete</span>';
+          actionsContainer.appendChild(deleteBtn);
+        }
+      });
+      
+      // Add event listeners for project delete buttons
+      document.querySelectorAll('.delete-project-btn').forEach(btn => {
+        // Remove existing event listeners to avoid duplicates
+        const newBtn = btn.cloneNode(true);
+        if (btn.parentNode) {
+          btn.parentNode.replaceChild(newBtn, btn);
+        }
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Delete project button clicked');
+          const projectCard = this.closest('.project-card');
+          if (projectCard) {
+            // Show confirmation dialog
+            const projectTitle = projectCard.querySelector('.project-title');
+            const projectName = projectTitle ? projectTitle.textContent.trim() : 'this project';
+            
+            if (confirm(`Are you sure you want to delete project "${projectName}" and all its tasks?`)) {
+              console.log('Deleting project:', projectName);
+              projectCard.remove();
+              // Save data to localStorage if needed
+              try {
+                saveProjectsData();
+              } catch (err) {
+                console.error('Error saving data after project deletion:', err);
+              }
+              alert(`Project "${projectName}" deleted successfully!`);
+            }
+          }
+        });
+      });
+      
+      // Add event listeners for task delete buttons
+      document.querySelectorAll('.delete-task-btn').forEach(btn => {
+        // Remove existing event listeners to avoid duplicates
+        const newBtn = btn.cloneNode(true);
+        if (btn.parentNode) {
+          btn.parentNode.replaceChild(newBtn, btn);
+        }
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('Delete task button clicked');
+          const taskItem = this.closest('.task-item');
+          if (taskItem) {
+            // Show confirmation dialog
+            const taskName = taskItem.querySelector('.task-name') ? 
+                            taskItem.querySelector('.task-name').textContent.trim() : 'this task';
+            
+            if (confirm(`Are you sure you want to delete task "${taskName}"?`)) {
+              console.log('Deleting task:', taskName);
+              taskItem.remove();
+              
+              // Update project progress
+              const projectCard = this.closest('.project-card');
+              if (projectCard) {
+                try {
+                  updateProjectProgress(projectCard);
+                } catch (err) {
+                  console.error('Error updating project progress:', err);
+                }
+              }
+              
+              // Save data to localStorage if needed
+              try {
+                saveProjectsData();
+              } catch (err) {
+                console.error('Error saving data after task deletion:', err);
+              }
+              
+              alert(`Task "${taskName}" deleted successfully!`);
+            }
+          }
+        });
+      });
+    }
+    
+    // Execute immediately when the script loads
+    document.addEventListener('DOMContentLoaded', function() {
+      setupDeleteFunctionality();
+    });
+    
+    // Also run when window is loaded for good measure
+    window.addEventListener('load', function() {
+      setupDeleteFunctionality();
+    });
+    
+    // Run now as well in case the DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setupDeleteFunctionality();
+    }
+  </script>
+
+  <!-- Script to implement project options menu -->
+  <script>
+    // Function to set up the more options menu for projects
+    function setupProjectOptionsMenu() {
+      console.log('Setting up project options menus');
+      
+      // For each project card
+      document.querySelectorAll('.project-card').forEach(projectCard => {
+        const projectHeader = projectCard.querySelector('.project-header');
+        const moreOptionsBtn = projectHeader.querySelector('.task-action-btn:not(.edit-project-btn):not(.delete-project-btn)');
+        
+        if (moreOptionsBtn) {
+          // Check if it has the more_vert icon
+          const iconElement = moreOptionsBtn.querySelector('.material-icons');
+          if (iconElement && iconElement.textContent === 'more_vert') {
+            console.log('Found more options button in project header');
+            
+            // Create a dropdown menu if it doesn't exist
+            let dropdownMenu = projectHeader.querySelector('.dropdown-menu');
+            if (!dropdownMenu) {
+              dropdownMenu = document.createElement('div');
+              dropdownMenu.className = 'dropdown-menu';
+              dropdownMenu.innerHTML = `
+                <div class="dropdown-item edit-project">
+                  <span class="material-icons">edit</span>
+                  Edit Project
+                </div>
+                <div class="dropdown-item delete-project">
+                  <span class="material-icons">delete</span>
+                  Delete Project
+                </div>
+              `;
+              projectHeader.appendChild(dropdownMenu);
+              
+              // Set up event listeners for dropdown items
+              dropdownMenu.querySelector('.edit-project').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const projectTitle = projectCard.querySelector('.project-title').textContent;
+                console.log('Edit project clicked:', projectTitle);
+                // Here you would open the edit project modal
+                alert(`Edit project functionality for "${projectTitle}" will be implemented soon.`);
+                dropdownMenu.classList.remove('active');
+              });
+              
+              dropdownMenu.querySelector('.delete-project').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const projectTitle = projectCard.querySelector('.project-title').textContent;
+                console.log('Delete project clicked:', projectTitle);
+                
+                if (confirm(`Are you sure you want to delete project "${projectTitle}" and all its tasks?`)) {
+                  console.log('Deleting project:', projectTitle);
+                  projectCard.remove();
+                  
+                  // Save data to localStorage
+                  try {
+                    saveProjectsData();
+                  } catch (err) {
+                    console.error('Error saving data after project deletion:', err);
+                  }
+                  
+                  alert(`Project "${projectTitle}" deleted successfully!`);
+                }
+                
+                dropdownMenu.classList.remove('active');
+              });
+            }
+            
+            // Toggle dropdown on button click
+            moreOptionsBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              dropdownMenu.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function() {
+              dropdownMenu.classList.remove('active');
+            });
+          }
+        }
+      });
+    }
+    
+    // Execute when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      setupProjectOptionsMenu();
+    });
+    
+    // Also run when window is loaded
+    window.addEventListener('load', function() {
+      setupProjectOptionsMenu();
+    });
+    
+    // Run now if DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setupProjectOptionsMenu();
+    }
   </script>
 </body>
 </html> 
