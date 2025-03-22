@@ -2866,6 +2866,10 @@
                 this.activeProjectId = 'all';
                 this.loadData();
                 this.setupEventListeners();
+                this.renderProjects();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.updateProjectSelect();
             }
             
             // Load data from localStorage
@@ -3702,6 +3706,21 @@
                 });
             }
         }
+        
+        // Initialize the managers when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the YouTube Manager
+            const youtubeManager = new YouTubeManager();
+            
+            // Initialize the Projects Manager
+            const projectsManager = new ProjectsManager();
+            
+            // Make projects & tasks section active
+            document.getElementById('projects-section').style.display = 'block';
+            document.querySelectorAll('.tab-content:not(#projects-section)').forEach(section => {
+                section.style.display = 'none';
+            });
+        });
   </script>
 </body>
 </html>
