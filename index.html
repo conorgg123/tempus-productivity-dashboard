@@ -1755,7 +1755,7 @@
                     Wednesday, September 8, 2023
                     <div class="status">
                         <div class="status-indicator"></div>
-                        <span>Active</span>
+                        <span>Tracking: Active</span>
                     </div>
                 </div>
                 
@@ -1769,188 +1769,307 @@
                 </div>
             </div>
             
-            <!-- Timeline -->
-            <div class="timeline">
+            <div class="timeline-section">
                 <div class="section-title">Timeline</div>
                 
-                <div class="timeline-grid">
-                    <div class="timeline-hour">
-                        <div class="hour-label">9:00</div>
-            </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">10:00</div>
-              </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">11:00</div>
-              </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">12:00</div>
-              </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">13:00</div>
-                        <div class="event design">Design</div>
-              </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">14:00</div>
-            </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">15:00</div>
+                <div class="timeline-container" style="background-color: white; border-radius: 12px; padding: 10px; margin-bottom: 20px;">
+                    <div class="timeline-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); position: relative; height: 100px;">
+                        <!-- Hour labels -->
+                        <div style="position: absolute; top: -25px; left: 0;">9:00</div>
+                        <div style="position: absolute; top: -25px; left: 8.33%;">10:00</div>
+                        <div style="position: absolute; top: -25px; left: 16.67%;">11:00</div>
+                        <div style="position: absolute; top: -25px; left: 25%;">12:00</div>
+                        <div style="position: absolute; top: -25px; left: 33.33%;">13:00</div>
+                        <div style="position: absolute; top: -25px; left: 41.67%;">14:00</div>
+                        <div style="position: absolute; top: -25px; left: 50%;">15:00</div>
+                        <div style="position: absolute; top: -25px; left: 58.33%;">16:00</div>
+                        <div style="position: absolute; top: -25px; left: 66.67%;">17:00</div>
+                        <div style="position: absolute; top: -25px; left: 75%;">18:00</div>
+                        <div style="position: absolute; top: -25px; left: 83.33%;">19:00</div>
+                        <div style="position: absolute; top: -25px; left: 91.67%;">20:00</div>
+                        
+                        <!-- Timeline blocks -->
+                        <div style="position: absolute; left: 0; width: 8.33%; height: 80px; background-color: #333; top: 10px;"></div>
+                        <div style="position: absolute; left: 12.5%; width: 10.42%; height: 80px; background-color: #333; top: 10px;"></div>
+                        <div style="position: absolute; left: 25%; width: 10.42%; height: 80px; background-color: #333; top: 10px;"></div>
+                        <div style="position: absolute; left: 50%; width: 8.33%; height: 80px; background-color: #333; top: 10px;"></div>
+                        <div style="position: absolute; left: 60.42%; width: 9.37%; height: 80px; background-color: #333; top: 10px;"></div>
+                        
+                        <!-- Timeline color indicators -->
+                        <div style="position: absolute; bottom: 0; left: 0; height: 5px; width: 8.33%; background-color: #4a6ee0;"></div>
+                        <div style="position: absolute; bottom: 0; left: 12.5%; height: 5px; width: 10.42%; background-color: #a29bfe;"></div>
+                        <div style="position: absolute; bottom: 0; left: 25%; height: 5px; width: 10.42%; background-color: #a29bfe;"></div>
+                        <div style="position: absolute; bottom: 0; left: 50%; height: 5px; width: 8.33%; background-color: #4a6ee0;"></div>
+                        <div style="position: absolute; bottom: 0; left: 60.42%; height: 5px; width: 9.37%; background-color: #e84393;"></div>
+                        
+                        <!-- Current time indicator -->
+                        <div style="position: absolute; left: 75%; height: 80px; border-left: 2px solid #FF5757; top: 10px;">
+                            <div style="position: absolute; left: -20px; top: -10px; background-color: #FF5757; color: white; font-size: 12px; padding: 2px 5px; border-radius: 4px;">19:41</div>
+                        </div>
                     </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">16:00</div>
-                    </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">17:00</div>
-                    </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">18:00</div>
-                    </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">19:00</div>
-                        <div class="event meetings">Meetings</div>
-                    </div>
-                    <div class="timeline-hour">
-                        <div class="hour-label">20:00</div>
-                        <div class="event development">Development</div>
-                        <div class="event breaks">Breaks</div>
-          </div>
-        </div>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--primary);"></div>
-                    <div>Design</div>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--accent2);"></div>
-                    <div>Meetings</div>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--secondary);"></div>
-                    <div>Development</div>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--danger);"></div>
-                    <div>Breaks</div>
                 </div>
             </div>
-          </div>
-          
-        <!-- Dual Sections -->
-        <div class="dual-sections">
-            <!-- Projects & Tasks -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="section-title">Projects & tasks</div>
-                    <div class="card-actions">⋯</div>
-                </div>
-                
-                <div class="task-list">
-                    <div class="task-item">
-                        <div class="task-priority high"></div>
-                        <div class="task-checkbox"></div>
-                        <div class="task-name">Complete dashboard design</div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Projects & Tasks section -->
+                    <div class="card" style="background-color: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div class="section-title" style="margin: 0;">Projects & tasks</div>
+                            <div>⋯</div>
+                        </div>
+                        
+                        <!-- Project Item -->
+                        <div style="margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #a29bfe; border-radius: 2px; margin-right: 6px;"></span>Finwall app</div>
+                                <div>49%</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px; margin-bottom: 10px;">
+                                <div style="height: 100%; width: 49%; background-color: #a29bfe; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72; text-align: right;">3 hr 26 min</div>
+                            
+                            <!-- Tasks -->
+                            <div style="margin-top: 10px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" style="margin-right: 8px;">
+                                    <div>DS12 - Dark version</div>
+                                    <div style="margin-left: auto; font-size: 12px; color: #636E72;">1 hr 51 min</div>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                    <input type="checkbox" checked style="margin-right: 8px;">
+                                    <div style="text-decoration: line-through; color: #636E72;">DS42 - Settings section</div>
+                                    <div style="margin-left: auto; font-size: 12px; color: #636E72;">55 min</div>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="checkbox" style="margin-right: 8px;">
+                                    <div>System update</div>
+                                    <div style="margin-left: auto; font-size: 12px; color: #636E72;">40 min</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- More Projects (simplified for brevity) -->
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #4a6ee0; border-radius: 2px; margin-right: 6px;"></span>Finwall website</div>
+                                <div>32%</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 32%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72; text-align: right;">1 hr 47 min</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #636E72; border-radius: 2px; margin-right: 6px;"></span>X Terminal</div>
+                                <div>14%</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 14%; background-color: #636E72; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72; text-align: right;">46 min</div>
+                        </div>
+                        
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div><span style="display: inline-block; width: 10px; height: 10px; background-color: #00B894; border-radius: 2px; margin-right: 6px;"></span>Li.Fi</div>
+                                <div>5%</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 5%; background-color: #00B894; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72; text-align: right;">19 min</div>
+                        </div>
                     </div>
-                    <div class="task-item">
-                        <div class="task-priority medium"></div>
-                        <div class="task-checkbox checked"></div>
-                        <div class="task-name">Review project requirements</div>
-                    </div>
-                    <div class="task-item">
-                        <div class="task-priority low"></div>
-                        <div class="task-checkbox"></div>
-                        <div class="task-name">Schedule team meeting</div>
-          </div>
-        </div>
-        
-                <div class="action-buttons">
-                    <button class="add-task-btn">+ Add Task</button>
-            </div>
-          </div>
-          
-            <!-- Apps & Websites -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="section-title">Apps & Websites</div>
-                    <div class="card-actions">⋯</div>
-          </div>
-                
-                <div class="app-list">
-                    <div class="app-item">
-                        <div class="app-icon">F</div>
-                        <div class="app-name">Figma</div>
-                    </div>
-                    <div class="app-item">
-                        <div class="app-icon">V</div>
-                        <div class="app-name">Visual Studio Code</div>
-                    </div>
-                    <div class="app-item">
-                        <div class="app-icon">S</div>
-                        <div class="app-name">Slack</div>
-        </div>
-      </div>
-      
-                <div class="action-buttons">
-                    <button class="add-app-btn">+ Add App</button>
-              </div>
-            </div>
-          </div>
-          
-        <!-- Daily Summary -->
-        <div class="daily-summary">
-            <div class="summary-title">Daily Summary</div>
-            
-            <div class="summary-text">
-                Today you had <span class="highlight">20%</span> more meetings than usual, you closed <span class="highlight">2 tasks</span> on two projects, but the focus was <span class="highlight">12%</span> lower than yesterday.
-            </div>
-            
-            <div class="stats-container">
-                <div class="stat-row">
-                    <div>
-                        <div style="font-size: 14px; opacity: 0.8;">Total time worked</div>
-                        <div style="font-size: 24px; font-weight: 600; margin-top: 5px;">6 hr 18 min</div>
-                </div>
                     
-                    <div>
-                        <div style="font-size: 14px; opacity: 0.8; text-align: right;">Percent of work day</div>
-                        <div style="font-size: 24px; font-weight: 600; margin-top: 5px; text-align: right;">79%</div>
-                        <div style="font-size: 12px; opacity: 0.8; text-align: right;">of 8 hr 0 min</div>
-              </div>
-            </div>
-          </div>
-          
-            <div class="categories">
-                <div class="category">
-                    <div class="category-progress focus">
-                        <div class="category-value">62%</div>
-              </div>
-                    <div class="category-name">Focus</div>
-            </div>
-            
-                <div class="category">
-                    <div class="category-progress meetings">
-                        <div class="category-value">15%</div>
-              </div>
-                    <div class="category-name">Meetings</div>
+                    <!-- Apps & Websites section -->
+                    <div class="card" style="background-color: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div class="section-title" style="margin: 0;">Apps & Websites</div>
+                            <div>⋯</div>
+                        </div>
+                        
+                        <!-- App Items -->
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>47%</div>
+                                <div>Figma</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 47%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">2 hr 58 min</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>12%</div>
+                                <div>Adobe Photoshop</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 12%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">46 min</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>12%</div>
+                                <div>zoom.us</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 12%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">45 min</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>7%</div>
+                                <div>Slack</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 7%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">26 min</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>6%</div>
+                                <div>pinterest.com</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 6%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">23 min</div>
+                        </div>
+                        
+                        <!-- More Items -->
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <div>22%</div>
+                                <div>Other</div>
+                            </div>
+                            <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                <div style="height: 100%; width: 22%; background-color: #636E72; border-radius: 3px;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #636E72;">1 hr 23 min</div>
+                        </div>
+                    </div>
                 </div>
-            
-                <div class="category">
-                    <div class="category-progress breaks">
-                        <div class="category-value">11%</div>
-              </div>
-                    <div class="category-name">Breaks</div>
-                </div>
-            
-                <div class="category">
-                    <div class="category-progress other">
-                        <div class="category-value">12%</div>
-              </div>
-                    <div class="category-name">Other</div>
+                
+                <!-- Right column with Daily Summary -->
+                <div>
+                    <!-- Daily Summary -->
+                    <div class="card" style="background-color: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                        <div class="section-title" style="margin-bottom: 20px;">Daily Summary</div>
+                        
+                        <div style="margin-bottom: 20px; line-height: 1.5;">
+                            <span style="display: inline-block; background-color: #f3f3f3; width: 20px; height: 20px; border-radius: 4px; text-align: center; margin-right: 5px;">⚡</span>
+                            Today you had <span style="font-weight: 600; color: #4a6ee0;">20%</span> more meetings than usual, you closed <span style="font-weight: 600; color: #4a6ee0;">2 tasks</span> on two projects, but the focus was <span style="font-weight: 600; color: #4a6ee0;">12%</span> lower than yesterday.
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: #636E72; font-size: 14px; margin-bottom: 5px;">Total time worked</div>
+                            <div style="font-size: 24px; font-weight: 600;">6 hr 18 min</div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #636E72; font-size: 14px; margin-bottom: 5px;">Percent of work day</div>
+                            <div style="display: flex; align-items: center;">
+                                <div style="font-size: 24px; font-weight: 600; margin-right: 10px;">79%</div>
+                                <div style="color: #636E72; font-size: 12px;">of 8 hr 0 min</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Distribution -->
+                    <div class="card" style="background-color: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- Chart Circles -->
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div style="position: relative; width: 100px; height: 100px; border-radius: 50%; background-color: #f3f3f3; margin-bottom: 10px;">
+                                    <div style="position: absolute; top: 0; left: 0; width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(#4a6ee0 0% 62%, #e84393 62% 77%, #FDCB6E 77% 88%, #636E72 88% 100%);"></div>
+                                    <div style="position: absolute; top: 15px; left: 15px; width: 70px; height: 70px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600;">62%</div>
+                                </div>
+                                <div>Focus</div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <!-- Other Category Circles -->
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; background-color: #f3f3f3; margin-bottom: 5px;">
+                                        <div style="position: absolute; top: 0; left: 0; width: 50px; height: 50px; border-radius: 50%; background-color: #e84393;"></div>
+                                        <div style="position: absolute; top: 5px; left: 5px; width: 40px; height: 40px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">15%</div>
+                                    </div>
+                                    <div style="font-size: 12px;">Meetings</div>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; background-color: #f3f3f3; margin-bottom: 5px;">
+                                        <div style="position: absolute; top: 0; left: 0; width: 50px; height: 50px; border-radius: 50%; background-color: #FDCB6E;"></div>
+                                        <div style="position: absolute; top: 5px; left: 5px; width: 40px; height: 40px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">11%</div>
+                                    </div>
+                                    <div style="font-size: 12px;">Breaks</div>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="position: relative; width: 50px; height: 50px; border-radius: 50%; background-color: #f3f3f3; margin-bottom: 5px;">
+                                        <div style="position: absolute; top: 0; left: 0; width: 50px; height: 50px; border-radius: 50%; background-color: #636E72;"></div>
+                                        <div style="position: absolute; top: 5px; left: 5px; width: 40px; height: 40px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">12%</div>
+                                    </div>
+                                    <div style="font-size: 12px;">Other</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Categories -->
+                        <div style="margin-top: 20px;">
+                            <div style="color: #636E72; font-size: 14px; margin-bottom: 10px;">Top categories</div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>59%</div>
+                                    <div>Design</div>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 59%; background-color: #4a6ee0; border-radius: 3px;"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #636E72; text-align: right;">3 hr 44 min</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>12%</div>
+                                    <div>Video Conference</div>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 12%; background-color: #e84393; border-radius: 3px;"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #636E72; text-align: right;">45 min</div>
+                            </div>
+                            
+                            <div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <div>10%</div>
+                                    <div>Work Messaging</div>
+                                </div>
+                                <div style="height: 6px; background-color: #f0f0f0; border-radius: 3px;">
+                                    <div style="height: 100%; width: 10%; background-color: #00B894; border-radius: 3px;"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #636E72; text-align: right;">37 min</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            </div>
-          </div>
-          
+        </div>
+    </div>
+
     <!-- Event Modal -->
     <div class="event-modal" id="event-modal">
         <div class="event-modal-content">
