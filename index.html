@@ -2949,6 +2949,142 @@
                 
                 this.updateProjectSelect();
             }
+            
+            // Add a new task
+            addTask(title, projectId, dueDate = null, priority = 'medium', notes = '') {
+                if (!title) {
+                    alert('Please enter a task title');
+                    return;
+                }
+                
+                const newTask = {
+                    id: Date.now().toString(),
+                    title: title,
+                    projectId: projectId || 'none',
+                    dueDate: dueDate,
+                    priority: priority,
+                    notes: notes,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.tasks.push(newTask);
+                this.saveTasks();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.updateProgress();
+                this.closeTaskModal();
+            }
+            
+            // Quick add task from input field
+            quickAddTask(title) {
+                if (!title) {
+                    return;
+                }
+                
+                const newTask = {
+                    id: Date.now().toString(),
+                    title: title,
+                    projectId: this.activeProjectId === 'all' || this.activeProjectId === 'today' || this.activeProjectId === 'upcoming' ? 'none' : this.activeProjectId,
+                    dueDate: null,
+                    priority: 'medium',
+                    notes: '',
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.tasks.push(newTask);
+                this.saveTasks();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.updateProgress();
+                
+                // Clear the input
+                document.getElementById('new-task-input').value = '';
+            }
+            
+            // Mark task as complete/incomplete
+            toggleTaskComplete(id) {
+                this.tasks = this.tasks.map(task => 
+                    task.id === id ? { ...task, completed: !task.completed } : task
+                );
+                
+                this.saveTasks();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.updateProgress();
+            }
+            
+            // Delete a task
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                this.saveTasks();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.updateProgress();
+            }
+            
+            // Edit a task
+            editTask(id, title, projectId, dueDate, priority, notes) {
+                this.tasks = this.tasks.map(task => 
+                    task.id === id ? { 
+                        ...task, 
+                        title, 
+                        projectId, 
+                        dueDate, 
+                        priority, 
+                        notes 
+                    } : task
+                );
+                
+                this.saveTasks();
+                this.renderTasks();
+                this.updateTaskCounts();
+                this.closeTaskModal();
+            }
+            
+            // Switch between projects
+            switchProject(projectId) {
+                this.activeProjectId = projectId;
+                
+                // Update UI to reflect current project
+                document.querySelectorAll('.project-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                document.querySelector(`.project-item[data-project-id="${projectId}"]`).classList.add('active');
+                
+                // Update title
+                if (projectId === 'all') {
+                    document.getElementById('project-detail-title').textContent = 'All Tasks';
+                } else if (projectId === 'today') {
+                    document.getElementById('project-detail-title').textContent = 'Today';
+                } else if (projectId === 'upcoming') {
+                    document.getElementById('project-detail-title').textContent = 'Upcoming';
+                } else {
+                    const project = this.projects.find(p => p.id === projectId);
+                    if (project) {
+                        document.getElementById('project-detail-title').textContent = project.name;
+                    }
+                }
+                
+                this.renderTasks();
+                this.updateProgress();
+            }
+            
+            // Switch between views (list, kanban, calendar)
+            switchView(view) {
+                this.activeView = view;
+                
+                // Update UI to reflect current view
+                document.querySelectorAll('[data-project-view]').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                document.querySelector(`[data-project-view="${view}"]`).classList.add('active');
+                
+                this.renderTasks();
+            }
         }
   </script>
 </body>
