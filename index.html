@@ -4043,6 +4043,25 @@
                         this.renderTimeline();
                     });
                 });
+                
+                // Task selection change
+                const taskSelect = document.getElementById('task-select');
+                if (taskSelect) {
+                    taskSelect.addEventListener('change', (e) => {
+                        if (e.target.value) {
+                            const selectedOption = e.target.options[e.target.selectedIndex];
+                            const activityNameInput = document.getElementById('activity-name');
+                            
+                            // Auto-fill the activity name with the task name if empty
+                            if (!activityNameInput.value.trim()) {
+                                activityNameInput.value = selectedOption.textContent;
+                            }
+                            
+                            // Set category to Focus when a task is selected
+                            document.getElementById('activity-category').value = 'focus';
+                        }
+                    });
+                }
             }
             
             // Start the timer
@@ -4121,6 +4140,7 @@
                         id: Date.now().toString(),
                         name: this.currentActivity.name,
                         categoryId: this.currentActivity.categoryId,
+                        taskId: this.currentActivity.taskId,
                         startTime: new Date(this.startTime).toISOString(),
                         endTime: new Date(endTime).toISOString(),
                         duration: Math.floor(elapsedTime / 1000), // duration in seconds
@@ -4132,6 +4152,11 @@
                     this.updateStats();
                     this.renderTimeline();
                     this.renderActivities();
+                    
+                    // If this was associated with a task, update the task statistics
+                    if (this.currentActivity.taskId) {
+                        this.updateTaskTimeStatistics(this.currentActivity.taskId, elapsedTime);
+                    }
                 }
                 
                 // Reset timer state
@@ -4147,6 +4172,29 @@
                 document.getElementById('timer-start-btn').style.display = 'block';
                 document.getElementById('timer-pause-btn').style.display = 'none';
                 document.getElementById('timer-stop-btn').style.display = 'none';
+                document.getElementById('activity-name').value = '';
+                document.getElementById('task-select').value = '';
+            }
+            
+            // Update task time statistics
+            updateTaskTimeStatistics(taskId, elapsedTimeMs) {
+                try {
+                    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                    const taskIndex = tasks.findIndex(task => task.id === taskId);
+                    
+                    if (taskIndex !== -1) {
+                        const task = tasks[taskIndex];
+                        const elapsedTimeMinutes = Math.floor(elapsedTimeMs / 60000);
+                        
+                        // Initialize timeSpent if it doesn't exist
+                        task.timeSpent = (task.timeSpent || 0) + elapsedTimeMinutes;
+                        
+                        tasks[taskIndex] = task;
+                        localStorage.setItem('tasks', JSON.stringify(tasks));
+                    }
+                } catch (error) {
+                    console.error('Error updating task time statistics:', error);
+                }
             }
             
             // Update the timer display
