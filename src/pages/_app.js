@@ -1,11 +1,28 @@
 import '@/styles/globals.css';
 import Head from 'next/head';
 import { useEffect } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 // Add global polyfill at the top level
 if (typeof window !== 'undefined' && typeof global === 'undefined') {
   window.global = window;
 }
+
+// Create a theme instance
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+});
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
@@ -35,7 +52,10 @@ export default function App({ Component, pageProps }) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Component {...pageProps} />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Component {...pageProps} />
+      </ThemeProvider>
     </>
   );
 } 
