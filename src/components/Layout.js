@@ -77,12 +77,43 @@ export default function Layout({ children }) {
             </a>
           </Link>
           
-          <Link href="/youtube-manager">
-            <a className={`${styles.navLink} ${isActive('youtube-manager') ? styles.active : ''}`}>
-              <span className="material-icons">video_library</span>
-              <span>YouTube Manager</span>
-            </a>
-          </Link>
+          <div className={styles.navSection}>
+            <div className={styles.navSectionTitle}>Productivity</div>
+            
+            <Link href="/calendar">
+              <a className={`${styles.navLink} ${isActive('calendar') ? styles.active : ''}`}>
+                <span className="material-icons">calendar_month</span>
+                <span>Calendar</span>
+              </a>
+            </Link>
+            
+            <Link href="/daily-focus">
+              <a className={`${styles.navLink} ${isActive('daily-focus') ? styles.active : ''}`}>
+                <span className="material-icons">timer</span>
+                <span>Daily Focus</span>
+              </a>
+            </Link>
+            
+            <Link href="/todo-list">
+              <a className={`${styles.navLink} ${isActive('todo-list') ? styles.active : ''}`}>
+                <span className="material-icons">checklist</span>
+                <span>Todo List</span>
+              </a>
+            </Link>
+          </div>
+          
+          <div className={styles.navSection}>
+            <div className={styles.navSectionTitle}>Resources</div>
+            
+            <Link href="/youtube-manager">
+              <a className={`${styles.navLink} ${isActive('youtube-manager') ? styles.active : ''}`}>
+                <span className="material-icons">video_library</span>
+                <span>YouTube Manager</span>
+              </a>
+            </Link>
+          </div>
+          
+          <div className={styles.navDivider}></div>
           
           <Link href="/settings">
             <a className={`${styles.navLink} ${isActive('settings') ? styles.active : ''}`}>
