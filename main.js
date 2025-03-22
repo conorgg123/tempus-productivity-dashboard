@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
-const isDev = require('electron-is-dev');
 
 // Global reference
 let mainWindow;
@@ -130,6 +129,11 @@ function createWindow() {
     initialData
   };
 
+  // Check if in development mode
+  const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('Is development mode:', isDev);
+
   // Load the app
   let startUrl;
   
@@ -141,6 +145,7 @@ function createWindow() {
     // In production mode, load directly from the filesystem
     const indexPath = path.resolve(__dirname, 'out/index.html');
     console.log('Looking for index.html at:', indexPath);
+    console.log('Current directory:', __dirname);
     console.log('File exists:', fs.existsSync(indexPath));
     
     startUrl = url.format({
