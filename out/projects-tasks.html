@@ -3,141 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects & Tasks Dashboard</title>
+  <title>Projects & Tasks - Tempus Productivity Dashboard</title>
+  <link rel="stylesheet" href="production-fix.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="production-fix.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
-  <!-- Critical CSS fixes for interactivity issues -->
   <style>
-    /* Fix for interactive elements */
-    button, input, select, .task-item, .project-card, .task-actions, .dashboard-actions {
+    :root {
+      --primary-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+      --accent-color: #4f46e5;
+      --accent-hover: #4338ca;
+      --text-primary: #333;
+      --text-secondary: #6b7280;
+      --background-primary: #f9fafb;
+      --background-secondary: #f3f4f6;
+      --background-hover: #e5e7eb;
+      --card-bg: #ffffff;
+      --border-color: #e5e7eb;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --transition-sm: 0.2s;
+      --transition-md: 0.3s;
+    }
+    
+    [data-theme="dark"] {
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --background-primary: #111827;
+      --background-secondary: #1f2937;
+      --background-hover: #374151;
+      --card-bg: #1f2937;
+      --border-color: #374151;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+      margin: 0;
+      transition: background-color var(--transition-md);
+    }
+
+    /* Make interactive elements work properly */
+    button, .btn, input[type="checkbox"] {
       pointer-events: auto !important;
       cursor: pointer !important;
-      z-index: 10 !important;
     }
     
-    /* Make buttons more visible on hover */
-    button:hover {
-      opacity: 0.9 !important;
-      filter: brightness(1.1) !important;
-    }
-    
-    /* Fix for task actions */
     .task-actions {
-      display: flex !important;
-      opacity: 1 !important;
+      opacity: 0;
       visibility: visible !important;
+      transition: opacity 0.2s ease;
     }
     
-    /* Fix any modal overlays */
+    .task-item:hover .task-actions,
+    .project-header:hover .task-actions {
+      opacity: 1 !important;
+    }
+    
     .modal-overlay:not(.active) {
       display: none !important;
     }
     
-    /* Force active modals on top */
-    .modal.active {
-      display: block !important;
-      z-index: 1000 !important;
-    }
-    
-    /* Make checkboxes clickable */
-    input[type="checkbox"] {
-      width: 20px !important;
-      height: 20px !important;
-      cursor: pointer !important;
-      opacity: 1 !important;
-    }
-  </style>
-  
-  <style>
+    /* Enhanced Project Card Styles */
     .projects-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      padding: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      padding: 1.5rem;
     }
     
     .project-card {
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border-top: 4px solid var(--project-color, #4f46e5);
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      transition: transform var(--transition-sm), box-shadow var(--transition-md);
+      border-top: 4px solid var(--project-color, var(--accent-color));
     }
     
     .project-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
     
     .project-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+      position: relative;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 16px;
-      position: relative;
     }
     
     .project-title {
-      font-size: 18px;
+      font-size: 1.25rem;
       font-weight: 600;
+      color: var(--text-primary);
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     
     .project-progress {
-      font-size: 14px;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      margin-top: 4px;
     }
     
     .progress-bar {
-      width: 100%;
-      height: 6px;
+      margin: 0.75rem 0 1rem;
+      height: 0.375rem;
       background-color: var(--background-secondary);
-      border-radius: 3px;
-      margin: 8px 0 20px;
+      border-radius: 1rem;
       overflow: hidden;
     }
     
     .progress-fill {
       height: 100%;
-      border-radius: 3px;
-      background-color: var(--project-color, #4f46e5);
+      border-radius: 1rem;
+      background-image: var(--primary-gradient);
       transition: width 0.5s ease;
     }
     
+    /* Enhanced Task Item Styles */
     .task-list {
+      padding: 0 1.25rem 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0.75rem;
     }
     
     .task-item {
+      background: var(--background-secondary);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
       display: flex;
       align-items: flex-start;
-      padding: 10px;
-      border-radius: 8px;
-      background-color: var(--background-secondary);
-      transition: background-color 0.2s;
+      gap: 0.75rem;
+      transition: background-color var(--transition-sm), transform var(--transition-sm);
     }
     
     .task-item:hover {
       background-color: var(--background-hover);
+      transform: translateX(2px);
     }
     
     .task-checkbox {
+      position: relative;
       appearance: none;
       -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 1.25rem;
+      height: 1.25rem;
       border: 2px solid var(--border-color);
-      border-radius: 4px;
-      margin-right: 12px;
-      margin-top: 2px;
-      position: relative;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+      transition: border-color var(--transition-sm), background-color var(--transition-sm);
     }
     
     .task-checkbox:checked {
@@ -148,12 +177,12 @@
     .task-checkbox:checked::after {
       content: "";
       position: absolute;
-      top: 2px;
-      left: 5px;
-      width: 4px;
-      height: 8px;
+      top: 0.2rem;
+      left: 0.4rem;
+      width: 0.25rem;
+      height: 0.5rem;
       border: solid white;
-      border-width: 0 2px 2px 0;
+      border-width: 0 0.125rem 0.125rem 0;
       transform: rotate(45deg);
     }
     
@@ -163,27 +192,87 @@
     
     .task-name {
       font-weight: 500;
-      margin: 0 0 4px;
+      margin: 0 0 0.25rem;
+      color: var(--text-primary);
     }
     
     .task-details {
       display: flex;
       align-items: center;
-      gap: 16px;
-      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 0.875rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
     }
     
     .task-detail {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 0.25rem;
     }
     
     .task-detail .material-icons {
-      font-size: 14px;
+      font-size: 0.875rem;
     }
     
+    /* Button Styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all var(--transition-sm);
+      border: none;
+    }
+    
+    .primary-btn {
+      background-image: var(--primary-gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .primary-btn:hover {
+      opacity: 0.9;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    
+    .secondary-btn {
+      background-color: var(--background-secondary);
+      color: var(--text-primary);
+    }
+    
+    .secondary-btn:hover {
+      background-color: var(--background-hover);
+    }
+    
+    /* Action Button Styles */
+    .task-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      transition: background-color var(--transition-sm), color var(--transition-sm);
+    }
+    
+    .task-action-btn:hover {
+      background-color: var(--background-hover);
+      color: var(--accent-color);
+    }
+    
+    .task-action-btn .material-icons {
+      font-size: 18px;
+    }
+    
+    /* Priority Colors */
     .priority-high {
       color: #ef4444;
     }
@@ -196,850 +285,246 @@
       color: #10b981;
     }
     
-    .task-actions {
-      display: flex;
-      gap: 4px;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-    
-    .task-item:hover .task-actions,
-    .project-header:hover .task-actions {
-      opacity: 1;
-    }
-    
-    .task-action-btn {
-      background: none;
-      border: none;
-      padding: 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .task-action-btn:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-      color: var(--accent-color);
-    }
-    
-    .task-action-btn .material-icons {
-      font-size: 18px;
-    }
-    
+    /* Filters Style */
     .filters {
       display: flex;
-      gap: 16px;
-      padding: 0 16px 16px;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 1.25rem 1.5rem;
       border-bottom: 1px solid var(--border-color);
-      margin-bottom: 16px;
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1rem;
     }
     
     .filter-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0.5rem;
     }
     
     .filter-title {
-      font-size: 14px;
+      font-size: 0.75rem;
       font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin: 0;
     }
     
     .filter-options {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     
     .filter-btn {
       background-color: var(--background-secondary);
       border: none;
-      border-radius: 16px;
-      padding: 6px 12px;
-      font-size: 13px;
+      border-radius: 2rem;
+      padding: 0.375rem 0.875rem;
+      font-size: 0.8125rem;
       cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
+      transition: background-color var(--transition-sm), color var(--transition-sm);
     }
     
     .filter-btn.active {
       background-color: var(--accent-color);
       color: white;
+      font-weight: 500;
     }
     
     .filter-btn:hover:not(.active) {
       background-color: var(--background-hover);
     }
     
-    .completed .task-name {
-      text-decoration: line-through;
+    /* Header Style */
+    .header {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .header-title h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .header-title p {
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
       color: var(--text-secondary);
     }
-    
-    .deadline-approaching {
-      color: #f59e0b;
-    }
-    
-    .deadline-overdue {
-      color: #ef4444;
-    }
-    
-    /* Modal styles */
+
+    /* Modal Styles */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .modal-overlay.active {
-      display: flex;
-      opacity: 1;
+      backdrop-filter: blur(4px);
     }
     
     .modal-content {
       background-color: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: transform 0.3s, opacity 0.3s;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
     }
     
-    .modal-overlay.active .modal-content {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    
-    /* Add styles for notifications */
-    .notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--accent-color);
-      color: white;
-      padding: 12px 16px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 2000;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: transform 0.3s, opacity 0.3s;
-      max-width: 320px;
-    }
-    
-    .notification.active {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    
-    .notification.error {
-      background-color: #ef4444;
-    }
-    
-    .notification.success {
-      background-color: #10b981;
-    }
-    
-    .notification .material-icons {
-      font-size: 20px;
-    }
-    
-    /* Add styles for confirm dialog */
-    .confirm-dialog {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      z-index: 2000;
-      width: 90%;
-      max-width: 400px;
-      display: none;
-      opacity: 0;
-      transition: transform 0.3s, opacity 0.3s;
-    }
-    
-    .confirm-dialog.active {
-      display: block;
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-    
-    .confirm-dialog-message {
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-    
-    .confirm-dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-    
-    .modal .modal-header {
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color, #2a2a2a);
     }
     
     .modal-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 1.125rem;
       font-weight: 600;
-      color: var(--text-primary, #ffffff);
-    }
-    
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: var(--text-secondary, #a0a0a0);
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    
-    .modal-close:hover {
-      color: var(--text-primary, #ffffff);
     }
     
     .modal-body {
-      padding: 20px;
+      padding: 1.5rem;
     }
     
     .modal-footer {
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: flex-end;
-      padding: 16px 20px;
-      border-top: 1px solid var(--border-color, #2a2a2a);
-      gap: 12px;
+      gap: 0.75rem;
     }
     
-    /* Form styles */
+    /* Form Styles */
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 1.25rem;
     }
     
     .form-label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 0.5rem;
       font-weight: 500;
-      font-size: 14px;
-      color: var(--text-primary);
-      letter-spacing: 0.3px;
+      font-size: 0.875rem;
     }
     
     .form-input {
       width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 2px solid var(--border-color);
-      background-color: var(--background-primary);
+      padding: 0.625rem 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background-color: var(--background-secondary);
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      transition: all 0.2s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      font-size: 0.875rem;
+      transition: border-color var(--transition-sm), box-shadow var(--transition-sm);
     }
     
     .form-input:focus {
       outline: none;
       border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.15);
-      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
     }
     
-    .form-select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 2px solid var(--border-color);
-      background-color: var(--background-primary);
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      background-size: 16px;
-      transition: all 0.2s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* To make all elements interactive */
+    .task-item, .project-card, .btn, .filter-btn, .task-checkbox {
+      cursor: pointer;
     }
     
-    .form-select:focus {
-      outline: none;
-      border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.15);
-      transform: translateY(-1px);
-    }
-    
-    .form-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    
-    .form-col {
-      flex: 1;
-    }
-    
-    /* Make textareas smaller */
-    textarea.form-input {
-      max-height: 80px;
-      min-height: 60px;
-    }
-
-    /* Button styles in modal */
-    .modal .btn {
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: 500;
-      transition: all 0.3s;
-      border: none;
-      font-size: 14px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal .primary-btn {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-    }
-
-    .modal .primary-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    }
-
-    .modal .secondary-btn {
-      background-color: transparent;
-      color: var(--text-primary);
-      border: 2px solid var(--border-color);
-    }
-
-    .modal .secondary-btn:hover {
-      background-color: var(--background-hover);
-      border-color: var(--text-secondary);
-    }
-    
-    /* Field validation */
-    .form-error {
-      color: #ef4444;
-      font-size: 12px;
-      margin-top: 6px;
-      display: none;
-      animation: fadeIn 0.3s;
-    }
-    
-    .form-input.error {
-      border-color: #ef4444;
-      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
-    }
-    
-    .form-input.error + .form-error {
-      display: block;
-    }
-
+    /* Animation for tasks and projects */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Tooltip for delete confirmation */
-    .tooltip {
-      position: absolute;
-      background-color: var(--card-bg);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 12px;
-      padding: 16px;
-      z-index: 100;
-      width: max-content;
-      max-width: 220px;
-      display: none;
-      border: 1px solid var(--border-color);
-      animation: tooltipFadeIn 0.2s;
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
     
-    .tooltip-actions {
+    .project-card {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .task-item {
+      animation: slideIn 0.3s ease forwards;
+    }
+    
+    /* Color picker styles */
+    .color-picker {
       display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      justify-content: flex-end;
+      flex-direction: column;
+      gap: 0.75rem;
     }
     
-    .tooltip.active {
-      display: block;
-    }
-    
-    @keyframes tooltipFadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
-    /* Fix alignment for form inputs with icons */
-    .form-input[type="date"],
-    .form-input[type="number"] {
-      padding-right: 8px;
-    }
-    
-    .form-group .input-with-icon {
-      display: flex;
-      align-items: center;
-    }
-    
-    .form-group .input-with-icon .form-input {
-      flex: 1;
-    }
-    
-    .form-group .input-with-icon .icon-label {
-      margin-left: 12px;
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-    
-    /* Priority selection styles */
-    .priority-options {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    
-    .priority-option {
-      display: flex;
-      align-items: center;
+    .color-input {
+      height: 2.5rem;
+      padding: 0.25rem;
+      width: 5rem;
       cursor: pointer;
     }
     
-    .priority-option input[type="radio"] {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
+    .color-presets {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
     
-    .priority-label {
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.2s;
-      background-color: var(--background-secondary);
+    .color-preset {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .color-preset:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .color-preset.active {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+    
+    /* Modal close button */
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    
+    .modal-close:hover {
+      background-color: var(--background-hover);
       color: var(--text-primary);
-      border: 2px solid transparent;
     }
     
-    .priority-label.high-priority {
-      border-left: 3px solid #ef4444;
+    /* Modal animation */
+    .modal-overlay.active .modal-content {
+      animation: modalSlideIn 0.3s ease forwards;
     }
     
-    .priority-label.medium-priority {
-      border-left: 3px solid #f97316;
-    }
-    
-    .priority-label.low-priority {
-      border-left: 3px solid #22c55e;
-    }
-    
-    .priority-option input[type="radio"]:checked + .priority-label {
-      background-color: var(--background-hover);
-      border-color: var(--accent-color);
-      transform: translateY(-1px);
-    }
-    
-    .priority-option input[type="radio"]:focus + .priority-label {
-      box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.2);
-    }
-    
-    .priority-display {
-      margin-top: 5px;
-      font-size: 14px;
-      height: 24px;
-    }
-    
-    .priority-display .high-priority {
-      color: #ef4444;
-      font-weight: 500;
-    }
-    
-    .priority-display .medium-priority {
-      color: #f97316;
-      font-weight: 500;
-    }
-    
-    .priority-display .low-priority {
-      color: #22c55e;
-      font-weight: 500;
-    }
-    
-    /* Task styles */
-    .task-meta .high-priority {
-      color: #ef4444;
-      font-weight: 500;
-    }
-    
-    .task-meta .medium-priority {
-      color: #f97316;
-      font-weight: 500;
-    }
-    
-    .task-meta .low-priority {
-      color: #22c55e;
-      font-weight: 500;
-    }
-    
-    /* Priority colors and flags in tasks */
-    .task-priority {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      margin-right: 8px;
-    }
-    
-    .high-priority {
-      background-color: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-    }
-    
-    .medium-priority {
-      background-color: rgba(249, 115, 22, 0.15);
-      color: #f97316;
-    }
-    
-    .low-priority {
-      background-color: rgba(34, 197, 94, 0.15);
-      color: #22c55e;
-    }
-    
-    .task-priority i {
-      font-size: 14px;
-      margin-right: 3px;
-    }
-    
-    /* Add Task button in project cards */
-    .add-task-container {
-      padding: 10px 15px 15px;
-      text-align: center;
-    }
-    
-    .add-task-btn {
-      background-color: transparent;
-      border: 1px dashed var(--border-color);
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: var(--text-secondary);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      width: 100%;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    
-    .add-task-btn:hover {
-      background-color: var(--background-hover);
-      color: var(--accent-color);
-      border-color: var(--accent-color);
-    }
-    
-    .add-task-btn .material-icons {
-      font-size: 16px;
-    }
-    
-    /* Header actions buttons styles */
-    .header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    
-    .btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
-    }
-    
-    .primary-btn {
-      background-color: var(--accent-color, #4f46e5);
-      color: white;
-    }
-    
-    .primary-btn:hover {
-      background-color: var(--accent-hover, #4338ca);
-    }
-    
-    .secondary-btn {
-      background-color: rgba(79, 70, 229, 0.1);
-      color: var(--accent-color, #4f46e5);
-    }
-    
-    .secondary-btn:hover {
-      background-color: rgba(79, 70, 229, 0.2);
-    }
-    
-    .btn i {
-      font-size: 18px;
-    }
-    
-    /* Make sure header is properly styled */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding: 0 16px;
-    }
-    
-    .header-title h1 {
-      margin: 0 0 4px 0;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    
-    .header-subtitle {
-      margin: 0;
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    /* Styles for notification popups */
-    .notification {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background-color: white;
-      color: #333;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      padding: 18px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 9999;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      max-width: 400px;
-      min-width: 320px;
-    }
-
-    .notification.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .notification .icon {
-      font-size: 24px;
-    }
-
-    .notification .success-icon {
-      color: #10b981;
-    }
-
-    .notification .error-icon {
-      color: #ef4444;
-    }
-
-    .notification .info-icon {
-      color: #3b82f6;
-    }
-
-    .notification .message {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .notification .close {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #9ca3af;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .notification .close:hover {
-      color: #6b7280;
-    }
-
-    .notification.success {
-      border-left: 4px solid #10b981;
-    }
-
-    .notification.error {
-      border-left: 4px solid #ef4444;
-    }
-
-    .notification.info {
-      border-left: 4px solid #3b82f6;
-    }
-
-    /* Confirm dialog styles */
-    .confirm-dialog {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-    .confirm-dialog.show {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .confirm-dialog-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #111827;
-    }
-
-    .confirm-dialog-message {
-      font-size: 14px;
-      color: #4b5563;
-      margin-bottom: 24px;
-    }
-
-    .confirm-dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    /* Task and project action buttons */
-    .task-actions, .project-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      opacity: 0.7;
-      transition: opacity 0.2s ease;
-    }
-
-    .task-item:hover .task-actions,
-    .project-card:hover .project-actions {
-      opacity: 1;
-    }
-
-    .edit-task-btn, .delete-task-btn,
-    .edit-project-btn, .delete-project-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #6b7280;
-      padding: 4px;
-      border-radius: 4px;
-      transition: background-color 0.2s ease, color 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .edit-task-btn:hover, .edit-project-btn:hover {
-      background-color: #f3f4f6;
-      color: #4f46e5;
-    }
-
-    .delete-task-btn:hover, .delete-project-btn:hover {
-      background-color: #fee2e2;
-      color: #ef4444;
-    }
-
-    /* Edited project/task highlight */
-    .task-item.highlight,
-    .project-card.highlight {
-      animation: highlight-fade 2s ease-out;
-    }
-
-    @keyframes highlight-fade {
-      0% { background-color: rgba(79, 70, 229, 0.1); }
-      100% { background-color: transparent; }
-    }
-
-    /* Add styles for dropdown menu */
-    .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background-color: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
-      z-index: 1000;
-      min-width: 150px;
-      display: none;
-    }
-
-    .dropdown-menu.active {
-      display: block;
-    }
-
-    .dropdown-item {
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      color: var(--text-color);
-      transition: background-color 0.2s;
-    }
-
-    .dropdown-item:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .dropdown-item .material-icons {
-      font-size: 18px;
-    }
-
-    /* Make sure the project header has correct positioning */
-    .project-header {
-      position: relative;
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -3043,7 +2528,7 @@
   <script>
     // Save projects data to localStorage
     function saveProjectsData() {
-      console.log('Saving projects data...');
+      console.log('Saving projects data to localStorage');
       
       // Get all project cards from the DOM
       const projectCards = document.querySelectorAll('.project-card');
@@ -3258,7 +2743,7 @@
         return null;
       }
     }
-
+    
     // Function to attach event listeners to all task items
     function attachTaskEventListeners() {
       // Add event listeners for checkboxes
@@ -3986,113 +3471,73 @@
 
   <!-- Script to ensure delete functionality works on page load -->
   <script>
-    // Function to set up delete functionality for tasks and projects
+    // This function sets up the delete functionality for tasks and projects
     function setupDeleteFunctionality() {
-      console.log('Setting up delete functionality for tasks and projects');
-      
-      // Initialize project buttons for deletion
-      document.querySelectorAll('.project-header .task-actions').forEach(actionsContainer => {
-        // Create delete button if it doesn't exist
-        if (!actionsContainer.querySelector('.delete-project-btn')) {
-          console.log('Adding delete button to project');
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'task-action-btn delete-project-btn';
-          deleteBtn.innerHTML = '<span class="material-icons">delete</span>';
-          actionsContainer.appendChild(deleteBtn);
-        }
-      });
-      
-      // Add event listeners for project delete buttons
-      document.querySelectorAll('.delete-project-btn').forEach(btn => {
-        // Remove existing event listeners to avoid duplicates
-        const newBtn = btn.cloneNode(true);
-        if (btn.parentNode) {
-          btn.parentNode.replaceChild(newBtn, btn);
-        }
-        
-        newBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          console.log('Delete project button clicked');
-          const projectCard = this.closest('.project-card');
-          if (projectCard) {
-            // Show confirmation dialog
-            const projectTitle = projectCard.querySelector('.project-title');
-            const projectName = projectTitle ? projectTitle.textContent.trim() : 'this project';
-            
-            if (confirm(`Are you sure you want to delete project "${projectName}" and all its tasks?`)) {
-              console.log('Deleting project:', projectName);
+      console.log('Setting up delete functionality');
+
+      // Setup project deletion
+      document.querySelectorAll('.project-card').forEach(projectCard => {
+        const actionContainer = projectCard.querySelector('.project-header .task-actions');
+        if (actionContainer) {
+          // Make sure delete button exists
+          let deleteBtn = actionContainer.querySelector('.delete-project-btn');
+          if (!deleteBtn) {
+            deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-action-btn delete-project-btn';
+            deleteBtn.innerHTML = '<span class="material-icons">delete</span>';
+            actionContainer.appendChild(deleteBtn);
+          }
+          
+          // Set up event listener
+          deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            const projectName = projectCard.querySelector('.project-title')?.textContent.trim() || 'this project';
+            if (confirm(`Are you sure you want to delete "${projectName}" and all its tasks?`)) {
               projectCard.remove();
-              // Save data to localStorage if needed
-              try {
-                saveProjectsData();
-              } catch (err) {
-                console.error('Error saving data after project deletion:', err);
-              }
-              alert(`Project "${projectName}" deleted successfully!`);
+              saveProjectsData();
+              alert(`Project "${projectName}" deleted successfully`);
             }
-          }
-        });
+          };
+        }
       });
       
-      // Add event listeners for task delete buttons
-      document.querySelectorAll('.delete-task-btn').forEach(btn => {
-        // Remove existing event listeners to avoid duplicates
-        const newBtn = btn.cloneNode(true);
-        if (btn.parentNode) {
-          btn.parentNode.replaceChild(newBtn, btn);
-        }
-        
-        newBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          console.log('Delete task button clicked');
-          const taskItem = this.closest('.task-item');
-          if (taskItem) {
-            // Show confirmation dialog
-            const taskName = taskItem.querySelector('.task-name') ? 
-                            taskItem.querySelector('.task-name').textContent.trim() : 'this task';
-            
-            if (confirm(`Are you sure you want to delete task "${taskName}"?`)) {
-              console.log('Deleting task:', taskName);
-              taskItem.remove();
-              
-              // Update project progress
-              const projectCard = this.closest('.project-card');
-              if (projectCard) {
-                try {
-                  updateProjectProgress(projectCard);
-                } catch (err) {
-                  console.error('Error updating project progress:', err);
-                }
-              }
-              
-              // Save data to localStorage if needed
-              try {
-                saveProjectsData();
-              } catch (err) {
-                console.error('Error saving data after task deletion:', err);
-              }
-              
-              alert(`Task "${taskName}" deleted successfully!`);
-            }
+      // Setup task deletion
+      document.querySelectorAll('.task-item').forEach(taskItem => {
+        const actionContainer = taskItem.querySelector('.task-actions');
+        if (actionContainer) {
+          // Make sure delete button exists
+          let deleteBtn = actionContainer.querySelector('.delete-task-btn');
+          if (!deleteBtn) {
+            deleteBtn = document.createElement('button');
+            deleteBtn.className = 'task-action-btn delete-task-btn';
+            deleteBtn.innerHTML = '<span class="material-icons">delete</span>';
+            actionContainer.appendChild(deleteBtn);
           }
-        });
+          
+          // Set up event listener
+          deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            const taskName = taskItem.querySelector('.task-name')?.textContent.trim() || 'this task';
+            if (confirm(`Are you sure you want to delete "${taskName}"?`)) {
+              taskItem.remove();
+              // Update project progress
+              const projectCard = taskItem.closest('.project-card');
+              if (projectCard) {
+                updateProjectProgress(projectCard);
+              }
+              saveProjectsData();
+              alert(`Task "${taskName}" deleted successfully`);
+            }
+          };
+        }
       });
     }
     
-    // Execute immediately when the script loads
-    document.addEventListener('DOMContentLoaded', function() {
-      setupDeleteFunctionality();
-    });
+    // Run when DOM is ready
+    document.addEventListener('DOMContentLoaded', setupDeleteFunctionality);
     
-    // Also run when window is loaded for good measure
-    window.addEventListener('load', function() {
-      setupDeleteFunctionality();
-    });
-    
-    // Run now as well in case the DOM is already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setupDeleteFunctionality();
-    }
+    // Also run when projects are loaded or modified
+    document.addEventListener('projectsUpdated', setupDeleteFunctionality);
   </script>
 
   <!-- Script to implement project options menu -->
@@ -4193,166 +3638,16 @@
     }
   </script>
 
-  <!-- Add Edit Project Modal HTML -->
-  <div id="edit-project-modal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Edit Project</h3>
-        <span class="close-modal">&times;</span>
-      </div>
-      <div class="modal-body">
-        <form id="edit-project-form">
-          <div class="form-group">
-            <label for="edit-project-name">Project Name</label>
-            <input type="text" id="edit-project-name" required>
-          </div>
-          <div class="form-group">
-            <label for="edit-project-color">Project Color</label>
-            <input type="color" id="edit-project-color">
-          </div>
-          <input type="hidden" id="edit-project-id">
-          <div class="form-actions">
-            <button type="button" class="btn secondary close-modal">Cancel</button>
-            <button type="submit" class="btn primary">Save Project</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- Updated script for edit project functionality -->
   <script>
-    // Function to handle the project editing
+    // Function to handle the project editing - simplified to avoid conflicts
     function setupProjectEdit() {
-      console.log('Setting up project edit functionality');
-      
-      // Get the edit project modal
-      const editProjectModal = document.getElementById('edit-project-modal');
-      const editProjectForm = document.getElementById('edit-project-form');
-      const editProjectNameInput = document.getElementById('edit-project-name');
-      const editProjectColorInput = document.getElementById('edit-project-color');
-      const editProjectIdInput = document.getElementById('edit-project-id');
-      
-      if (!editProjectModal || !editProjectForm) {
-        console.error('Edit project modal elements not found');
-        return;
-      }
-
-      // Event listener for form submission
-      editProjectForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const projectId = editProjectIdInput.value;
-        const projectName = editProjectNameInput.value;
-        const projectColor = editProjectColorInput.value;
-        
-        if (!projectName.trim()) {
-          alert('Project name cannot be empty');
-          return;
-        }
-        
-        // Find the project card by ID
-        const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
-        if (!projectCard) {
-          console.error('Project card not found for ID:', projectId);
-          return;
-        }
-        
-        // Update the project title
-        const projectTitle = projectCard.querySelector('.project-title');
-        if (projectTitle) {
-          projectTitle.textContent = projectName;
-        }
-        
-        // Update the project color
-        projectCard.style.setProperty('--project-color', projectColor);
-        
-        // Save projects data
-        try {
-          saveProjectsData();
-          showNotification(`Project "${projectName}" updated successfully!`, 'success');
-        } catch (err) {
-          console.error('Error saving project data:', err);
-          showNotification('Error updating project', 'error');
-        }
-        
-        // Close the modal
-        editProjectModal.classList.remove('active');
-      });
-      
-      // Event listeners for modal close buttons
-      editProjectModal.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', function() {
-          editProjectModal.classList.remove('active');
-        });
-      });
-      
-      // Update the edit project event listener in setupProjectOptionsMenu
-      function openEditProjectModal(projectCard) {
-        const projectTitle = projectCard.querySelector('.project-title').textContent;
-        const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color').trim();
-        const projectId = projectCard.getAttribute('data-project-id') || Date.now().toString();
-        
-        // Ensure the project card has an ID
-        if (!projectCard.hasAttribute('data-project-id')) {
-          projectCard.setAttribute('data-project-id', projectId);
-        }
-        
-        // Populate the form fields
-        editProjectNameInput.value = projectTitle;
-        editProjectColorInput.value = projectColor || '#3b82f6';
-        editProjectIdInput.value = projectId;
-        
-        // Show the modal
-        editProjectModal.classList.add('active');
-      }
-      
-      // Expose function to be used by other scripts
-      window.openEditProject = openEditProjectModal;
+      console.log('Setting up additional project edit functionality');
+      // We'll keep any existing functionality that doesn't conflict with our new modal
     }
     
-    // Update the dropdown menu event listener in the setupProjectOptionsMenu function
-    // This function should be updated to call openEditProject instead of showing an alert
-    function updateProjectEditListener() {
-      document.querySelectorAll('.dropdown-item.edit-project').forEach(editBtn => {
-        editBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const projectCard = this.closest('.project-card');
-          const dropdownMenu = this.closest('.dropdown-menu');
-          
-          if (projectCard) {
-            if (typeof window.openEditProject === 'function') {
-              window.openEditProject(projectCard);
-            } else {
-              console.error('Edit project function not available');
-            }
-          }
-          
-          if (dropdownMenu) {
-            dropdownMenu.classList.remove('active');
-          }
-        });
-      });
-    }
-    
-    // Execute when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      setupProjectEdit();
-      // Run this after setupProjectOptionsMenu has been executed
-      setTimeout(updateProjectEditListener, 500);
-    });
-    
-    // Also run when window is loaded
-    window.addEventListener('load', function() {
-      setupProjectEdit();
-      setTimeout(updateProjectEditListener, 500);
-    });
-    
-    // Run now if DOM is already loaded
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setupProjectEdit();
-      setTimeout(updateProjectEditListener, 500);
-    }
+    // Call this function to set up project editing
+    document.addEventListener('DOMContentLoaded', setupProjectEdit);
   </script>
 
   <!-- Script to add unique IDs to project cards -->
@@ -5210,6 +4505,415 @@
       
       headerActions.appendChild(newProjectButton);
     }
+  </script>
+
+  <!-- Simple direct fix script for modern UI -->
+  <script>
+    // Direct approach to fix buttons and functionality without complex selectors
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded - applying direct fixes for production UI');
+      
+      // Wait for the UI to stabilize
+      setTimeout(function() {
+        // Find buttons using attributes and text content directly
+        const directButtonFix = function() {
+          // Look for the actual buttons in the header based on the screenshot
+          const allButtons = document.querySelectorAll('button');
+          console.log('Found', allButtons.length, 'buttons in document');
+          
+          allButtons.forEach(button => {
+            // Log the button text to debug
+            console.log('Button text:', button.textContent.trim());
+            
+            // Check if it's the New Project button
+            if (button.textContent.includes('New Project')) {
+              console.log('Found New Project button');
+              
+              // Add direct click handler
+              button.addEventListener('click', function(e) {
+                console.log('New Project button clicked');
+                alert('Creating a new project...');
+                
+                // Create a new project directly
+                const projectName = prompt('Enter project name:');
+                if (projectName) {
+                  const projectColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                  
+                  // Create project in UI
+                  const projectsContainer = document.querySelector('.projects-container') || 
+                                           document.querySelector('[role="main"]');
+                  
+                  if (projectsContainer) {
+                    // Create project element based on the visible UI structure
+                    const newProject = document.createElement('div');
+                    newProject.className = 'project-card';
+                    newProject.style.setProperty('--project-color', projectColor);
+                    
+                    // Set HTML based on the actual UI structure seen in screenshot
+                    newProject.innerHTML = `
+                      <div class="project-header">
+                        <div>
+                          <h3 class="project-title">${projectName}</h3>
+                          <p class="project-progress">0% complete</p>
+                        </div>
+                        <div class="project-actions">
+                          <button aria-label="Edit"><svg>...</svg></button>
+                          <button aria-label="Delete"><svg>...</svg></button>
+                        </div>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                      </div>
+                      <div class="task-list">
+                        <div class="empty-message">No tasks yet</div>
+                      </div>
+                    `;
+                    
+                    projectsContainer.appendChild(newProject);
+                    alert(`Project "${projectName}" created successfully!`);
+                  }
+                }
+              });
+            }
+            
+            // Check if it's the New Task button
+            if (button.textContent.includes('New Task')) {
+              console.log('Found New Task button');
+              
+              // Add direct click handler
+              button.addEventListener('click', function(e) {
+                console.log('New Task button clicked');
+                alert('Creating a new task...');
+                
+                // Simple task creation
+                const taskName = prompt('Enter task name:');
+                if (taskName) {
+                  const projectSelect = document.createElement('select');
+                  
+                  // Find all projects and add to select
+                  const projects = document.querySelectorAll('.project-title');
+                  if (projects.length === 0) {
+                    alert('Please create a project first');
+                    return;
+                  }
+                  
+                  projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.textContent;
+                    option.textContent = project.textContent;
+                    projectSelect.appendChild(option);
+                  });
+                  
+                  // Show project selection
+                  document.body.appendChild(projectSelect);
+                  projectSelect.style.position = 'fixed';
+                  projectSelect.style.top = '50%';
+                  projectSelect.style.left = '50%';
+                  projectSelect.style.transform = 'translate(-50%, -50%)';
+                  projectSelect.style.zIndex = '9999';
+                  
+                  // Add a button to confirm
+                  const confirmBtn = document.createElement('button');
+                  confirmBtn.textContent = 'Add to this project';
+                  confirmBtn.style.position = 'fixed';
+                  confirmBtn.style.top = 'calc(50% + 30px)';
+                  confirmBtn.style.left = '50%';
+                  confirmBtn.style.transform = 'translateX(-50%)';
+                  confirmBtn.style.zIndex = '9999';
+                  confirmBtn.style.padding = '8px 16px';
+                  document.body.appendChild(confirmBtn);
+                  
+                  confirmBtn.addEventListener('click', function() {
+                    const selectedProject = projectSelect.value;
+                    
+                    // Find the project in the UI
+                    projects.forEach(project => {
+                      if (project.textContent === selectedProject) {
+                        const projectCard = project.closest('.project-card');
+                        const taskList = projectCard.querySelector('.task-list');
+                        
+                        // Remove empty message if it exists
+                        const emptyMessage = taskList.querySelector('.empty-message');
+                        if (emptyMessage) emptyMessage.remove();
+                        
+                        // Create the task using the UI structure from screenshot
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.innerHTML = `
+                          <input type="checkbox" class="task-checkbox">
+                          <div class="task-content">
+                            <h4 class="task-name">${taskName}</h4>
+                            <div class="task-details">
+                              <span class="task-detail">
+                                <span class="material-icons priority-medium">flag</span>
+                                Medium
+                              </span>
+                              <span class="task-detail">
+                                <span class="material-icons">schedule</span>
+                                1h
+                              </span>
+                            </div>
+                          </div>
+                          <div class="task-actions">
+                            <button aria-label="Edit"><svg>...</svg></button>
+                            <button aria-label="Delete"><svg>...</svg></button>
+                          </div>
+                        `;
+                        
+                        taskList.appendChild(taskItem);
+                        
+                        // Update progress
+                        const progressBar = projectCard.querySelector('.progress-fill');
+                        const progressText = projectCard.querySelector('.project-progress');
+                        // Logic to calculate progress based on checkbox state
+                        
+                        alert(`Task "${taskName}" added to project "${selectedProject}"!`);
+                        
+                        // Clean up
+                        projectSelect.remove();
+                        confirmBtn.remove();
+                      }
+                    });
+                  });
+                }
+              });
+            }
+          });
+        };
+        
+        // Apply the direct button fix
+        directButtonFix();
+        
+        // Make all buttons clickable
+        document.querySelectorAll('button').forEach(button => {
+          button.style.pointerEvents = 'auto';
+          button.style.cursor = 'pointer';
+        });
+        
+        // Make all checkboxes clickable
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+          checkbox.style.pointerEvents = 'auto';
+          checkbox.style.cursor = 'pointer';
+          
+          // Add direct event listener
+          checkbox.addEventListener('change', function() {
+            console.log('Checkbox toggled:', this.checked);
+            
+            // Update task styling
+            const taskItem = this.closest('.task-item');
+            if (taskItem) {
+              if (this.checked) {
+                taskItem.classList.add('completed');
+              } else {
+                taskItem.classList.remove('completed');
+              }
+              
+              // Update project progress
+              const projectCard = taskItem.closest('.project-card');
+              if (projectCard) {
+                const allTasks = projectCard.querySelectorAll('.task-item');
+                const completedTasks = projectCard.querySelectorAll('.task-item.completed, .task-item input:checked');
+                
+                const progress = Math.round((completedTasks.length / allTasks.length) * 100) || 0;
+                
+                const progressBar = projectCard.querySelector('.progress-fill');
+                const progressText = projectCard.querySelector('.project-progress');
+                
+                if (progressBar) progressBar.style.width = `${progress}%`;
+                if (progressText) progressText.textContent = `${progress}% complete`;
+              }
+            }
+          });
+        });
+        
+        console.log('Direct fixes applied successfully');
+      }, 1000); // Increase timeout to ensure UI is loaded
+    });
+  </script>
+
+  <!-- Edit Project Modal -->
+  <div class="modal-overlay" id="edit-project-modal" style="display: none; opacity: 0; visibility: hidden;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Project</h3>
+        <button class="modal-close" id="close-edit-project-modal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-project-name" class="form-label">Project Name</label>
+          <input type="text" id="edit-project-name" class="form-input" placeholder="Enter project name">
+        </div>
+        <div class="form-group">
+          <label for="edit-project-color" class="form-label">Project Color</label>
+          <div class="color-picker">
+            <input type="color" id="edit-project-color" class="form-input color-input" value="#4f46e5">
+            <div class="color-presets">
+              <span class="color-preset" style="background-color: #4f46e5" data-color="#4f46e5"></span>
+              <span class="color-preset" style="background-color: #06b6d4" data-color="#06b6d4"></span>
+              <span class="color-preset" style="background-color: #10b981" data-color="#10b981"></span>
+              <span class="color-preset" style="background-color: #f59e0b" data-color="#f59e0b"></span>
+              <span class="color-preset" style="background-color: #ef4444" data-color="#ef4444"></span>
+              <span class="color-preset" style="background-color: #8b5cf6" data-color="#8b5cf6"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary-btn" id="cancel-edit-project">Cancel</button>
+        <button class="btn primary-btn" id="save-project">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add this script to handle color preset selection and modal interactions -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup color picker presets
+      const colorInput = document.getElementById('edit-project-color');
+      const presets = document.querySelectorAll('.color-preset');
+      const editProjectModal = document.getElementById('edit-project-modal');
+      const closeEditModalBtn = document.getElementById('close-edit-project-modal');
+      const cancelEditProjectBtn = document.getElementById('cancel-edit-project');
+      const saveProjectBtn = document.getElementById('save-project');
+      const editProjectIdInput = document.getElementById('edit-project-id');
+      
+      // Handle modal close events
+      function closeEditModal() {
+        editProjectModal.style.display = 'none';
+        editProjectModal.style.opacity = '0';
+        editProjectModal.style.visibility = 'hidden';
+      }
+      
+      if (closeEditModalBtn) {
+        closeEditModalBtn.addEventListener('click', closeEditModal);
+      }
+      
+      if (cancelEditProjectBtn) {
+        cancelEditProjectBtn.addEventListener('click', closeEditModal);
+      }
+      
+      // Setup edit buttons on project cards
+      function setupEditButtons() {
+        document.querySelectorAll('.project-header .task-action-btn').forEach(btn => {
+          const icon = btn.querySelector('.material-icons');
+          if (icon && (icon.textContent === 'edit' || icon.textContent === 'more_vert')) {
+            // Remove any existing event listeners
+            const newBtn = btn.cloneNode(true);
+            if (btn.parentNode) {
+              btn.parentNode.replaceChild(newBtn, btn);
+            }
+            
+            newBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const projectCard = this.closest('.project-card');
+              if (projectCard) {
+                const projectId = projectCard.getAttribute('data-project-id') || '';
+                const projectTitle = projectCard.querySelector('.project-title')?.textContent || '';
+                const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color').trim() || '#4f46e5';
+                
+                // Fill the form
+                const nameInput = document.getElementById('edit-project-name');
+                const colorInput = document.getElementById('edit-project-color');
+                
+                if (nameInput) nameInput.value = projectTitle;
+                if (colorInput) {
+                  colorInput.value = projectColor;
+                  updateActivePreset(projectColor);
+                }
+                if (editProjectIdInput) {
+                  editProjectIdInput.value = projectId;
+                }
+                
+                // Show the modal with animation
+                editProjectModal.style.display = 'flex';
+                setTimeout(() => {
+                  editProjectModal.style.opacity = '1';
+                  editProjectModal.style.visibility = 'visible';
+                }, 10);
+              }
+            });
+          }
+        });
+      }
+      
+      // Setup once on page load
+      setupEditButtons();
+      
+      // Also run after any project updates
+      document.addEventListener('projectsUpdated', setupEditButtons);
+      
+      // Setup project saving
+      if (saveProjectBtn) {
+        saveProjectBtn.addEventListener('click', function() {
+          const nameInput = document.getElementById('edit-project-name');
+          const colorInput = document.getElementById('edit-project-color');
+          const projectId = editProjectIdInput.value;
+          
+          // Validate inputs
+          if (!nameInput || !nameInput.value.trim()) {
+            alert('Please enter a project name');
+            return;
+          }
+          
+          // Find the project card
+          const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
+          if (projectCard) {
+            // Update project name
+            const titleEl = projectCard.querySelector('.project-title');
+            if (titleEl) {
+              titleEl.textContent = nameInput.value.trim();
+            }
+            
+            // Update project color
+            projectCard.style.setProperty('--project-color', colorInput.value);
+            
+            // Save to localStorage
+            try {
+              saveProjectsData();
+              alert(`Project "${nameInput.value.trim()}" updated successfully!`);
+            } catch (err) {
+              console.error('Error saving project data:', err);
+              alert('Error updating project. Please try again.');
+            }
+          }
+          
+          // Close the modal
+          closeEditModal();
+        });
+      }
+      
+      if (colorInput && presets.length) {
+        // Mark the default color as active
+        updateActivePreset(colorInput.value);
+        
+        // Add click handlers to presets
+        presets.forEach(preset => {
+          preset.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            colorInput.value = color;
+            updateActivePreset(color);
+          });
+        });
+        
+        // Update active preset when color input changes
+        colorInput.addEventListener('input', function() {
+          updateActivePreset(this.value);
+        });
+      }
+      
+      function updateActivePreset(color) {
+        presets.forEach(preset => {
+          const presetColor = preset.getAttribute('data-color');
+          if (presetColor === color) {
+            preset.classList.add('active');
+          } else {
+            preset.classList.remove('active');
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html> 
