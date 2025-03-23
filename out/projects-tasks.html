@@ -5014,9 +5014,42 @@
     function setupMainButtons() {
       console.log('Setting up main buttons');
       
-      // New Task button
-      const newTaskBtn = document.querySelector('button.btn[data-modal="new-task-modal"], .btn.primary:has(.material-icons):contains("New Task")');
-      if (newTaskBtn) {
+      // New Task button - using standard selectors only
+      const newTaskBtn = document.querySelector('.btn.primary[aria-label="New Task"], button.btn[data-modal="new-task-modal"]');
+      if (!newTaskBtn) {
+        // Try alternate methods to find the New Task button
+        const allButtons = document.querySelectorAll('button.btn.primary');
+        let foundButton = null;
+        
+        // Find button by text content
+        allButtons.forEach(btn => {
+          if (btn.textContent && btn.textContent.trim().includes('New Task')) {
+            foundButton = btn;
+          }
+        });
+        
+        if (foundButton) {
+          console.log('Found New Task button by text content');
+          
+          // Clone and replace to remove stale event listeners
+          const newBtn = foundButton.cloneNode(true);
+          foundButton.parentNode.replaceChild(newBtn, foundButton);
+          
+          // Add event listener
+          newBtn.addEventListener('click', function() {
+            console.log('New Task button clicked');
+            const modal = document.getElementById('new-task-modal');
+            if (modal) {
+              modal.classList.add('active');
+              updateProjectSelect(); // Update project dropdown
+            } else {
+              console.error('New task modal not found');
+            }
+          });
+        } else {
+          console.error('New Task button not found using multiple methods');
+        }
+      } else {
         console.log('Found New Task button');
         
         // Clone and replace to remove stale event listeners
@@ -5138,6 +5171,44 @@
       
       // Enable all interactive elements
       enableAllInteractiveElements();
+    }
+  </script>
+
+  <!-- Add the New Project button functionality back
+  // If New Project button doesn't exist in the actions area, create it -->
+  <script>
+    // Add the New Project button functionality back
+    // If New Project button doesn't exist in the actions area, create it
+    const headerActions = document.querySelector('.dashboard-actions');
+    const existingNewProjectBtn = document.getElementById('new-project-btn');
+
+    if (headerActions && !existingNewProjectBtn) {
+      console.log('Adding New Project button');
+      
+      const newProjectButton = document.createElement('button');
+      newProjectButton.className = 'btn primary';
+      newProjectButton.id = 'new-project-btn';
+      newProjectButton.innerHTML = '<span class="material-icons">add</span> New Project';
+      
+      newProjectButton.addEventListener('click', function() {
+        console.log('New Project button clicked');
+        const modal = document.getElementById('new-project-modal');
+        if (modal) {
+          modal.classList.add('active');
+        } else {
+          console.error('New project modal not found');
+          // Create modal if it doesn't exist
+          enhanceNewProjectModal();
+          
+          // Try again
+          const newModal = document.getElementById('new-project-modal');
+          if (newModal) {
+            newModal.classList.add('active');
+          }
+        }
+      });
+      
+      headerActions.appendChild(newProjectButton);
     }
   </script>
 </body>
