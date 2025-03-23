@@ -4,6 +4,213 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Projects & Tasks - Tempus Productivity Dashboard</title>
+  
+  <!-- Emergency fix for modal auto-opening -->
+  <style>
+    /* Initially hide all modals by default */
+    #new-task-modal, #new-project-modal {
+      display: none !important;
+    }
+  </style>
+  
+  <script>
+    // Highest priority script to prevent modals from auto-opening
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log('Emergency modal fix applied');
+      
+      // Force close any modals
+      const taskModal = document.getElementById('new-task-modal');
+      const projectModal = document.getElementById('new-project-modal');
+      
+      if (taskModal) {
+        taskModal.style.display = 'none';
+        taskModal.classList.remove('active');
+      }
+      
+      if (projectModal) {
+        projectModal.style.display = 'none';
+        projectModal.classList.remove('active');
+      }
+    }, true); // Use capture phase to ensure this runs first
+  </script>
+  
+  <script>
+    // Force close modals on page load
+    window.addEventListener('load', function() {
+      console.log('Force closing any open modals');
+      
+      // Close task modal
+      var taskModal = document.getElementById('new-task-modal');
+      if (taskModal) {
+        taskModal.style.display = 'none';
+        taskModal.classList.remove('active');
+      }
+      
+      // Close project modal
+      var projectModal = document.getElementById('new-project-modal');
+      if (projectModal) {
+        projectModal.style.display = 'none';
+        projectModal.classList.remove('active');
+      }
+    });
+  </script>
+  
+  <!-- CRITICAL FIX: Forcibly override modal functions -->
+  <script>
+    // Create a global function that will run before any other scripts
+    window.addEventListener('load', function() {
+      console.log('CRITICAL FIX: Forcibly closing all modals');
+      
+      // Force close all modals
+      const allModals = document.querySelectorAll('.modal, [id*="modal"]');
+      allModals.forEach(function(modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active', 'show', 'show-modal', 'visible');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+      });
+      
+      // Override all modal open functions
+      if (typeof openNewTaskModal === 'function') {
+        const originalOpenTaskModal = openNewTaskModal;
+        window.openNewTaskModal = function(e) {
+          // Only open if directly called by a button click
+          if (e && e.type === 'click') {
+            console.log('Task modal opened via button click');
+            return originalOpenTaskModal.apply(this, arguments);
+          }
+          console.log('Prevented automatic task modal opening');
+          return false;
+        };
+      }
+      
+      if (typeof openNewProjectModal === 'function') {
+        const originalOpenProjectModal = openNewProjectModal;
+        window.openNewProjectModal = function(e) {
+          // Only open if directly called by a button click
+          if (e && e.type === 'click') {
+            console.log('Project modal opened via button click');
+            return originalOpenProjectModal.apply(this, arguments);
+          }
+          console.log('Prevented automatic project modal opening');
+          return false;
+        };
+      }
+      
+      // Fix button click handlers
+      setTimeout(function() {
+        console.log('Setting up proper button handlers');
+        
+        // Fix New Task button
+        const newTaskBtn = document.getElementById('new-task-btn');
+        if (newTaskBtn) {
+          // Clean up existing handlers
+          const newTaskBtnClone = newTaskBtn.cloneNode(true);
+          if (newTaskBtn.parentNode) {
+            newTaskBtn.parentNode.replaceChild(newTaskBtnClone, newTaskBtn);
+          }
+          
+          // Add proper handler that explicitly adds the show-modal class
+          newTaskBtnClone.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('New Task button clicked properly');
+            
+            const modal = document.getElementById('new-task-modal');
+            if (modal) {
+              // Populate project dropdown
+              const projectSelect = document.getElementById('new-task-project');
+              if (projectSelect) {
+                projectSelect.innerHTML = '';
+                const projects = document.querySelectorAll('.project-card');
+                
+                if (projects.length === 0) {
+                  alert('Please create a project first before adding tasks.');
+                  return;
+                }
+                
+                projects.forEach(project => {
+                  const projectTitle = project.querySelector('.project-title');
+                  const projectId = project.getAttribute('data-project-id') || 
+                                   (project.id ? project.id : 'project-' + Date.now());
+                  
+                  if (projectTitle) {
+                    const option = document.createElement('option');
+                    option.value = projectId;
+                    option.textContent = projectTitle.textContent;
+                    projectSelect.appendChild(option);
+                  }
+                });
+              }
+              
+              // Reset form
+              const form = document.getElementById('new-task-form');
+              if (form) form.reset();
+              
+              // Show modal using the reliable show-modal class
+              modal.style.display = 'flex';
+              modal.classList.add('show-modal', 'active');
+            }
+          });
+        }
+        
+        // Fix New Project button
+        const newProjectBtn = document.getElementById('new-project-btn');
+        if (newProjectBtn) {
+          // Clean up existing handlers
+          const newProjectBtnClone = newProjectBtn.cloneNode(true);
+          if (newProjectBtn.parentNode) {
+            newProjectBtn.parentNode.replaceChild(newProjectBtnClone, newProjectBtn);
+          }
+          
+          // Add proper handler that explicitly adds the show-modal class
+          newProjectBtnClone.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('New Project button clicked properly');
+            
+            const modal = document.getElementById('new-project-modal');
+            if (modal) {
+              // Reset form
+              const form = document.getElementById('new-project-form');
+              if (form) form.reset();
+              
+              // Show modal using the reliable show-modal class
+              modal.style.display = 'flex';
+              modal.classList.add('show-modal', 'active');
+              
+              // Focus name input
+              const nameInput = document.getElementById('new-project-name');
+              if (nameInput) {
+                setTimeout(() => {
+                  nameInput.focus();
+                }, 100);
+              }
+            }
+          });
+        }
+        
+        // Fix cancel buttons
+        document.querySelectorAll('.close-modal, button:contains("Cancel")').forEach(button => {
+          button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Find the closest modal
+            const modal = this.closest('.modal') || 
+                          this.closest('[id*="modal"]');
+            
+            if (modal) {
+              // Hide modal
+              modal.style.display = 'none';
+              modal.classList.remove('show-modal', 'active');
+            }
+          });
+        });
+      }, 300);
+    }, true); // Use capture phase to ensure this runs first
+  </script>
+  
   <link rel="stylesheet" href="production-fix.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -366,77 +573,213 @@
 
     /* Modal Styles */
     .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-    }
-    
-    .modal-content {
-      background-color: var(--card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-    
-    .modal-header {
-      padding: 1.25rem;
-      border-bottom: 1px solid var(--border-color);
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
     }
-    
+
+    .modal-content {
+      background-color: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
     .modal-header h3 {
       margin: 0;
-      font-size: 1.125rem;
+      font-size: 1.25rem;
       font-weight: 600;
+      color: #111827;
     }
-    
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .modal-close:hover {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+
     .modal-body {
-      padding: 1.5rem;
+      padding: 20px;
+      flex: 1;
     }
-    
+
     .modal-footer {
-      padding: 1.25rem;
-      border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: flex-end;
-      gap: 0.75rem;
+      gap: 12px;
+      padding: 16px 20px;
+      border-top: 1px solid #e5e7eb;
     }
-    
-    /* Form Styles */
+
     .form-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 16px;
     }
-    
+
     .form-label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 6px;
       font-weight: 500;
-      font-size: 0.875rem;
+      color: #374151;
     }
-    
+
     .form-input {
       width: 100%;
-      padding: 0.625rem 0.75rem;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      background-color: var(--background-secondary);
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
       font-size: 0.875rem;
-      transition: border-color var(--transition-sm), box-shadow var(--transition-sm);
+      transition: border-color 0.15s ease;
     }
-    
+
     .form-input:focus {
       outline: none;
-      border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
-    
-    /* To make all elements interactive */
-    .task-item, .project-card, .btn, .filter-btn, .task-checkbox {
+
+    .color-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .color-input {
+      height: 40px;
+      padding: 4px;
+    }
+
+    .color-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .color-preset {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
       cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border: 2px solid transparent;
+    }
+
+    .color-preset:hover {
+      transform: scale(1.1);
+    }
+
+    .color-preset.active {
+      border-color: #111827;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #4f46e5;
+    }
+
+    .priority-options {
+      display: flex;
+      gap: 12px;
+    }
+
+    .priority-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .priority-label {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .low-priority {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .medium-priority {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .high-priority {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .priority-high {
+      color: #ef4444;
+    }
+
+    .priority-medium {
+      color: #f59e0b;
+    }
+
+    .priority-low {
+      color: #3b82f6;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      font-weight: 500;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .primary-btn {
+      background-color: #4f46e5;
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background-color: #4338ca;
+    }
+
+    .secondary-btn {
+      background-color: white;
+      border-color: #d1d5db;
+      color: #374151;
+    }
+
+    .secondary-btn:hover {
+      background-color: #f9fafb;
+      color: #111827;
     }
     
     /* Animation for tasks and projects */
@@ -526,6 +869,99 @@
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
+    /* Make edit and delete buttons more visible */
+    .project-header .task-actions,
+    .task-item .task-actions {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .project-card:hover .project-header .task-actions,
+    .task-item:hover .task-actions {
+      opacity: 1;
+    }
+    
+    /* Style the edit and delete buttons */
+    .task-action-btn {
+      background: none;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .task-action-btn:hover {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    
+    /* Add specific style for edit button */
+    .task-action-btn .material-icons {
+      font-size: 18px;
+    }
+    
+    /* Ensure action buttons are always visible on mobile */
+    @media (max-width: 768px) {
+      .project-header .task-actions,
+      .task-item .task-actions {
+        opacity: 1;
+      }
+    }
+
+    /* Dashboard header styling */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-header h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      color: var(--text-primary);
+    }
+    
+    .dashboard-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    /* Finish adding style for completed tasks */
+    .task-item.completed {
+      opacity: 0.7;
+    }
+    
+    .task-item.completed .task-name {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+    
+    /* Make sure buttons are always clickable */
+    button, .btn {
+      position: relative;
+      z-index: 10;
+      cursor: pointer !important;
+      pointer-events: auto !important;
+    }
+    
+    /* Make all actions visible on small screens */
+    @media (max-width: 768px) {
+      .task-actions {
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -590,19 +1026,14 @@
     </div>
     
     <div class="main-content">
-      <div class="header">
-        <div class="header-title">
-          <h2>Projects & Tasks</h2>
-          <p>Manage your projects and track your tasks</p>
-        </div>
-        <div class="header-controls">
-          <button class="btn primary-btn" id="new-project-btn">
-            <span class="material-icons">add</span>
-            New Project
+      <div class="dashboard-header">
+        <h1>Projects & Tasks</h1>
+        <div class="dashboard-actions">
+          <button id="new-project-btn" class="btn primary-btn">
+            <span class="material-icons">add</span> New Project
           </button>
-          <button class="btn secondary-btn" id="new-task-btn">
-            <span class="material-icons">add_task</span>
-            New Task
+          <button id="new-task-btn" class="btn primary-btn">
+            <span class="material-icons">add</span> New Task
           </button>
         </div>
       </div>
@@ -1037,92 +1468,93 @@
   </div>
 
   <!-- New Task Modal -->
-  <div id="new-task-modal" class="modal-overlay">
-    <div class="modal-container">
+  <div id="new-task-modal" class="modal">
+    <div class="modal-content">
       <div class="modal-header">
-        <h2>Create New Task</h2>
-        <button id="new-task-close" class="close-modal-btn">&times;</button>
+        <h3>Create New Task</h3>
+        <span class="close-modal">&times;</span>
       </div>
       <div class="modal-body">
         <form id="new-task-form">
           <div class="form-group">
-            <label for="new-task-project">Project</label>
-            <select id="new-task-project" class="form-input" required>
-              <!-- Options will be filled dynamically -->
-            </select>
+            <label for="new-task-name">Task Name</label>
+            <input type="text" id="new-task-name" required>
           </div>
           <div class="form-group">
-            <label for="new-task-name">Task Name</label>
-            <input type="text" id="new-task-name" class="form-input" placeholder="Enter task name" required>
+            <label for="new-task-project">Project</label>
+            <select id="new-task-project" required></select>
           </div>
           <div class="form-group">
             <label>Priority</label>
             <div class="priority-options">
-              <div class="priority-option">
-                <input type="radio" id="priority-high" name="new-task-priority" value="high">
-                <label for="priority-high" class="priority-label high">High</label>
-              </div>
-              <div class="priority-option">
-                <input type="radio" id="priority-medium" name="new-task-priority" value="medium" checked>
-                <label for="priority-medium" class="priority-label medium">Medium</label>
-              </div>
-              <div class="priority-option">
-                <input type="radio" id="priority-low" name="new-task-priority" value="low">
-                <label for="priority-low" class="priority-label low">Low</label>
-              </div>
+              <label class="priority-option">
+                <input type="radio" name="new-task-priority" value="low" checked>
+                <span class="priority-label priority-low">
+                  <span class="material-icons">assistant_flag</span>Low
+                </span>
+              </label>
+              <label class="priority-option">
+                <input type="radio" name="new-task-priority" value="medium">
+                <span class="priority-label priority-medium">
+                  <span class="material-icons">outlined_flag</span>Medium
+                </span>
+              </label>
+              <label class="priority-option">
+                <input type="radio" name="new-task-priority" value="high">
+                <span class="priority-label priority-high">
+                  <span class="material-icons">flag</span>High
+                </span>
+              </label>
             </div>
           </div>
           <div class="form-group">
-            <label for="new-task-time">Estimated Time (minutes)</label>
-            <input type="number" id="new-task-time" class="form-input" placeholder="Enter estimated time" min="1" required>
+            <label for="new-task-time">Estimated Time</label>
+            <input type="text" id="new-task-time" placeholder="e.g. 2h 30m">
           </div>
           <div class="form-group">
             <label for="new-task-deadline">Deadline (optional)</label>
-            <input type="date" id="new-task-deadline" class="form-input">
+            <input type="date" id="new-task-deadline">
           </div>
-          <div class="form-group">
-            <label for="new-task-notes">Notes (optional)</label>
-            <textarea id="new-task-notes" class="form-input" placeholder="Add any notes here"></textarea>
+          <div class="form-actions">
+            <button type="button" class="btn secondary-btn close-modal">Cancel</button>
+            <button type="button" id="create-task-btn" class="btn primary-btn">Create Task</button>
           </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn cancel-modal-btn">Cancel</button>
-        <button class="btn primary-btn" id="create-task-btn">Create Task</button>
       </div>
     </div>
   </div>
 
   <!-- New Project Modal -->
-  <div id="new-project-modal" class="modal-overlay">
+  <div id="new-project-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title">New Project</h3>
-        <button class="modal-close" id="new-project-close">
-          <span class="material-icons">close</span>
-        </button>
+        <h3>Create New Project</h3>
+        <span class="close-modal">&times;</span>
       </div>
       <div class="modal-body">
         <form id="new-project-form">
           <div class="form-group">
-            <label for="new-project-name" class="form-label">Project Name</label>
-            <input type="text" id="new-project-name" class="form-input" placeholder="Enter project name" required>
+            <label for="new-project-name">Project Name</label>
+            <input type="text" id="new-project-name" required>
           </div>
-          
           <div class="form-group">
-            <label for="new-project-color" class="form-label">Project Color</label>
-            <input type="color" id="new-project-color" class="form-input color-input" value="#4f46e5">
+            <label for="new-project-color">Project Color</label>
+            <div class="color-selector">
+              <input type="color" id="new-project-color" value="#4f46e5">
+              <div class="color-presets">
+                <div class="color-preset active" data-color="#4f46e5" style="background-color: #4f46e5;"></div>
+                <div class="color-preset" data-color="#10b981" style="background-color: #10b981;"></div>
+                <div class="color-preset" data-color="#f59e0b" style="background-color: #f59e0b;"></div>
+                <div class="color-preset" data-color="#ef4444" style="background-color: #ef4444;"></div>
+                <div class="color-preset" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+              </div>
+            </div>
           </div>
-          
-          <div class="form-group">
-            <label for="new-project-desc" class="form-label">Description (optional)</label>
-            <textarea id="new-project-desc" class="form-input" placeholder="Enter project description"></textarea>
+          <div class="form-actions">
+            <button type="button" class="btn secondary-btn close-modal">Cancel</button>
+            <button type="button" id="create-project-btn" class="btn primary-btn">Create Project</button>
           </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn secondary-btn" id="new-project-cancel">Cancel</button>
-        <button class="btn primary-btn" id="new-project-save">Create Project</button>
       </div>
     </div>
   </div>
@@ -3688,11 +4120,20 @@
                   </div>
                   <div class="form-group">
                     <label for="new-project-color">Project Color</label>
-                    <input type="color" id="new-project-color" value="#3b82f6">
+                    <div class="color-selector">
+                      <input type="color" id="new-project-color" value="#4f46e5">
+                      <div class="color-presets">
+                        <div class="color-preset active" data-color="#4f46e5" style="background-color: #4f46e5;"></div>
+                        <div class="color-preset" data-color="#10b981" style="background-color: #10b981;"></div>
+                        <div class="color-preset" data-color="#f59e0b" style="background-color: #f59e0b;"></div>
+                        <div class="color-preset" data-color="#ef4444" style="background-color: #ef4444;"></div>
+                        <div class="color-preset" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+                      </div>
+                    </div>
                   </div>
                   <div class="form-actions">
-                    <button type="button" class="btn secondary close-modal">Cancel</button>
-                    <button type="submit" class="btn primary">Create Project</button>
+                    <button type="button" class="btn secondary-btn close-modal">Cancel</button>
+                    <button type="button" id="create-project-btn" class="btn primary-btn">Create Project</button>
                   </div>
                 </form>
               </div>
@@ -4724,37 +5165,37 @@
   </script>
 
   <!-- Edit Project Modal -->
-  <div class="modal-overlay" id="edit-project-modal" style="display: none; opacity: 0; visibility: hidden;">
+  <div id="edit-project-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Edit Project</h3>
-        <button class="modal-close" id="close-edit-project-modal">
-          <span class="material-icons">close</span>
-        </button>
+        <span class="close-modal">&times;</span>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label for="edit-project-name" class="form-label">Project Name</label>
-          <input type="text" id="edit-project-name" class="form-input" placeholder="Enter project name">
-        </div>
-        <div class="form-group">
-          <label for="edit-project-color" class="form-label">Project Color</label>
-          <div class="color-picker">
-            <input type="color" id="edit-project-color" class="form-input color-input" value="#4f46e5">
-            <div class="color-presets">
-              <span class="color-preset" style="background-color: #4f46e5" data-color="#4f46e5"></span>
-              <span class="color-preset" style="background-color: #06b6d4" data-color="#06b6d4"></span>
-              <span class="color-preset" style="background-color: #10b981" data-color="#10b981"></span>
-              <span class="color-preset" style="background-color: #f59e0b" data-color="#f59e0b"></span>
-              <span class="color-preset" style="background-color: #ef4444" data-color="#ef4444"></span>
-              <span class="color-preset" style="background-color: #8b5cf6" data-color="#8b5cf6"></span>
+        <form id="edit-project-form">
+          <input type="hidden" id="edit-project-id">
+          <div class="form-group">
+            <label for="edit-project-name">Project Name</label>
+            <input type="text" id="edit-project-name" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-project-color">Project Color</label>
+            <div class="color-selector">
+              <input type="color" id="edit-project-color">
+              <div class="color-presets">
+                <div class="color-preset" data-color="#4f46e5" style="background-color: #4f46e5;"></div>
+                <div class="color-preset" data-color="#10b981" style="background-color: #10b981;"></div>
+                <div class="color-preset" data-color="#f59e0b" style="background-color: #f59e0b;"></div>
+                <div class="color-preset" data-color="#ef4444" style="background-color: #ef4444;"></div>
+                <div class="color-preset" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn secondary-btn" id="cancel-edit-project">Cancel</button>
-        <button class="btn primary-btn" id="save-project">Save Project</button>
+          <div class="form-actions">
+            <button type="button" class="btn secondary-btn close-modal">Cancel</button>
+            <button type="button" id="update-project-btn" class="btn primary-btn">Update Project</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -4906,6 +5347,1959 @@
         });
       }
     });
+  </script>
+
+  <!-- Add proper modal dialogs for creating new projects and tasks -->
+  <div id="new-project-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Project</h3>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="new-project-name" class="form-label">Project Name</label>
+          <input type="text" id="new-project-name" class="form-input" placeholder="Enter project name">
+        </div>
+        <div class="form-group">
+          <label for="new-project-color" class="form-label">Project Color</label>
+          <div class="color-selector">
+            <input type="color" id="new-project-color" class="form-input color-input" value="#4f46e5">
+            <div class="color-presets">
+              <div class="color-preset active" data-color="#4f46e5" style="background-color: #4f46e5;"></div>
+              <div class="color-preset" data-color="#10b981" style="background-color: #10b981;"></div>
+              <div class="color-preset" data-color="#f59e0b" style="background-color: #f59e0b;"></div>
+              <div class="color-preset" data-color="#ef4444" style="background-color: #ef4444;"></div>
+              <div class="color-preset" data-color="#8b5cf6" style="background-color: #8b5cf6;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary-btn" id="cancel-new-project">Cancel</button>
+        <button class="btn primary-btn" id="create-project">Create Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="new-task-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Task</h3>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="new-task-name" class="form-label">Task Name</label>
+          <input type="text" id="new-task-name" class="form-input" placeholder="Enter task name">
+        </div>
+        <div class="form-group">
+          <label for="new-task-project" class="form-label">Project</label>
+          <select id="new-task-project" class="form-input">
+            <!-- Will be populated dynamically -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <div class="priority-options">
+            <label class="priority-option">
+              <input type="radio" name="new-task-priority" value="low" checked>
+              <span class="priority-label priority-low">
+                <span class="material-icons">assistant_flag</span>Low
+              </span>
+            </label>
+            <label class="priority-option">
+              <input type="radio" name="new-task-priority" value="medium">
+              <span class="priority-label priority-medium">
+                <span class="material-icons">outlined_flag</span>Medium
+              </span>
+            </label>
+            <label class="priority-option">
+              <input type="radio" name="new-task-priority" value="high">
+              <span class="priority-label priority-high">
+                <span class="material-icons">flag</span>High
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="new-task-time" class="form-label">Estimated Time</label>
+          <input type="text" id="new-task-time" class="form-input" placeholder="e.g. 2h 30m">
+        </div>
+        <div class="form-group">
+          <label for="new-task-deadline" class="form-label">Deadline (Optional)</label>
+          <input type="date" id="new-task-deadline" class="form-input">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary-btn close-modal">Cancel</button>
+          <button type="button" id="create-task-btn" class="btn primary-btn">Create Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add script for edit and delete functionality -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup edit and delete functionality
+      setupEditAndDeleteFunctionality();
+      
+      // Re-apply functionality whenever the DOM might change
+      setInterval(setupEditAndDeleteFunctionality, 2000);
+    });
+    
+    function setupEditAndDeleteFunctionality() {
+      console.log("Setting up edit and delete functionality");
+      
+      // Get modal elements for editing
+      const editProjectModal = document.getElementById('edit-project-modal');
+      const editTaskModal = document.getElementById('edit-task-modal');
+      
+      // Setup edit project buttons
+      document.querySelectorAll('.project-header .task-actions button:has(.material-icons:contains("edit"))').forEach(button => {
+        button.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the project
+          const projectCard = button.closest('.project-card');
+          if (!projectCard) return;
+          
+          const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+          const projectTitle = projectCard.querySelector('.project-title').textContent;
+          const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color') || '#4f46e5';
+          
+          // Populate the edit form
+          document.getElementById('edit-project-id').value = projectId;
+          document.getElementById('edit-project-name').value = projectTitle;
+          document.getElementById('edit-project-color').value = projectColor;
+          
+          // Show the modal
+          editProjectModal.style.display = 'flex';
+          setTimeout(() => {
+            editProjectModal.style.opacity = '1';
+            editProjectModal.style.visibility = 'visible';
+            document.getElementById('edit-project-name').focus();
+          }, 10);
+        };
+      });
+      
+      // Setup edit task buttons
+      document.querySelectorAll('.task-item .task-actions button:has(.material-icons:contains("edit"))').forEach(button => {
+        button.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the task
+          const taskItem = button.closest('.task-item');
+          if (!taskItem) return;
+          
+          const taskId = taskItem.getAttribute('data-task-id') || taskItem.id;
+          const taskName = taskItem.querySelector('.task-name').textContent;
+          
+          // Get the priority
+          let priority = 'medium';
+          if (taskItem.querySelector('.priority-high')) {
+            priority = 'high';
+          } else if (taskItem.querySelector('.priority-low')) {
+            priority = 'low';
+          }
+          
+          // Get time and deadline if available
+          let estimatedTime = '';
+          let deadline = '';
+          
+          taskItem.querySelectorAll('.task-detail').forEach(detail => {
+            const icon = detail.querySelector('.material-icons');
+            if (icon && icon.textContent === 'schedule') {
+              estimatedTime = detail.textContent.trim().replace('schedule', '').trim();
+            } else if (icon && icon.textContent === 'event') {
+              deadline = detail.textContent.trim().replace('event', '').trim();
+            }
+          });
+          
+          // Find current project
+          const projectCard = taskItem.closest('.project-card');
+          const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+          
+          // Populate edit form
+          document.getElementById('edit-task-id').value = taskId;
+          document.getElementById('edit-task-name').value = taskName;
+          
+          // Set priority radio button
+          document.querySelector(`input[name="edit-task-priority"][value="${priority}"]`).checked = true;
+          
+          // Set estimated time and deadline
+          document.getElementById('edit-task-time').value = estimatedTime;
+          document.getElementById('edit-task-deadline').value = deadline;
+          
+          // Populate project dropdown
+          const editTaskProjectSelect = document.getElementById('edit-task-project');
+          editTaskProjectSelect.innerHTML = '';
+          
+          document.querySelectorAll('.project-card').forEach(project => {
+            const title = project.querySelector('.project-title').textContent;
+            const id = project.getAttribute('data-project-id') || project.id;
+            
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = title;
+            option.selected = (id === projectId);
+            
+            editTaskProjectSelect.appendChild(option);
+          });
+          
+          // Show the modal
+          editTaskModal.style.display = 'flex';
+          setTimeout(() => {
+            editTaskModal.style.opacity = '1';
+            editTaskModal.style.visibility = 'visible';
+            document.getElementById('edit-task-name').focus();
+          }, 10);
+        };
+      });
+      
+      // Setup delete project buttons
+      document.querySelectorAll('.project-header .task-actions button:has(.material-icons:contains("delete"))').forEach(button => {
+        button.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the project
+          const projectCard = button.closest('.project-card');
+          if (!projectCard) return;
+          
+          const projectTitle = projectCard.querySelector('.project-title').textContent;
+          
+          // Confirm deletion
+          if (confirm(`Are you sure you want to delete the project "${projectTitle}" and all its tasks?`)) {
+            // Remove from DOM
+            projectCard.remove();
+            
+            // Save changes
+            try {
+              saveProjectsData();
+            } catch (err) {
+              console.error('Error saving after project deletion:', err);
+            }
+            
+            // Show confirmation
+            alert(`Project "${projectTitle}" has been deleted successfully.`);
+          }
+        };
+      });
+      
+      // Setup delete task buttons
+      document.querySelectorAll('.task-item .task-actions button:has(.material-icons:contains("delete"))').forEach(button => {
+        button.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the task
+          const taskItem = button.closest('.task-item');
+          if (!taskItem) return;
+          
+          const taskName = taskItem.querySelector('.task-name').textContent;
+          
+          // Confirm deletion
+          if (confirm(`Are you sure you want to delete the task "${taskName}"?`)) {
+            // Get the project card to update progress
+            const projectCard = taskItem.closest('.project-card');
+            
+            // Remove from DOM
+            taskItem.remove();
+            
+            // Update project progress if needed
+            if (projectCard) {
+              updateProjectProgress(projectCard);
+              
+              // Check if task list is empty
+              const taskList = projectCard.querySelector('.task-list');
+              if (taskList && !taskList.querySelector('.task-item')) {
+                taskList.innerHTML = '<div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>';
+              }
+            }
+            
+            // Save changes
+            try {
+              saveProjectsData();
+            } catch (err) {
+              console.error('Error saving after task deletion:', err);
+            }
+            
+            // Show confirmation
+            alert(`Task "${taskName}" has been deleted successfully.`);
+          }
+        };
+      });
+      
+      // Handle update project button
+      document.getElementById('update-project').onclick = function() {
+        const projectId = document.getElementById('edit-project-id').value;
+        const projectName = document.getElementById('edit-project-name').value.trim();
+        const projectColor = document.getElementById('edit-project-color').value;
+        
+        if (!projectName) {
+          alert('Please enter a project name');
+          return;
+        }
+        
+        // Find the project
+        const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`) || 
+                            document.getElementById(projectId);
+        
+        if (projectCard) {
+          // Update the project
+          projectCard.querySelector('.project-title').textContent = projectName;
+          projectCard.style.setProperty('--project-color', projectColor);
+          
+          // Save changes
+          try {
+            saveProjectsData();
+          } catch (err) {
+            console.error('Error saving project updates:', err);
+          }
+          
+          // Close the modal
+          closeEditProjectModal();
+          
+          // Show confirmation
+          alert(`Project "${projectName}" has been updated successfully.`);
+        }
+      };
+      
+      // Handle update task button
+      document.getElementById('update-task').onclick = function() {
+        const taskId = document.getElementById('edit-task-id').value;
+        const taskName = document.getElementById('edit-task-name').value.trim();
+        const projectId = document.getElementById('edit-task-project').value;
+        const priority = document.querySelector('input[name="edit-task-priority"]:checked').value;
+        const estTime = document.getElementById('edit-task-time').value.trim();
+        const deadline = document.getElementById('edit-task-deadline').value.trim();
+        
+        if (!taskName) {
+          alert('Please enter a task name');
+          return;
+        }
+        
+        // Find the task
+        const taskItem = document.querySelector(`.task-item[data-task-id="${taskId}"]`) || 
+                          document.getElementById(taskId);
+        
+        // Find the current and new project
+        const currentProjectCard = taskItem ? taskItem.closest('.project-card') : null;
+        const newProjectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`) || 
+                              document.getElementById(projectId);
+        
+        if (taskItem && newProjectCard) {
+          // Check if we need to move the task to a different project
+          if (currentProjectCard && currentProjectCard !== newProjectCard) {
+            // Move to new project
+            const taskList = newProjectCard.querySelector('.task-list');
+            
+            // Remove empty message if present
+            const emptyMessage = taskList.querySelector('.empty-tasks-message');
+            if (emptyMessage) {
+              emptyMessage.remove();
+            }
+            
+            // Move the task
+            taskList.appendChild(taskItem);
+            
+            // Update old project progress
+            updateProjectProgress(currentProjectCard);
+            
+            // Check if old project task list is now empty
+            const oldTaskList = currentProjectCard.querySelector('.task-list');
+            if (oldTaskList && !oldTaskList.querySelector('.task-item')) {
+              oldTaskList.innerHTML = '<div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>';
+            }
+          }
+          
+          // Get priority class
+          let priorityClass = 'priority-medium';
+          if (priority === 'high') priorityClass = 'priority-high';
+          else if (priority === 'low') priorityClass = 'priority-low';
+          
+          // Update task content
+          taskItem.querySelector('.task-name').textContent = taskName;
+          
+          // Clear details and recreate
+          const detailsContainer = taskItem.querySelector('.task-details');
+          detailsContainer.innerHTML = `
+            <span class="task-detail">
+              <span class="material-icons ${priorityClass}">flag</span>
+              ${priority.charAt(0).toUpperCase() + priority.slice(1)}
+            </span>
+            <span class="task-detail">
+              <span class="material-icons">schedule</span>
+              ${estTime || '30m'}
+            </span>
+            ${deadline ? `
+            <span class="task-detail">
+              <span class="material-icons">event</span>
+              ${deadline}
+            </span>
+            ` : ''}
+          `;
+          
+          // Update project progress
+          updateProjectProgress(newProjectCard);
+          
+          // Save changes
+          try {
+            saveProjectsData();
+          } catch (err) {
+            console.error('Error saving task updates:', err);
+          }
+          
+          // Close the modal
+          closeEditTaskModal();
+          
+          // Show confirmation
+          alert(`Task "${taskName}" has been updated successfully.`);
+        }
+      };
+      
+      // Setup close buttons for edit modals
+      document.getElementById('close-edit-project-modal').onclick = closeEditProjectModal;
+      document.getElementById('cancel-edit-project').onclick = closeEditProjectModal;
+      document.getElementById('close-edit-task-modal').onclick = closeEditTaskModal;
+      document.getElementById('cancel-edit-task').onclick = closeEditTaskModal;
+    }
+    
+    function closeEditProjectModal() {
+      const modal = document.getElementById('edit-project-modal');
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
+      setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+    
+    function closeEditTaskModal() {
+      const modal = document.getElementById('edit-task-modal');
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
+      setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+    
+    function updateProjectProgress(projectCard) {
+      if (!projectCard) return;
+      
+      const tasks = projectCard.querySelectorAll('.task-item');
+      const totalTasks = tasks.length;
+      
+      if (totalTasks === 0) {
+        projectCard.querySelector('.project-progress').textContent = '0% complete';
+        projectCard.querySelector('.progress-fill').style.width = '0%';
+        return;
+      }
+      
+      let completedTasks = 0;
+      tasks.forEach(task => {
+        if (task.querySelector('.task-checkbox').checked) {
+          completedTasks++;
+        }
+      });
+      
+      const progressPercent = Math.round((completedTasks / totalTasks) * 100);
+      projectCard.querySelector('.project-progress').textContent = `${progressPercent}% complete`;
+      projectCard.querySelector('.progress-fill').style.width = `${progressPercent}%`;
+    }
+    
+    // Helper function to save projects data to localStorage
+    function saveProjectsData() {
+      const projectsContainer = document.querySelector('.projects-container') || document.querySelector('[role="main"]');
+      if (!projectsContainer) return;
+      
+      const projectsData = [];
+      
+      projectsContainer.querySelectorAll('.project-card').forEach(projectCard => {
+        const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+        const projectTitle = projectCard.querySelector('.project-title').textContent;
+        const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color') || '#4f46e5';
+        
+        const tasks = [];
+        projectCard.querySelectorAll('.task-item').forEach(taskItem => {
+          const taskId = taskItem.getAttribute('data-task-id') || taskItem.id;
+          const taskName = taskItem.querySelector('.task-name').textContent;
+          const isCompleted = taskItem.querySelector('.task-checkbox').checked;
+          
+          // Get priority
+          let priority = 'medium';
+          if (taskItem.querySelector('.priority-high')) {
+            priority = 'high';
+          } else if (taskItem.querySelector('.priority-low')) {
+            priority = 'low';
+          }
+          
+          // Get time and deadline if available
+          let estimatedTime = '';
+          let deadline = '';
+          
+          taskItem.querySelectorAll('.task-detail').forEach(detail => {
+            const icon = detail.querySelector('.material-icons');
+            if (icon && icon.textContent === 'schedule') {
+              estimatedTime = detail.textContent.trim().replace('schedule', '').trim();
+            } else if (icon && icon.textContent === 'event') {
+              deadline = detail.textContent.trim().replace('event', '').trim();
+            }
+          });
+          
+          tasks.push({
+            id: taskId,
+            name: taskName,
+            isCompleted,
+            priority,
+            estimatedTime,
+            deadline
+          });
+        });
+        
+        projectsData.push({
+          id: projectId,
+          title: projectTitle,
+          color: projectColor,
+          tasks
+        });
+      });
+      
+      localStorage.setItem('tempus_projects', JSON.stringify(projectsData));
+      console.log('Projects data saved to localStorage', projectsData);
+    }
+  </script>
+
+  <script>
+    // Direct fix for edit buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      // Apply direct edit button handlers immediately and periodically
+      applyEditButtonHandlers();
+      setInterval(applyEditButtonHandlers, 1000);
+    });
+    
+    function applyEditButtonHandlers() {
+      console.log("Applying direct edit button handlers");
+      
+      // For Project Edit Buttons - try multiple selector approaches
+      document.querySelectorAll('button').forEach(button => {
+        // Check if this is an edit button
+        const icon = button.querySelector('.material-icons');
+        if (icon && icon.textContent === 'edit') {
+          // Check if it's in a project header
+          const projectHeader = button.closest('.project-header');
+          if (projectHeader) {
+            // This is a project edit button
+            console.log("Found project edit button", button);
+            
+            // Remove existing click handlers
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add click handler
+            newButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Project edit button clicked");
+              
+              // Find the project
+              const projectCard = newButton.closest('.project-card');
+              if (!projectCard) {
+                console.error("Could not find project card");
+                return;
+              }
+              
+              const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+              const projectTitle = projectCard.querySelector('.project-title').textContent;
+              const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color') || '#4f46e5';
+              
+              console.log("Editing project:", { projectId, projectTitle, projectColor });
+              
+              // Populate the edit form
+              document.getElementById('edit-project-id').value = projectId;
+              document.getElementById('edit-project-name').value = projectTitle;
+              document.getElementById('edit-project-color').value = projectColor;
+              
+              // Show the modal
+              const editProjectModal = document.getElementById('edit-project-modal');
+              editProjectModal.style.display = 'flex';
+              setTimeout(() => {
+                editProjectModal.style.opacity = '1';
+                editProjectModal.style.visibility = 'visible';
+                document.getElementById('edit-project-name').focus();
+              }, 10);
+            });
+          }
+        }
+      });
+      
+      // For Task Edit Buttons - try multiple selector approaches
+      document.querySelectorAll('button').forEach(button => {
+        // Check if this is an edit button
+        const icon = button.querySelector('.material-icons');
+        if (icon && icon.textContent === 'edit') {
+          // Check if it's in a task item
+          const taskItem = button.closest('.task-item');
+          if (taskItem) {
+            // This is a task edit button
+            console.log("Found task edit button", button);
+            
+            // Remove existing click handlers
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add click handler
+            newButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Task edit button clicked");
+              
+              // Find the task
+              const taskItem = newButton.closest('.task-item');
+              if (!taskItem) {
+                console.error("Could not find task item");
+                return;
+              }
+              
+              const taskId = taskItem.getAttribute('data-task-id') || taskItem.id;
+              const taskName = taskItem.querySelector('.task-name').textContent;
+              
+              console.log("Editing task:", { taskId, taskName });
+              
+              // Get the priority
+              let priority = 'medium';
+              if (taskItem.querySelector('.material-icons.priority-high') || 
+                  taskItem.querySelector('.task-detail:contains("High")')) {
+                priority = 'high';
+              } else if (taskItem.querySelector('.material-icons.priority-low') || 
+                         taskItem.querySelector('.task-detail:contains("Low")')) {
+                priority = 'low';
+              }
+              
+              // Get time and deadline if available
+              let estimatedTime = '';
+              let deadline = '';
+              
+              const detailsText = taskItem.querySelector('.task-details').textContent;
+              
+              taskItem.querySelectorAll('.task-detail').forEach(detail => {
+                const detailText = detail.textContent.trim();
+                const icon = detail.querySelector('.material-icons');
+                if (icon) {
+                  const iconText = icon.textContent;
+                  if (iconText === 'schedule') {
+                    estimatedTime = detailText.replace('schedule', '').trim();
+                  } else if (iconText === 'event') {
+                    deadline = detailText.replace('event', '').trim();
+                  }
+                }
+              });
+              
+              console.log("Task details:", { priority, estimatedTime, deadline });
+              
+              // Find current project
+              const projectCard = taskItem.closest('.project-card');
+              const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+              
+              // Populate edit form
+              document.getElementById('edit-task-id').value = taskId;
+              document.getElementById('edit-task-name').value = taskName;
+              
+              // Set priority radio button
+              let priorityRadio = document.querySelector(`input[name="edit-task-priority"][value="${priority}"]`);
+              if (priorityRadio) {
+                priorityRadio.checked = true;
+              }
+              
+              // Set estimated time and deadline
+              document.getElementById('edit-task-time').value = estimatedTime;
+              document.getElementById('edit-task-deadline').value = deadline;
+              
+              // Populate project dropdown
+              const editTaskProjectSelect = document.getElementById('edit-task-project');
+              editTaskProjectSelect.innerHTML = '';
+              
+              document.querySelectorAll('.project-card').forEach(project => {
+                const title = project.querySelector('.project-title').textContent;
+                const id = project.getAttribute('data-project-id') || project.id;
+                
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = title;
+                option.selected = (id === projectId);
+                
+                editTaskProjectSelect.appendChild(option);
+              });
+              
+              // Show the modal
+              const editTaskModal = document.getElementById('edit-task-modal');
+              editTaskModal.style.display = 'flex';
+              setTimeout(() => {
+                editTaskModal.style.opacity = '1';
+                editTaskModal.style.visibility = 'visible';
+                document.getElementById('edit-task-name').focus();
+              }, 10);
+            });
+          }
+        }
+      });
+    }
+  </script>
+
+  <script>
+    // ULTRA SPECIFIC FIX FOR PROJECT EDIT BUTTONS
+    document.addEventListener('DOMContentLoaded', function() {
+      // Run immediately and several times to ensure it catches newly rendered buttons
+      fixProjectEditButtons();
+      setTimeout(fixProjectEditButtons, 500);
+      setTimeout(fixProjectEditButtons, 1000);
+      setTimeout(fixProjectEditButtons, 2000);
+      
+      // Set an interval to continuously check for edit buttons
+      setInterval(fixProjectEditButtons, 3000);
+    });
+    
+    function fixProjectEditButtons() {
+      console.log("🔍 ULTRA SPECIFIC FIX: Searching for project edit buttons...");
+      
+      // Try multiple approaches to find all project edit buttons
+      const projectEditButtons = [];
+      
+      // Approach 1: Find by material-icons with edit text in project headers
+      document.querySelectorAll('.project-header .material-icons').forEach(icon => {
+        if (icon.textContent.trim() === 'edit') {
+          const button = icon.closest('button');
+          if (button) projectEditButtons.push(button);
+        }
+      });
+      
+      // Approach 2: Find by task-action-btn class in project headers
+      document.querySelectorAll('.project-header .task-action-btn').forEach(button => {
+        const icon = button.querySelector('.material-icons');
+        if (icon && icon.textContent.trim() === 'edit') {
+          projectEditButtons.push(button);
+        }
+      });
+      
+      // Approach 3: All buttons inside project headers
+      document.querySelectorAll('.project-header button').forEach(button => {
+        const icon = button.querySelector('.material-icons');
+        if (icon && icon.textContent.trim() === 'edit') {
+          projectEditButtons.push(button);
+        }
+      });
+      
+      // Make buttons visible by forcing style
+      document.querySelectorAll('.project-header .task-actions').forEach(actionsContainer => {
+        actionsContainer.style.opacity = '1';
+        actionsContainer.style.display = 'flex';
+        actionsContainer.style.visibility = 'visible';
+      });
+      
+      // Log what we found
+      console.log(`🔍 ULTRA SPECIFIC FIX: Found ${projectEditButtons.length} project edit buttons`);
+      
+      // Make each button unique to avoid duplicates
+      const uniqueButtons = [];
+      projectEditButtons.forEach(button => {
+        if (!uniqueButtons.includes(button)) {
+          uniqueButtons.push(button);
+        }
+      });
+      
+      console.log(`🔍 ULTRA SPECIFIC FIX: Processing ${uniqueButtons.length} unique project edit buttons`);
+      
+      // Process each unique button
+      uniqueButtons.forEach((button, index) => {
+        // Make the button super visible
+        button.style.opacity = '1';
+        button.style.visibility = 'visible';
+        button.style.pointerEvents = 'auto';
+        button.style.cursor = 'pointer';
+        button.style.outline = '2px solid #4f46e5';
+        
+        // Add a special attribute to track if we've modified this button
+        const isProcessed = button.getAttribute('data-edit-processed') === 'true';
+        
+        if (!isProcessed) {
+          console.log(`🔧 ULTRA SPECIFIC FIX: Setting up project edit button ${index + 1}`);
+          
+          // Clone the button to remove any existing event listeners
+          const newButton = button.cloneNode(true);
+          button.parentNode.replaceChild(newButton, button);
+          
+          // Add our click handler
+          newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            console.log(`🎯 ULTRA SPECIFIC FIX: Project edit button ${index + 1} clicked!`);
+            
+            // Find the project card
+            const projectCard = newButton.closest('.project-card');
+            if (!projectCard) {
+              console.error('❌ ULTRA SPECIFIC FIX: Could not find parent project card!');
+              return;
+            }
+            
+            // Get project details
+            const projectId = projectCard.getAttribute('data-project-id') || projectCard.id || `project-${Date.now()}`;
+            const projectTitle = projectCard.querySelector('.project-title')?.textContent || 'Unknown Project';
+            const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color') || '#4f46e5';
+            
+            console.log(`📝 ULTRA SPECIFIC FIX: Editing project: ${projectTitle} (${projectId})`);
+            
+            // Populate the edit form
+            document.getElementById('edit-project-id').value = projectId;
+            document.getElementById('edit-project-name').value = projectTitle;
+            document.getElementById('edit-project-color').value = projectColor;
+            
+            // Show the modal
+            const editProjectModal = document.getElementById('edit-project-modal');
+            if (!editProjectModal) {
+              console.error('❌ ULTRA SPECIFIC FIX: Edit project modal not found!');
+              alert('Could not find the edit project modal. Please try again.');
+              return;
+            }
+            
+            editProjectModal.style.display = 'flex';
+            setTimeout(() => {
+              editProjectModal.style.opacity = '1';
+              editProjectModal.style.visibility = 'visible';
+              document.getElementById('edit-project-name').focus();
+            }, 10);
+          });
+          
+          // Mark as processed
+          newButton.setAttribute('data-edit-processed', 'true');
+          
+          // Add additional click handler to the icon inside for extra safety
+          const icon = newButton.querySelector('.material-icons');
+          if (icon) {
+            icon.style.pointerEvents = 'auto';
+            icon.style.cursor = 'pointer';
+            icon.addEventListener('click', function(e) {
+              e.stopPropagation();
+              newButton.click(); // Trigger the button's click handler
+            });
+          }
+        }
+      });
+    }
+  </script>
+
+  <style>
+    /* EXTREME EDIT BUTTON FIX */
+    .project-header .task-actions {
+      opacity: 1 !important;
+      display: flex !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+    }
+    
+    .project-header .task-action-btn,
+    .project-header button {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      z-index: 1000 !important;
+    }
+    
+    .project-header .material-icons {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+    
+    /* Make edit buttons in project headers stand out */
+    .project-header .task-action-btn .material-icons:contains('edit'),
+    .project-header .material-icons:contains('edit') {
+      color: #4f46e5 !important;
+      font-size: 20px !important;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // MODIFIED: Don't automatically initialize functionality that opens modals
+      console.log('Page loaded - modals should NOT automatically open');
+      
+      // Instead, just make sure modals are closed
+      const taskModal = document.getElementById('new-task-modal');
+      const projectModal = document.getElementById('new-project-modal');
+      
+      if (taskModal) {
+        taskModal.style.display = 'none';
+        taskModal.classList.remove('active');
+      }
+      
+      if (projectModal) {
+        projectModal.style.display = 'none';
+        projectModal.classList.remove('active');
+      }
+      
+      // We will NOT call initializeProjectsAndTasks() here as that was causing
+      // modals to automatically open when the page loads
+    });
+    
+    function initializeProjectsAndTasks() {
+      // ... existing code ...
+    }
+  </script>
+
+  <script>
+    // Fix stylesheet and navigation paths for Electron
+    document.addEventListener('DOMContentLoaded', function() {
+      const isElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+      
+      if (isElectron) {
+        console.log("Running in Electron - fixing CSS and navigation paths");
+        
+        // Fix CSS link
+        const cssLink = document.querySelector('link[href="production-fix.css"]');
+        if (cssLink) {
+          cssLink.setAttribute('href', './production-fix.css');
+          console.log("Fixed CSS link path");
+        }
+        
+        // Fix all navigation links
+        document.querySelectorAll('a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && href.endsWith('.html')) {
+            // Get the filename only
+            const filename = href.split('/').pop();
+            // Set the link to the current directory
+            link.setAttribute('href', './' + filename);
+            console.log(`Fixed link: ${href} -> ./${filename}`);
+          }
+        });
+      }
+    });
+  </script>
+
+  <script>
+    // Fix the Cancel and Create Task buttons in the task modal
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Applying task modal button fixes');
+      
+      // Fix the Cancel button
+      const cancelButtons = document.querySelectorAll('#new-task-modal .close-modal, #new-task-modal button:contains("Cancel")');
+      cancelButtons.forEach(button => {
+        // Remove existing event listeners to avoid duplicates
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        // Add new event listener
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Cancel button clicked');
+          
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+          }
+        });
+      });
+      
+      // Fix the Create Task button
+      const createTaskBtn = document.getElementById('create-task-btn');
+      if (createTaskBtn) {
+        // Remove existing event listeners
+        const newBtn = createTaskBtn.cloneNode(true);
+        if (createTaskBtn.parentNode) {
+          createTaskBtn.parentNode.replaceChild(newBtn, createTaskBtn);
+        }
+        
+        // Add new event listener
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Create Task button clicked');
+          
+          // Get form values
+          const taskName = document.getElementById('new-task-name').value.trim();
+          const projectSelect = document.getElementById('new-task-project');
+          const projectId = projectSelect ? projectSelect.value : '';
+          
+          // Basic validation
+          if (!taskName) {
+            alert('Please enter a task name');
+            return;
+          }
+          
+          if (!projectId) {
+            alert('Please select a project');
+            return;
+          }
+          
+          // Get optional values
+          let priority = 'medium';
+          const priorityInputs = document.querySelectorAll('input[name="new-task-priority"]');
+          priorityInputs.forEach(input => {
+            if (input.checked) {
+              priority = input.value;
+            }
+          });
+          
+          const estimatedTime = document.getElementById('new-task-time').value || '1 hr';
+          const deadline = document.getElementById('new-task-deadline').value || '';
+          
+          // Find the project
+          const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
+          if (!projectCard) {
+            console.error('Project not found:', projectId);
+            alert('Error: Project not found. Please try again.');
+            return;
+          }
+          
+          // Create a new task element
+          const taskId = 'task-' + Date.now();
+          const taskHTML = `
+            <div class="task-item" data-task-id="${taskId}">
+              <input type="checkbox" class="task-checkbox">
+              <div class="task-content">
+                <h4 class="task-name">${taskName}</h4>
+                <div class="task-details">
+                  <span class="task-detail">
+                    <span class="material-icons priority-${priority}">${priority === 'high' ? 'flag' : priority === 'medium' ? 'outlined_flag' : 'assistant_flag'}</span>
+                    ${priority.charAt(0).toUpperCase() + priority.slice(1)}
+                  </span>
+                  <span class="task-detail">
+                    <span class="material-icons">schedule</span>
+                    ${estimatedTime}
+                  </span>
+                  ${deadline ? `
+                  <span class="task-detail">
+                    <span class="material-icons">event</span>
+                    ${new Date(deadline).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                  </span>
+                  ` : ''}
+                </div>
+              </div>
+              <div class="task-actions">
+                <button class="task-action-btn edit-task-btn">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="task-action-btn delete-task-btn">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </div>
+          `;
+          
+          // Add the task to the project's task list
+          const taskList = projectCard.querySelector('.task-list');
+          if (!taskList) {
+            console.error('Task list not found in project:', projectId);
+            alert('Error: Could not add task to project. Please try again.');
+            return;
+          }
+          
+          // Remove empty message if present
+          const emptyMessage = taskList.querySelector('.empty-tasks-message');
+          if (emptyMessage) {
+            emptyMessage.remove();
+          }
+          
+          // Add task to the list
+          taskList.insertAdjacentHTML('beforeend', taskHTML);
+          
+          // Update project progress
+          const tasks = projectCard.querySelectorAll('.task-item');
+          const completedTasks = projectCard.querySelectorAll('.task-item .task-checkbox:checked').length;
+          const progressPercent = Math.round((completedTasks / tasks.length) * 100) || 0;
+          
+          const progressText = projectCard.querySelector('.project-progress');
+          const progressFill = projectCard.querySelector('.progress-fill');
+          
+          if (progressText) progressText.textContent = `${progressPercent}% complete`;
+          if (progressFill) progressFill.style.width = `${progressPercent}%`;
+          
+          // Save to localStorage
+          try {
+            // Get existing data
+            let projectsData = JSON.parse(localStorage.getItem('tempus-projects-data') || '[]');
+            
+            // Find or create project data
+            let projectData = projectsData.find(p => p.id === projectId);
+            if (!projectData) {
+              projectData = {
+                id: projectId,
+                name: projectCard.querySelector('.project-title').textContent,
+                tasks: []
+              };
+              projectsData.push(projectData);
+            }
+            
+            // Add task to project data
+            projectData.tasks.push({
+              id: taskId,
+              name: taskName,
+              priority: priority,
+              estimatedTime: estimatedTime,
+              deadline: deadline,
+              completed: false
+            });
+            
+            // Save updated data
+            localStorage.setItem('tempus-projects-data', JSON.stringify(projectsData));
+            console.log('Project data saved to localStorage');
+          } catch (err) {
+            console.error('Error saving to localStorage:', err);
+          }
+          
+          // Close the modal
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+          }
+          
+          // Reset the form
+          const taskForm = document.getElementById('new-task-form');
+          if (taskForm) {
+            taskForm.reset();
+          }
+          
+          // Setup the edit and delete buttons for the new task
+          const newTask = taskList.querySelector(`[data-task-id="${taskId}"]`);
+          if (newTask) {
+            // Add event listeners for the checkbox
+            const checkbox = newTask.querySelector('.task-checkbox');
+            if (checkbox) {
+              checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                  newTask.classList.add('completed');
+                } else {
+                  newTask.classList.remove('completed');
+                }
+                
+                // Update project progress
+                const allTasks = projectCard.querySelectorAll('.task-item');
+                const completedTasks = projectCard.querySelectorAll('.task-item.completed, .task-item input:checked');
+                const progressPercent = Math.round((completedTasks.length / allTasks.length) * 100) || 0;
+                
+                if (progressText) progressText.textContent = `${progressPercent}% complete`;
+                if (progressFill) progressFill.style.width = `${progressPercent}%`;
+              });
+            }
+            
+            // Add event listeners for the edit button
+            const editBtn = newTask.querySelector('.edit-task-btn');
+            if (editBtn) {
+              editBtn.addEventListener('click', function() {
+                alert('Edit functionality will be implemented soon!');
+              });
+            }
+            
+            // Add event listeners for the delete button
+            const deleteBtn = newTask.querySelector('.delete-task-btn');
+            if (deleteBtn) {
+              deleteBtn.addEventListener('click', function() {
+                if (confirm(`Are you sure you want to delete the task "${taskName}"?`)) {
+                  // Remove task
+                  newTask.remove();
+                  
+                  // Update project progress
+                  const allTasks = projectCard.querySelectorAll('.task-item');
+                  const completedTasks = projectCard.querySelectorAll('.task-item.completed, .task-item input:checked');
+                  const progressPercent = allTasks.length ? Math.round((completedTasks.length / allTasks.length) * 100) : 0;
+                  
+                  if (progressText) progressText.textContent = `${progressPercent}% complete`;
+                  if (progressFill) progressFill.style.width = `${progressPercent}%`;
+                  
+                  // Add empty message if no tasks
+                  if (allTasks.length === 0) {
+                    taskList.innerHTML = '<div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>';
+                  }
+                }
+              });
+            }
+          }
+          
+          // Show success message
+          alert(`Task "${taskName}" created successfully!`);
+        });
+      }
+      
+      // Make sure the "Add Task" buttons in project cards also work
+      document.querySelectorAll('.add-task-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const projectCard = this.closest('.project-card');
+          if (projectCard) {
+            const projectId = projectCard.getAttribute('data-project-id');
+            const projectName = projectCard.querySelector('.project-title').textContent;
+            
+            // Open the new task modal
+            const modal = document.getElementById('new-task-modal');
+            if (modal) {
+              // Reset the form
+              const form = document.getElementById('new-task-form');
+              if (form) form.reset();
+              
+              // Pre-select the project
+              const projectSelect = document.getElementById('new-task-project');
+              if (projectSelect) {
+                for (let i = 0; i < projectSelect.options.length; i++) {
+                  if (projectSelect.options[i].value === projectId) {
+                    projectSelect.selectedIndex = i;
+                    break;
+                  }
+                }
+              }
+              
+              // Show the modal
+              modal.style.display = 'flex';
+              modal.classList.add('active');
+            }
+          }
+        });
+      });
+    });
+  </script>
+
+  <!-- Disable automatic task modal popup on page load -->
+  <script>
+    // Disable automatic task modal popup on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Preventing automatic modal popup');
+      
+      // Find any automatic task modal triggers and disable them
+      let hasAutoTrigger = false;
+      
+      // Check for any setTimeout that might be triggering the modal
+      const originalSetTimeout = window.setTimeout;
+      window.setTimeout = function(fn, delay) {
+        if (typeof fn === 'function' && fn.toString().includes('openNewTaskModal') && delay < 1000) {
+          console.log('Blocked automatic modal popup from setTimeout');
+          hasAutoTrigger = true;
+          return 0; // Return a timeout ID that does nothing
+        }
+        return originalSetTimeout.apply(this, arguments);
+      };
+      
+      // Force close any modals that might be open
+      setTimeout(function() {
+        const taskModal = document.getElementById('new-task-modal');
+        const projectModal = document.getElementById('new-project-modal');
+        
+        if (taskModal) {
+          taskModal.style.display = 'none';
+          taskModal.classList.remove('active');
+          console.log('Force closed task modal');
+        }
+        
+        if (projectModal) {
+          projectModal.style.display = 'none';
+          projectModal.classList.remove('active');
+          console.log('Force closed project modal');
+        }
+      }, 100);
+      
+      // Make sure only the "New Task" and "New Project" buttons can open the modals
+      const newTaskBtn = document.getElementById('new-task-btn');
+      if (newTaskBtn) {
+        // Remove existing event listeners
+        const newBtn = newTaskBtn.cloneNode(true);
+        if (newTaskBtn.parentNode) {
+          newTaskBtn.parentNode.replaceChild(newBtn, newTaskBtn);
+        }
+        
+        // Add a clean event listener
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('New Task button clicked properly');
+          
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            // Reset the form
+            const form = document.getElementById('new-task-form');
+            if (form) form.reset();
+            
+            // Populate the project dropdown
+            const projectSelect = document.getElementById('new-task-project');
+            if (projectSelect) {
+              projectSelect.innerHTML = '';
+              const projects = document.querySelectorAll('.project-card');
+              
+              if (projects.length === 0) {
+                alert('Please create a project first before adding tasks.');
+                return;
+              }
+              
+              projects.forEach(project => {
+                const projectTitle = project.querySelector('.project-title');
+                const projectId = project.getAttribute('data-project-id') || 
+                                 (project.id ? project.id : 'project-' + Date.now());
+                
+                if (projectTitle) {
+                  const option = document.createElement('option');
+                  option.value = projectId;
+                  option.textContent = projectTitle.textContent;
+                  projectSelect.appendChild(option);
+                }
+              });
+            }
+            
+            // Show the modal
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+            
+            // Focus the name input
+            const nameInput = document.getElementById('new-task-name');
+            if (nameInput) {
+              setTimeout(() => {
+                nameInput.focus();
+              }, 100);
+            }
+          }
+        });
+      }
+      
+      // Do the same for the New Project button
+      const newProjectBtn = document.getElementById('new-project-btn');
+      if (newProjectBtn) {
+        // Remove existing event listeners
+        const newBtn = newProjectBtn.cloneNode(true);
+        if (newProjectBtn.parentNode) {
+          newProjectBtn.parentNode.replaceChild(newBtn, newProjectBtn);
+        }
+        
+        // Add a clean event listener
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('New Project button clicked properly');
+          
+          const modal = document.getElementById('new-project-modal');
+          if (modal) {
+            // Reset the form
+            const form = document.getElementById('new-project-form');
+            if (form) form.reset();
+            
+            // Show the modal
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+            
+            // Focus the name input
+            const nameInput = document.getElementById('new-project-name');
+            if (nameInput) {
+              setTimeout(() => {
+                nameInput.focus();
+              }, 100);
+            }
+          }
+        });
+      }
+    });
+  </script>
+
+  <script>
+    // Fix Project Edit modal buttons functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Fixing Project Edit modal buttons functionality');
+      
+      // Fix modal close button (X)
+      const closeModalButtons = document.querySelectorAll('#edit-project-modal .close-modal');
+      closeModalButtons.forEach(button => {
+        // Remove existing handlers
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        // Add new event handler
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Edit Project close button clicked');
+          
+          const modal = document.getElementById('edit-project-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+          }
+        });
+      });
+      
+      // Fix Cancel button
+      const cancelButtons = document.querySelectorAll('#edit-project-modal .secondary-btn, #edit-project-modal button:contains("Cancel")');
+      cancelButtons.forEach(button => {
+        // Remove existing handlers
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        // Add new event handler
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Edit Project Cancel button clicked');
+          
+          const modal = document.getElementById('edit-project-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+          }
+        });
+      });
+      
+      // Fix Update Project button
+      const updateProjectBtn = document.getElementById('update-project-btn');
+      if (updateProjectBtn) {
+        // Remove existing handlers
+        const newBtn = updateProjectBtn.cloneNode(true);
+        if (updateProjectBtn.parentNode) {
+          updateProjectBtn.parentNode.replaceChild(newBtn, updateProjectBtn);
+        }
+        
+        // Add new event handler
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Update Project button clicked');
+          
+          // Get form values
+          const projectId = document.getElementById('edit-project-id').value;
+          const projectName = document.getElementById('edit-project-name').value.trim();
+          const projectColor = document.getElementById('edit-project-color').value;
+          
+          // Basic validation
+          if (!projectName) {
+            alert('Please enter a project name');
+            return;
+          }
+          
+          // Find the project card
+          const projectCard = document.querySelector(`.project-card[data-project-id="${projectId}"]`);
+          if (!projectCard) {
+            console.error('Project not found:', projectId);
+            alert('Error: Project not found. Please try again.');
+            return;
+          }
+          
+          // Update project title
+          const titleEl = projectCard.querySelector('.project-title');
+          if (titleEl) {
+            titleEl.textContent = projectName;
+          }
+          
+          // Update project color
+          projectCard.style.setProperty('--project-color', projectColor);
+          
+          // Save to localStorage
+          try {
+            // Get existing data
+            let projectsData = JSON.parse(localStorage.getItem('tempus_projects') || '[]');
+            
+            // Find or create project data
+            let projectDataIndex = projectsData.findIndex(p => p.id === projectId);
+            if (projectDataIndex >= 0) {
+              projectsData[projectDataIndex].title = projectName;
+              projectsData[projectDataIndex].color = projectColor;
+            }
+            
+            // Save updated data
+            localStorage.setItem('tempus_projects', JSON.stringify(projectsData));
+            console.log('Project data saved to localStorage');
+            
+            // Show success message
+            alert(`Project "${projectName}" updated successfully!`);
+          } catch (err) {
+            console.error('Error saving to localStorage:', err);
+            alert('Error updating project. Please try again.');
+          }
+          
+          // Close the modal
+          const modal = document.getElementById('edit-project-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+          }
+        });
+      }
+    });
+  </script>
+
+  <script>
+    // Add complete functionality for all elements in the Projects & Tasks UI
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Initializing full Projects & Tasks functionality');
+      
+      // 1. Fix filter buttons functionality
+      initializeFilterButtons();
+      
+      // 2. Fix project action buttons (edit, delete, more options)
+      initializeProjectActionButtons();
+      
+      // 3. Fix task checkboxes and related functionality
+      initializeTaskCheckboxes();
+      
+      // 4. Fix "New Task" and "Click to add task" functionality
+      initializeTaskAddFunctionality();
+      
+      // Apply these fixes periodically to catch dynamically added elements
+      setInterval(function() {
+        initializeProjectActionButtons();
+        initializeTaskCheckboxes();
+      }, 1000);
+    });
+    
+    // Filter functionality
+    function initializeFilterButtons() {
+      console.log('Setting up filter buttons');
+      
+      // Status filters (All, Active, Completed)
+      const statusButtons = document.querySelectorAll('[data-filter-status], .status-filter button');
+      statusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all status buttons
+          statusButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Apply filters
+          applyFilters();
+        });
+      });
+      
+      // Priority filters (All, High, Medium, Low)
+      const priorityButtons = document.querySelectorAll('[data-filter-priority], .priority-filter button');
+      priorityButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all priority buttons
+          priorityButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Apply filters
+          applyFilters();
+        });
+      });
+      
+      // Project filters (All, Website, Mobile App, Marketing)
+      const projectButtons = document.querySelectorAll('[data-filter-project], .project-filter button');
+      projectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all project buttons
+          projectButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Apply filters
+          applyFilters();
+        });
+      });
+    }
+    
+    // Function to apply all filters
+    function applyFilters() {
+      // Get active filters
+      const statusFilter = document.querySelector('[data-filter-status].active, .status-filter button.active')?.textContent.trim() || 'All';
+      const priorityFilter = document.querySelector('[data-filter-priority].active, .priority-filter button.active')?.textContent.trim() || 'All';
+      const projectFilter = document.querySelector('[data-filter-project].active, .project-filter button.active')?.textContent.trim() || 'All';
+      
+      console.log('Applying filters:', { statusFilter, priorityFilter, projectFilter });
+      
+      // Loop through all project cards
+      document.querySelectorAll('.project-card').forEach(projectCard => {
+        const projectTitle = projectCard.querySelector('.project-title')?.textContent.trim();
+        let showProject = true;
+        
+        // Apply project filter
+        if (projectFilter !== 'All' && projectTitle !== projectFilter) {
+          showProject = false;
+        }
+        
+        // Show/hide the project card
+        projectCard.style.display = showProject ? '' : 'none';
+      });
+      
+      // Loop through all task items
+      document.querySelectorAll('.task-item').forEach(taskItem => {
+        const projectCard = taskItem.closest('.project-card');
+        const projectTitle = projectCard.querySelector('.project-title')?.textContent.trim();
+        
+        // Check task status
+        const isCompleted = taskItem.classList.contains('completed') || taskItem.querySelector('.task-checkbox')?.checked;
+        let showTask = true;
+        
+        // Apply status filter
+        if (statusFilter === 'Active' && isCompleted) {
+          showTask = false;
+        } else if (statusFilter === 'Completed' && !isCompleted) {
+          showTask = false;
+        }
+        
+        // Apply priority filter
+        const taskPriority = 
+          taskItem.querySelector('.priority-high') ? 'High' : 
+          taskItem.querySelector('.priority-low') ? 'Low' : 'Medium';
+          
+        if (priorityFilter !== 'All' && taskPriority !== priorityFilter) {
+          showTask = false;
+        }
+        
+        // Apply project filter (if project card is hidden, hide all its tasks)
+        if (projectCard.style.display === 'none') {
+          showTask = false;
+        }
+        
+        // Show/hide the task item
+        taskItem.style.display = showTask ? '' : 'none';
+      });
+    }
+    
+    // Project action buttons (edit, delete, more options)
+    function initializeProjectActionButtons() {
+      console.log('Setting up project action buttons');
+      
+      // Edit buttons (pencil icons)
+      document.querySelectorAll('.project-card .edit-button, .project-card [title="Edit"]').forEach(button => {
+        // Remove existing listeners to avoid duplicates
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const projectCard = this.closest('.project-card');
+          const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+          const projectTitle = projectCard.querySelector('.project-title')?.textContent || '';
+          const projectColor = getComputedStyle(projectCard).getPropertyValue('--project-color') || '#4f46e5';
+          
+          console.log('Editing project:', projectTitle);
+          
+          // Populate edit form
+          document.getElementById('edit-project-id').value = projectId;
+          document.getElementById('edit-project-name').value = projectTitle;
+          document.getElementById('edit-project-color').value = projectColor;
+          
+          // Show edit modal
+          const editModal = document.getElementById('edit-project-modal');
+          editModal.style.display = 'flex';
+          editModal.style.opacity = '1';
+          editModal.style.visibility = 'visible';
+        });
+      });
+      
+      // Delete buttons (trash icons)
+      document.querySelectorAll('.project-card .delete-button, .project-card [title="Delete"]').forEach(button => {
+        // Remove existing listeners to avoid duplicates
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const projectCard = this.closest('.project-card');
+          const projectTitle = projectCard.querySelector('.project-title')?.textContent || '';
+          
+          if (confirm(`Are you sure you want to delete the project "${projectTitle}" and all its tasks?`)) {
+            console.log('Deleting project:', projectTitle);
+            projectCard.remove();
+            
+            // Update localStorage
+            try {
+              const projectsData = JSON.parse(localStorage.getItem('tempus_projects') || '[]');
+              const updatedData = projectsData.filter(p => p.title !== projectTitle);
+              localStorage.setItem('tempus_projects', JSON.stringify(updatedData));
+            } catch (err) {
+              console.error('Error updating localStorage:', err);
+            }
+          }
+        });
+      });
+      
+      // More options buttons (three dots)
+      document.querySelectorAll('.project-card .more-options, .project-card [title="More Options"]').forEach(button => {
+        // Remove existing listeners to avoid duplicates
+        const newBtn = button.cloneNode(true);
+        if (button.parentNode) {
+          button.parentNode.replaceChild(newBtn, button);
+        }
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const projectCard = this.closest('.project-card');
+          const projectTitle = projectCard.querySelector('.project-title')?.textContent || '';
+          
+          console.log('More options for project:', projectTitle);
+          
+          // Create and show dropdown menu
+          let menu = document.querySelector('.project-options-menu');
+          if (!menu) {
+            menu = document.createElement('div');
+            menu.className = 'project-options-menu';
+            menu.innerHTML = `
+              <div class="menu-item edit-project">Edit Project</div>
+              <div class="menu-item delete-project">Delete Project</div>
+              <div class="menu-item duplicate-project">Duplicate Project</div>
+            `;
+            document.body.appendChild(menu);
+            
+            // Add event listeners to menu items
+            menu.querySelector('.edit-project').addEventListener('click', function() {
+              document.querySelector(`.project-card[data-project-id="${projectCard.getAttribute('data-project-id')}"] .edit-button`)?.click();
+              menu.style.display = 'none';
+            });
+            
+            menu.querySelector('.delete-project').addEventListener('click', function() {
+              document.querySelector(`.project-card[data-project-id="${projectCard.getAttribute('data-project-id')}"] .delete-button`)?.click();
+              menu.style.display = 'none';
+            });
+            
+            menu.querySelector('.duplicate-project').addEventListener('click', function() {
+              const newProject = projectCard.cloneNode(true);
+              const newId = 'project-' + Date.now();
+              newProject.setAttribute('data-project-id', newId);
+              newProject.id = newId;
+              newProject.querySelector('.project-title').textContent = projectTitle + ' (Copy)';
+              
+              // Reset progress
+              newProject.querySelector('.project-progress').textContent = '0% complete';
+              newProject.querySelector('.progress-fill').style.width = '0%';
+              
+              // Clear tasks
+              const taskList = newProject.querySelector('.task-list');
+              taskList.innerHTML = '<div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>';
+              
+              projectCard.parentNode.appendChild(newProject);
+              menu.style.display = 'none';
+              
+              // Setup action buttons for the new project
+              initializeProjectActionButtons();
+            });
+          }
+          
+          // Position menu near the button
+          const rect = this.getBoundingClientRect();
+          menu.style.top = (rect.bottom + window.scrollY) + 'px';
+          menu.style.left = (rect.left + window.scrollX) + 'px';
+          menu.style.display = 'block';
+          
+          // Close menu when clicking outside
+          const closeMenu = function(e) {
+            if (!menu.contains(e.target) && e.target !== newBtn) {
+              menu.style.display = 'none';
+              document.removeEventListener('click', closeMenu);
+            }
+          };
+          
+          // Use setTimeout to avoid immediate closing
+          setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+          }, 0);
+        });
+      });
+    }
+    
+    // Task checkboxes functionality
+    function initializeTaskCheckboxes() {
+      console.log('Setting up task checkboxes');
+      
+      document.querySelectorAll('.task-item .task-checkbox').forEach(checkbox => {
+        // Skip if already initialized
+        if (checkbox.hasAttribute('data-initialized')) return;
+        
+        checkbox.setAttribute('data-initialized', 'true');
+        
+        checkbox.addEventListener('change', function() {
+          const taskItem = this.closest('.task-item');
+          const projectCard = this.closest('.project-card');
+          
+          // Update task style
+          if (this.checked) {
+            taskItem.classList.add('completed');
+          } else {
+            taskItem.classList.remove('completed');
+          }
+          
+          // Update project progress
+          updateProjectProgress(projectCard);
+          
+          // Save to localStorage
+          try {
+            saveProjectsData();
+          } catch (err) {
+            console.error('Error saving task status:', err);
+          }
+        });
+      });
+    }
+    
+    // Task add functionality
+    function initializeTaskAddFunctionality() {
+      console.log('Setting up task add functionality');
+      
+      // New Task button at the top
+      const newTaskButton = document.querySelector('#new-task-btn, button:contains("New Task")');
+      if (newTaskButton) {
+        newTaskButton.addEventListener('click', function() {
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            // Reset form
+            const form = document.getElementById('new-task-form');
+            if (form) form.reset();
+            
+            // Populate project dropdown
+            const projectSelect = document.getElementById('new-task-project');
+            if (projectSelect) {
+              projectSelect.innerHTML = '';
+              document.querySelectorAll('.project-card').forEach(project => {
+                const projectTitle = project.querySelector('.project-title').textContent;
+                const projectId = project.getAttribute('data-project-id') || project.id;
+                
+                const option = document.createElement('option');
+                option.value = projectId;
+                option.textContent = projectTitle;
+                projectSelect.appendChild(option);
+              });
+            }
+            
+            // Show modal
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+          }
+        });
+      }
+      
+      // New Project button at the top
+      const newProjectButton = document.querySelector('#new-project-btn, button:contains("New Project")');
+      if (newProjectButton) {
+        newProjectButton.addEventListener('click', function() {
+          const modal = document.getElementById('new-project-modal');
+          if (modal) {
+            // Reset form
+            const form = document.getElementById('new-project-form');
+            if (form) form.reset();
+            
+            // Show modal
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+          }
+        });
+      }
+      
+      // "No tasks yet. Click 'New Task' to add one." text
+      document.querySelectorAll('.empty-tasks-message, [contains="Click \"New Task\""]').forEach(element => {
+        element.style.cursor = 'pointer';
+        element.addEventListener('click', function() {
+          // Find the project card
+          const projectCard = this.closest('.project-card');
+          const projectId = projectCard.getAttribute('data-project-id') || projectCard.id;
+          const projectTitle = projectCard.querySelector('.project-title').textContent;
+          
+          // Open the new task modal
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            // Reset form
+            const form = document.getElementById('new-task-form');
+            if (form) form.reset();
+            
+            // Pre-select the current project
+            const projectSelect = document.getElementById('new-task-project');
+            if (projectSelect) {
+              projectSelect.innerHTML = '';
+              document.querySelectorAll('.project-card').forEach(project => {
+                const title = project.querySelector('.project-title').textContent;
+                const id = project.getAttribute('data-project-id') || project.id;
+                
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = title;
+                option.selected = (id === projectId);
+                projectSelect.appendChild(option);
+              });
+            }
+            
+            // Show modal
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+          }
+        });
+      });
+    }
+    
+    // Helper function to update project progress
+    function updateProjectProgress(projectCard) {
+      if (!projectCard) return;
+      
+      const tasks = projectCard.querySelectorAll('.task-item');
+      const totalTasks = tasks.length;
+      
+      if (totalTasks === 0) {
+        const progressBar = projectCard.querySelector('.progress-fill');
+        const progressText = projectCard.querySelector('.project-progress');
+        
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = '0% complete';
+        return;
+      }
+      
+      const completedTasks = projectCard.querySelectorAll('.task-item.completed, .task-item .task-checkbox:checked').length;
+      const progressPercent = Math.round((completedTasks / totalTasks) * 100);
+      
+      const progressBar = projectCard.querySelector('.progress-fill');
+      const progressText = projectCard.querySelector('.project-progress');
+      
+      if (progressBar) progressBar.style.width = `${progressPercent}%`;
+      if (progressText) progressText.textContent = `${progressPercent}% complete`;
+    }
+    
+    // CSS for the dropdown menu
+    const style = document.createElement('style');
+    style.textContent = `
+      .project-options-menu {
+        position: absolute;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 1000;
+        display: none;
+      }
+      
+      .project-options-menu .menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+      
+      .project-options-menu .menu-item:hover {
+        background-color: #f3f4f6;
+      }
+      
+      .project-options-menu .delete-project {
+        color: #ef4444;
+      }
+      
+      /* Dark mode */
+      [data-theme="dark"] .project-options-menu {
+        background: #1f2937;
+        border-color: #374151;
+      }
+      
+      [data-theme="dark"] .project-options-menu .menu-item:hover {
+        background-color: #374151;
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html> 

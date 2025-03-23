@@ -201,325 +201,32 @@ function createWindow() {
     console.log('Running in development mode, connecting to Next.js server at:', startUrl);
     mainWindow.loadURL(startUrl);
   } else {
-    // In production mode, copy the HTML files from the output directory to the temp directory
-    const tempDir = os.tmpdir();
+    // In production mode, load directly from the out directory
+    console.log('Running in production mode');
     const outDir = path.join(__dirname, 'out');
+    const indexPath = path.join(outDir, 'index.html');
     
-    // Create an array of HTML files to copy
-    const filesToCopy = [
-      { 
-        source: path.join(outDir, 'index.html'),
-        dest: path.join(tempDir, 'index.html')
-      },
-      { 
-        source: path.join(outDir, 'calendar.html'),
-        dest: path.join(tempDir, 'calendar.html')
-      },
-      { 
-        source: path.join(outDir, 'settings.html'),
-        dest: path.join(tempDir, 'settings.html')
-      },
-      { 
-        source: path.join(outDir, 'youtube-manager.html'),
-        dest: path.join(tempDir, 'youtube-manager.html')
-      },
-      { 
-        source: path.join(outDir, 'projects-tasks.html'),
-        dest: path.join(tempDir, 'projects-tasks.html')
-      },
-      { 
-        source: path.join(outDir, 'timer.html'),
-        dest: path.join(tempDir, 'timer.html')
-      },
-      { 
-        source: path.join(outDir, 'history.html'),
-        dest: path.join(tempDir, 'history.html')
-      },
-      { 
-        source: path.join(outDir, 'help.html'),
-        dest: path.join(tempDir, 'help.html')
-      },
-      { 
-        source: path.join(outDir, 'production-fix.css'),
-        dest: path.join(tempDir, 'production-fix.css')
-      }
-    ];
-    
-    // Copy each file
-    filesToCopy.forEach(file => {
-      try {
-        if (fs.existsSync(file.source)) {
-          fs.copyFileSync(file.source, file.dest);
-          console.log(`Successfully copied ${file.source} to ${file.dest}`);
-        } else {
-          console.error(`Source file does not exist: ${file.source}`);
-        }
-      } catch (error) {
-        console.error(`Error copying file ${file.source}: ${error.message}`);
-      }
-    });
-    
-    // Create template HTML
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Tempus Productivity</title>
-        <base href="${url.format({pathname: tempDir, protocol: 'file:', slashes: true})}">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link rel="stylesheet" href="production-fix.css">
-        <style>
-          :root {
-            --primary-color: #6366f1;
-            --focus-color: #9C27B0;
-            --meeting-color: #f59e0b;
-            --design-color: #2196F3;
-            --break-color: #4CAF50;
-            --other-color: #FF9800;
-            --sidebar-bg: #1e293b;
-            --body-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-light: #f8fafc;
-          }
-          
-          body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background: var(--body-bg);
-            color: var(--text-primary);
-          }
-          
-          * {
-            box-sizing: border-box;
-          }
-          
-          h1, h2, h3, h4, h5, h6 {
-            margin-top: 0;
-            font-weight: 600;
-          }
-          
-          /* Layout */
-          .app-container {
-            display: flex;
-            height: 100vh;
-          }
-          
-          .sidebar {
-            width: 230px;
-            background: var(--sidebar-bg);
-            color: var(--text-light);
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-          }
-          
-          .logo {
-            display: flex;
-            align-items: center;
-            padding: 0 20px 20px 20px;
-            margin-bottom: 10px;
-            font-size: 24px;
-            font-weight: 700;
-          }
-          
-          .logo-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            background: #6366f1;
-            border-radius: 8px;
-            margin-right: 10px;
-          }
-          
-          .main-content {
-            flex: 1;
-            padding: 0;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .header {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-          }
-          
-          .date-display {
-            font-size: 18px;
-            font-weight: 600;
-          }
-          
-          .header-controls {
-            display: flex;
-            gap: 10px;
-          }
-          
-          .content-area {
-            flex: 1;
-            padding: 24px;
-          }
-          
-          .dashboard-layout {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-          }
-          
-          /* Navigation */
-          .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 16px;
-            border-radius: 8px;
-            margin-bottom: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            color: rgba(255,255,255,0.8);
-            transition: background-color 0.2s;
-          }
-          
-          .nav-item:hover {
-            background-color: rgba(255,255,255,0.1);
-          }
-          
-          .nav-item.active {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-          }
-          
-          .nav-icon {
-            margin-right: 12px;
-            font-size: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="app-container">
-          <aside class="sidebar">
-            <div class="logo">
-              <div class="logo-icon">
-                <span style="color: white;">T</span>
-              </div>
-              <span>tempus.</span>
-            </div>
-            
-            <div class="nav-section">
-              <a class="nav-item active" href="index.html">
-                <span class="material-icons nav-icon">dashboard</span>
-                <span>Dashboard</span>
-              </a>
-              <a class="nav-item" href="calendar.html">
-                <span class="material-icons nav-icon">calendar_today</span>
-                <span>Calendar</span>
-              </a>
-            </div>
-            
-            <div class="nav-section">
-              <div class="nav-section-title">Productivity</div>
-              <a class="nav-item" href="#">
-                <span class="material-icons nav-icon">folder</span>
-                <span>Projects & tasks</span>
-              </a>
-              <a class="nav-item" href="#">
-                <span class="material-icons nav-icon">timer</span>
-                <span>Timer</span>
-              </a>
-              <a class="nav-item" href="#">
-                <span class="material-icons nav-icon">history</span>
-                <span>History</span>
-              </a>
-            </div>
-            
-            <div class="nav-section">
-              <div class="nav-section-title">Resources</div>
-              <a class="nav-item" href="youtube-manager.html">
-                <span class="material-icons nav-icon">video_library</span>
-                <span>YouTube Manager</span>
-              </a>
-            </div>
-            
-            <div class="nav-section" style="margin-top: auto;">
-              <a class="nav-item" href="#">
-                <span class="material-icons nav-icon">help</span>
-                <span>Help</span>
-              </a>
-              <a class="nav-item" href="settings.html">
-                <span class="material-icons nav-icon">settings</span>
-                <span>Settings</span>
-              </a>
-              <a class="nav-item" href="#">
-                <span class="material-icons nav-icon">logout</span>
-                <span>Log Out</span>
-              </a>
-            </div>
-          </aside>
-          
-          <main class="main-content">
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
-              <h2>Welcome to Tempus Productivity Dashboard</h2>
-              <p>Please use the sidebar to navigate to different sections of the app.</p>
-              <div style="margin-top: 20px;">
-                <a href="index.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Dashboard</a>
-                <a href="calendar.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Calendar</a>
-                <a href="youtube-manager.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">YouTube Manager</a>
-                <a href="settings.html" style="background-color: var(--primary-color); color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin: 0 10px;">Settings</a>
-              </div>
-            </div>
-          </main>
-        </div>
-      </body>
-      </html>
-    `;
-    
-    // First try to load the index.html file
-    const indexPath = path.join(tempDir, 'index.html');
-    let fileToLoad;
-    
-    if (fs.existsSync(indexPath)) {
-      // If index.html exists, load it
-      fileToLoad = url.format({
-        pathname: indexPath,
-        protocol: 'file:',
-        slashes: true
-      });
-      console.log('Loading index.html from:', fileToLoad);
-    } else {
-      // Otherwise create and load a fallback HTML file
-      const fallbackPath = path.join(tempDir, 'fallback.html');
-      fs.writeFileSync(fallbackPath, htmlContent);
-      
-      fileToLoad = url.format({
-        pathname: fallbackPath,
-        protocol: 'file:',
-        slashes: true
-      });
-      console.log('Loading fallback HTML from:', fileToLoad);
+    // Check if the file exists
+    if (!fs.existsSync(indexPath)) {
+      console.error(`ERROR: Main file not found: ${indexPath}`);
+      dialog.showErrorBox('Application Error', `Could not find main HTML file at: ${indexPath}`);
+      return;
     }
     
-    mainWindow.loadURL(fileToLoad);
+    console.log(`Loading main page from: ${indexPath}`);
+    
+    // Load the main page
+    mainWindow.loadFile(indexPath);
+    
+    // Enable Chrome DevTools in production for debugging
+    mainWindow.webContents.openDevTools();
+    
+    // Log any load errors
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+      console.error('Failed to load:', errorCode, errorDescription);
+      dialog.showErrorBox('Load Error', `Failed to load page: ${errorDescription} (${errorCode})`);
+    });
   }
-  
-  // Register error handler for page load failures
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error('Failed to load:', errorCode, errorDescription);
-  });
   
   // Load dark mode preference from settings if it exists
   loadSettings();
@@ -535,16 +242,53 @@ function createWindow() {
     return true;
   });
 
-  // Open DevTools in development mode
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  } else {
-    // Temporarily open DevTools in production for debugging
-    mainWindow.webContents.openDevTools();
-  }
-
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Add a webPreferences block to enable additional script injection
+  mainWindow.webContents.on('did-finish-load', () => {
+    // Inject script to prevent modals from auto-opening
+    mainWindow.webContents.executeJavaScript(`
+      console.log('Injected modal prevention script');
+      
+      // Force close any modals that may have opened automatically
+      setTimeout(function() {
+        const modals = document.querySelectorAll('[id*="modal"]');
+        console.log('Found ' + modals.length + ' modals to check');
+        
+        modals.forEach(function(modal) {
+          modal.style.display = 'none';
+          modal.classList.remove('active', 'show', 'visible');
+          console.log('Forced closed modal: ' + modal.id);
+        });
+        
+        // Make sure the modal-opening functions only work on button clicks
+        if (window.openNewTaskModal) {
+          const originalFn = window.openNewTaskModal;
+          window.openNewTaskModal = function(e) {
+            console.log('Task modal function intercepted');
+            if (e && e.type === 'click') {
+              return originalFn.apply(this, arguments);
+            }
+            return false;
+          };
+          console.log('Overrode task modal function');
+        }
+        
+        if (window.openNewProjectModal) {
+          const originalFn = window.openNewProjectModal;
+          window.openNewProjectModal = function(e) {
+            console.log('Project modal function intercepted');
+            if (e && e.type === 'click') {
+              return originalFn.apply(this, arguments);
+            }
+            return false;
+          };
+          console.log('Overrode project modal function');
+        }
+      }, 100);
+    `);
   });
 }
 

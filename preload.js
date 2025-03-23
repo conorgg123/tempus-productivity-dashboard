@@ -179,4 +179,64 @@ window.addEventListener('DOMContentLoaded', () => {
       console.error(`Unable to set ${dependency} version: ${e}`);
     }
   }
+});
+
+// Add additional debugging
+console.log('Preload script executing');
+
+// Log errors more verbosely
+window.addEventListener('error', (event) => {
+  console.error('Uncaught error:', event.error);
+  console.error('Error details:', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno
+  });
+});
+
+// Log uncaught promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+});
+
+// Expose platform info to renderer
+contextBridge.exposeInMainWorld('platform', {
+  isElectron: true,
+  isDev: process.env.NODE_ENV === 'development',
+  version: process.versions.electron
+});
+
+// Display ready message when DOM is loaded
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM fully loaded');
+  
+  // Add visible error reporter to the page
+  const errorReporter = document.createElement('div');
+  errorReporter.id = 'electron-error-reporter';
+  errorReporter.style.cssText = `
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    font-family: monospace;
+    z-index: 9999;
+    max-height: 150px;
+    overflow: auto;
+  `;
+  document.body.appendChild(errorReporter);
+  
+  // Override console.error to also display in the error reporter
+  const originalConsoleError = console.error;
+  console.error = function() {
+    originalConsoleError.apply(console, arguments);
+    
+    const errorMsg = Array.from(arguments).join(' ');
+    errorReporter.style.display = 'block';
+    errorReporter.innerHTML += `<div>${new Date().toISOString()} - ERROR: ${errorMsg}</div>`;
+  };
 }); 
