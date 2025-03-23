@@ -3,11 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects & Tasks - Tempus Productivity Dashboard</title>
-  <link rel="stylesheet" href="production-fix.css">
+  <title>Projects & Tasks Dashboard</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="production-fix.css" rel="stylesheet">
+  
+  <!-- Critical CSS fixes for interactivity issues -->
+  <style>
+    /* Fix for interactive elements */
+    button, input, select, .task-item, .project-card, .task-actions, .dashboard-actions {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      z-index: 10 !important;
+    }
+    
+    /* Make buttons more visible on hover */
+    button:hover {
+      opacity: 0.9 !important;
+      filter: brightness(1.1) !important;
+    }
+    
+    /* Fix for task actions */
+    .task-actions {
+      display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    
+    /* Fix any modal overlays */
+    .modal-overlay:not(.active) {
+      display: none !important;
+    }
+    
+    /* Force active modals on top */
+    .modal.active {
+      display: block !important;
+      z-index: 1000 !important;
+    }
+    
+    /* Make checkboxes clickable */
+    input[type="checkbox"] {
+      width: 20px !important;
+      height: 20px !important;
+      cursor: pointer !important;
+      opacity: 1 !important;
+    }
+  </style>
+  
   <style>
     .projects-container {
       display: grid;
