@@ -4532,46 +4532,60 @@
               // Add direct click handler
               button.addEventListener('click', function(e) {
                 console.log('New Project button clicked');
-                alert('Creating a new project...');
                 
-                // Create a new project directly
-                const projectName = prompt('Enter project name:');
-                if (projectName) {
-                  const projectColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                // Instead of using prompt, create a project with a default name
+                const timestamp = new Date().toLocaleTimeString();
+                const projectName = `New Project (${timestamp})`;
+                const projectColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                
+                // Create project in UI
+                const projectsContainer = document.querySelector('.projects-container') || 
+                                         document.querySelector('[role="main"]');
+                
+                if (projectsContainer) {
+                  // Create project element based on the visible UI structure
+                  const newProject = document.createElement('div');
+                  newProject.className = 'project-card';
+                  newProject.setAttribute('data-project-id', 'project-' + Date.now());
+                  newProject.style.setProperty('--project-color', projectColor);
                   
-                  // Create project in UI
-                  const projectsContainer = document.querySelector('.projects-container') || 
-                                           document.querySelector('[role="main"]');
+                  // Set HTML based on the actual UI structure
+                  newProject.innerHTML = `
+                    <div class="project-header">
+                      <div>
+                        <h3 class="project-title">${projectName}</h3>
+                        <p class="project-progress">0% complete</p>
+                      </div>
+                      <div class="task-actions">
+                        <button class="task-action-btn">
+                          <span class="material-icons">edit</span>
+                        </button>
+                        <button class="task-action-btn">
+                          <span class="material-icons">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="task-list">
+                      <div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>
+                    </div>
+                  `;
                   
-                  if (projectsContainer) {
-                    // Create project element based on the visible UI structure
-                    const newProject = document.createElement('div');
-                    newProject.className = 'project-card';
-                    newProject.style.setProperty('--project-color', projectColor);
-                    
-                    // Set HTML based on the actual UI structure seen in screenshot
-                    newProject.innerHTML = `
-                      <div class="project-header">
-                        <div>
-                          <h3 class="project-title">${projectName}</h3>
-                          <p class="project-progress">0% complete</p>
-                        </div>
-                        <div class="project-actions">
-                          <button aria-label="Edit"><svg>...</svg></button>
-                          <button aria-label="Delete"><svg>...</svg></button>
-                        </div>
-                      </div>
-                      <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%"></div>
-                      </div>
-                      <div class="task-list">
-                        <div class="empty-message">No tasks yet</div>
-                      </div>
-                    `;
-                    
-                    projectsContainer.appendChild(newProject);
-                    alert(`Project "${projectName}" created successfully!`);
+                  projectsContainer.appendChild(newProject);
+                  
+                  // Save to localStorage
+                  try {
+                    saveProjectsData();
+                  } catch (err) {
+                    console.error('Error saving new project:', err);
                   }
+                  
+                  alert(`Project "${projectName}" created successfully! You can edit it by clicking the edit icon.`);
+                  
+                  // Set up delete functionality for the new project
+                  setupDeleteFunctionality();
                 }
               });
             }
@@ -4583,98 +4597,76 @@
               // Add direct click handler
               button.addEventListener('click', function(e) {
                 console.log('New Task button clicked');
-                alert('Creating a new task...');
                 
-                // Simple task creation
-                const taskName = prompt('Enter task name:');
-                if (taskName) {
-                  const projectSelect = document.createElement('select');
-                  
-                  // Find all projects and add to select
-                  const projects = document.querySelectorAll('.project-title');
-                  if (projects.length === 0) {
-                    alert('Please create a project first');
-                    return;
+                // Instead of using prompt, create a task with a default name
+                const timestamp = new Date().toLocaleTimeString();
+                const taskName = `New Task (${timestamp})`;
+                
+                // Find all projects
+                const projects = document.querySelectorAll('.project-card');
+                if (projects.length === 0) {
+                  alert('Please create a project first');
+                  return;
+                }
+                
+                // Use the first project as default
+                const firstProject = projects[0];
+                const projectTitle = firstProject.querySelector('.project-title').textContent;
+                
+                const taskList = firstProject.querySelector('.task-list');
+                if (taskList) {
+                  // Remove empty message if present
+                  const emptyMessage = taskList.querySelector('.empty-tasks-message');
+                  if (emptyMessage) {
+                    emptyMessage.remove();
                   }
                   
-                  projects.forEach(project => {
-                    const option = document.createElement('option');
-                    option.value = project.textContent;
-                    option.textContent = project.textContent;
-                    projectSelect.appendChild(option);
-                  });
+                  // Create a new task with default attributes
+                  const taskItem = document.createElement('div');
+                  taskItem.className = 'task-item';
+                  taskItem.setAttribute('data-task-id', 'task-' + Date.now());
                   
-                  // Show project selection
-                  document.body.appendChild(projectSelect);
-                  projectSelect.style.position = 'fixed';
-                  projectSelect.style.top = '50%';
-                  projectSelect.style.left = '50%';
-                  projectSelect.style.transform = 'translate(-50%, -50%)';
-                  projectSelect.style.zIndex = '9999';
+                  taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox">
+                    <div class="task-content">
+                      <h4 class="task-name">${taskName}</h4>
+                      <div class="task-details">
+                        <span class="task-detail">
+                          <span class="material-icons priority-medium">flag</span>
+                          Medium
+                        </span>
+                        <span class="task-detail">
+                          <span class="material-icons">schedule</span>
+                          30m
+                        </span>
+                      </div>
+                    </div>
+                    <div class="task-actions">
+                      <button class="task-action-btn edit-task-btn">
+                        <span class="material-icons">edit</span>
+                      </button>
+                      <button class="task-action-btn delete-task-btn">
+                        <span class="material-icons">delete</span>
+                      </button>
+                    </div>
+                  `;
                   
-                  // Add a button to confirm
-                  const confirmBtn = document.createElement('button');
-                  confirmBtn.textContent = 'Add to this project';
-                  confirmBtn.style.position = 'fixed';
-                  confirmBtn.style.top = 'calc(50% + 30px)';
-                  confirmBtn.style.left = '50%';
-                  confirmBtn.style.transform = 'translateX(-50%)';
-                  confirmBtn.style.zIndex = '9999';
-                  confirmBtn.style.padding = '8px 16px';
-                  document.body.appendChild(confirmBtn);
+                  taskList.appendChild(taskItem);
                   
-                  confirmBtn.addEventListener('click', function() {
-                    const selectedProject = projectSelect.value;
-                    
-                    // Find the project in the UI
-                    projects.forEach(project => {
-                      if (project.textContent === selectedProject) {
-                        const projectCard = project.closest('.project-card');
-                        const taskList = projectCard.querySelector('.task-list');
-                        
-                        // Remove empty message if it exists
-                        const emptyMessage = taskList.querySelector('.empty-message');
-                        if (emptyMessage) emptyMessage.remove();
-                        
-                        // Create the task using the UI structure from screenshot
-                        const taskItem = document.createElement('div');
-                        taskItem.className = 'task-item';
-                        taskItem.innerHTML = `
-                          <input type="checkbox" class="task-checkbox">
-                          <div class="task-content">
-                            <h4 class="task-name">${taskName}</h4>
-                            <div class="task-details">
-                              <span class="task-detail">
-                                <span class="material-icons priority-medium">flag</span>
-                                Medium
-                              </span>
-                              <span class="task-detail">
-                                <span class="material-icons">schedule</span>
-                                1h
-                              </span>
-                            </div>
-                          </div>
-                          <div class="task-actions">
-                            <button aria-label="Edit"><svg>...</svg></button>
-                            <button aria-label="Delete"><svg>...</svg></button>
-                          </div>
-                        `;
-                        
-                        taskList.appendChild(taskItem);
-                        
-                        // Update progress
-                        const progressBar = projectCard.querySelector('.progress-fill');
-                        const progressText = projectCard.querySelector('.project-progress');
-                        // Logic to calculate progress based on checkbox state
-                        
-                        alert(`Task "${taskName}" added to project "${selectedProject}"!`);
-                        
-                        // Clean up
-                        projectSelect.remove();
-                        confirmBtn.remove();
-                      }
-                    });
-                  });
+                  // Update project progress
+                  updateProjectProgress(firstProject);
+                  
+                  // Save to localStorage
+                  try {
+                    saveProjectsData();
+                  } catch (err) {
+                    console.error('Error saving new task:', err);
+                  }
+                  
+                  alert(`Task "${taskName}" created in project "${projectTitle}" successfully! You can edit it by clicking the edit icon.`);
+                  
+                  // Set up delete functionality for the new task
+                  setupDeleteFunctionality();
                 }
               });
             }
