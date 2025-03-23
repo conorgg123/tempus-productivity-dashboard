@@ -3214,6 +3214,7 @@
         
       } catch (error) {
         console.error('Error loading projects data:', error);
+        return null;
       }
     }
 
@@ -4883,6 +4884,220 @@
         };
       }
     });
+  </script>
+
+  <!-- Fix script to ensure interactive elements work properly -->
+  <script>
+    // This script ensures all interactive elements work properly even when localStorage is empty
+    
+    // Function to initialize default projects if none exist
+    function initializeDefaultProjectsIfNeeded() {
+      console.log('Checking if default projects need to be created');
+      
+      // Get existing projects
+      const projectCards = document.querySelectorAll('.project-card');
+      
+      // If no projects exist, create default ones
+      if (projectCards.length === 0) {
+        console.log('No projects found, creating defaults');
+        
+        // Sample project data
+        const defaultProjects = [
+          {
+            name: 'Website Redesign',
+            color: '#4f46e5', // Blue
+            progress: 70
+          },
+          {
+            name: 'Mobile App',
+            color: '#10b981', // Green
+            progress: 45
+          },
+          {
+            name: 'Marketing Campaign',
+            color: '#f59e0b', // Orange
+            progress: 20
+          }
+        ];
+        
+        // Create default projects
+        defaultProjects.forEach(project => {
+          createNewProject(project.name, project.color, project.progress);
+        });
+        
+        // Save to localStorage
+        saveProjectsData();
+      }
+    }
+    
+    // Function to ensure all elements are enabled and clickable
+    function enableAllInteractiveElements() {
+      console.log('Enabling all interactive elements');
+      
+      // Remove any overlays that might be blocking interaction
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        if (!overlay.classList.contains('active')) {
+          overlay.style.display = 'none';
+        }
+      });
+      
+      // Ensure all buttons are clickable
+      document.querySelectorAll('button').forEach(button => {
+        button.style.pointerEvents = 'auto';
+        
+        // Clone and replace to remove any stale event listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+      });
+      
+      // Ensure all checkboxes are clickable
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.style.pointerEvents = 'auto';
+        
+        // Clone and replace to remove any stale event listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+      });
+      
+      // Set up event listeners for the New Project and New Task buttons
+      setupMainButtons();
+      
+      // Re-initialize all event handlers
+      setupTaskCheckboxListeners();
+      setupDeleteButtons();
+      setupProjectOptionsMenu();
+      initializeProjectFeatures();
+    }
+    
+    // Set up the main New Project and New Task buttons
+    function setupMainButtons() {
+      console.log('Setting up main buttons');
+      
+      // New Task button
+      const newTaskBtn = document.querySelector('button.btn[data-modal="new-task-modal"], .btn.primary:has(.material-icons):contains("New Task")');
+      if (newTaskBtn) {
+        console.log('Found New Task button');
+        
+        // Clone and replace to remove stale event listeners
+        const newBtn = newTaskBtn.cloneNode(true);
+        newTaskBtn.parentNode.replaceChild(newBtn, newTaskBtn);
+        
+        // Add event listener
+        newBtn.addEventListener('click', function() {
+          console.log('New Task button clicked');
+          const modal = document.getElementById('new-task-modal');
+          if (modal) {
+            modal.classList.add('active');
+            updateProjectSelect(); // Update project dropdown
+          } else {
+            console.error('New task modal not found');
+          }
+        });
+      }
+      
+      // If New Project button doesn't exist in the actions area, create it
+      const headerActions = document.querySelector('.dashboard-actions');
+      const existingNewProjectBtn = document.getElementById('new-project-btn');
+      
+      if (headerActions && !existingNewProjectBtn) {
+        console.log('Adding New Project button');
+        
+        const newProjectButton = document.createElement('button');
+        newProjectButton.className = 'btn primary';
+        newProjectButton.id = 'new-project-btn';
+        newProjectButton.innerHTML = '<span class="material-icons">add</span> New Project';
+        
+        newProjectButton.addEventListener('click', function() {
+          console.log('New Project button clicked');
+          const modal = document.getElementById('new-project-modal');
+          if (modal) {
+            modal.classList.add('active');
+          } else {
+            console.error('New project modal not found');
+            // Create modal if it doesn't exist
+            enhanceNewProjectModal();
+            
+            // Try again
+            const newModal = document.getElementById('new-project-modal');
+            if (newModal) {
+              newModal.classList.add('active');
+            }
+          }
+        });
+        
+        headerActions.appendChild(newProjectButton);
+      }
+    }
+    
+    // Run the fix functions
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM content loaded, running fixes');
+      
+      // Wait a short time to ensure everything is loaded
+      setTimeout(function() {
+        // Try to load projects data
+        try {
+          loadProjectsData();
+        } catch (error) {
+          console.error('Error loading projects data:', error);
+        }
+        
+        // Create defaults if needed
+        initializeDefaultProjectsIfNeeded();
+        
+        // Enable all interactive elements
+        enableAllInteractiveElements();
+      }, 500);
+    });
+    
+    // Also run when window is fully loaded
+    window.addEventListener('load', function() {
+      console.log('Window loaded, running fixes');
+      
+      // Try to load projects data
+      try {
+        loadProjectsData();
+      } catch (error) {
+        console.error('Error loading projects data:', error);
+      }
+      
+      // Create defaults if needed
+      initializeDefaultProjectsIfNeeded();
+      
+      // Enable all interactive elements
+      enableAllInteractiveElements();
+      
+      // Special handling for existing inactive projects
+      if (document.querySelectorAll('.project-card').length > 0) {
+        console.log('Projects exist but might be inactive, forcing enablement');
+        document.querySelectorAll('.task-actions button').forEach(button => {
+          button.style.pointerEvents = 'auto';
+          button.style.cursor = 'pointer';
+        });
+        
+        document.querySelectorAll('.project-card').forEach(card => {
+          card.style.pointerEvents = 'auto';
+        });
+      }
+    });
+    
+    // Run immediately if the page is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      console.log('Document already ready, running fixes immediately');
+      
+      // Try to load projects data
+      try {
+        loadProjectsData();
+      } catch (error) {
+        console.error('Error loading projects data:', error);
+      }
+      
+      // Create defaults if needed
+      initializeDefaultProjectsIfNeeded();
+      
+      // Enable all interactive elements
+      enableAllInteractiveElements();
+    }
   </script>
 </body>
 </html> 
