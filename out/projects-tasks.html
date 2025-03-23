@@ -4974,59 +4974,24 @@
               button.addEventListener('click', function(e) {
                 console.log('New Project button clicked');
                 
-                // Instead of using prompt, create a project with a default name
-                const timestamp = new Date().toLocaleTimeString();
-                const projectName = `New Project (${timestamp})`;
-                const projectColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                // Show modal to enter project details instead of creating immediately
+                const projectModal = document.getElementById('new-project-modal');
                 
-                // Create project in UI
-                const projectsContainer = document.querySelector('.projects-container') || 
-                                         document.querySelector('[role="main"]');
-                
-                if (projectsContainer) {
-                  // Create project element based on the visible UI structure
-                  const newProject = document.createElement('div');
-                  newProject.className = 'project-card';
-                  newProject.setAttribute('data-project-id', 'project-' + Date.now());
-                  newProject.style.setProperty('--project-color', projectColor);
+                if (projectModal) {
+                  // Reset form if it exists
+                  const projectForm = projectModal.querySelector('form');
+                  if (projectForm) projectForm.reset();
                   
-                  // Set HTML based on the actual UI structure
-                  newProject.innerHTML = `
-                    <div class="project-header">
-                      <div>
-                        <h3 class="project-title">${projectName}</h3>
-                        <p class="project-progress">0% complete</p>
-                      </div>
-                      <div class="task-actions">
-                        <button class="task-action-btn">
-                          <span class="material-icons">edit</span>
-                        </button>
-                        <button class="task-action-btn">
-                          <span class="material-icons">delete</span>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="task-list">
-                      <div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>
-                    </div>
-                  `;
+                  // Show the modal
+                  projectModal.style.display = 'flex';
+                  projectModal.classList.add('show-modal', 'active');
                   
-                  projectsContainer.appendChild(newProject);
-                  
-                  // Save to localStorage
-                  try {
-                    saveProjectsData();
-                  } catch (err) {
-                    console.error('Error saving new project:', err);
-                  }
-                  
-                  alert(`Project "${projectName}" created successfully! You can edit it by clicking the edit icon.`);
-                  
-                  // Set up delete functionality for the new project
-                  setupDeleteFunctionality();
+                  // Focus on the project name input
+                  const nameInput = projectModal.querySelector('#new-project-name');
+                  if (nameInput) setTimeout(() => nameInput.focus(), 100);
+                } else {
+                  // If modal doesn't exist, create one
+                  createProjectModal();
                 }
               });
             }
@@ -7300,6 +7265,130 @@
       }
     `;
     document.head.appendChild(style);
+  </script>
+
+  <!-- Add this function to create a project modal if needed -->
+  <script>
+    function createProjectModal() {
+      if (document.getElementById('new-project-modal')) return; // Don't create duplicates
+      
+      const modalContainer = document.createElement('div');
+      modalContainer.id = 'new-project-modal';
+      modalContainer.className = 'modal';
+      
+      modalContainer.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Create New Project</h3>
+            <span class="close-modal">&times;</span>
+          </div>
+          <form id="new-project-form">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="new-project-name">Project Name</label>
+                <input type="text" id="new-project-name" class="form-control" placeholder="Enter project name" required>
+              </div>
+              <div class="form-group">
+                <label for="new-project-color">Project Color</label>
+                <input type="color" id="new-project-color" class="form-control" value="#4f46e5">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn secondary-btn cancel-modal">Cancel</button>
+              <button type="submit" id="save-project-btn" class="btn primary-btn">Create Project</button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(modalContainer);
+      
+      // Add event listeners for the new modal
+      const closeBtn = modalContainer.querySelector('.close-modal');
+      const cancelBtn = modalContainer.querySelector('.cancel-modal');
+      const form = modalContainer.querySelector('form');
+      
+      const closeModal = () => {
+        modalContainer.style.display = 'none';
+        modalContainer.classList.remove('show-modal', 'active');
+      };
+      
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+      
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const projectName = document.getElementById('new-project-name').value.trim();
+        const projectColor = document.getElementById('new-project-color').value;
+        
+        if (!projectName) {
+          alert('Please enter a project name');
+          return;
+        }
+        
+        // Create project in UI
+        const projectsContainer = document.querySelector('.projects-container') || 
+                                  document.querySelector('[role="main"]');
+        
+        if (projectsContainer) {
+          // Create project element based on the visible UI structure
+          const newProject = document.createElement('div');
+          newProject.className = 'project-card';
+          newProject.setAttribute('data-project-id', 'project-' + Date.now());
+          newProject.style.setProperty('--project-color', projectColor);
+          
+          // Set HTML based on the actual UI structure
+          newProject.innerHTML = `
+            <div class="project-header">
+              <div>
+                <h3 class="project-title">${projectName}</h3>
+                <p class="project-progress">0% complete</p>
+              </div>
+              <div class="task-actions">
+                <button class="task-action-btn">
+                  <span class="material-icons">edit</span>
+                </button>
+                <button class="task-action-btn">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="task-list">
+              <div class="empty-tasks-message">No tasks yet. Click "New Task" to add one.</div>
+            </div>
+          `;
+          
+          projectsContainer.appendChild(newProject);
+          
+          // Save to localStorage
+          try {
+            saveProjectsData();
+          } catch (err) {
+            console.error('Error saving new project:', err);
+          }
+          
+          alert(`Project "${projectName}" created successfully! You can edit it by clicking the edit icon.`);
+          
+          // Set up delete functionality for the new project
+          setupDeleteFunctionality();
+          
+          // Close the modal
+          closeModal();
+        }
+      });
+      
+      // Show the modal
+      modalContainer.style.display = 'flex';
+      modalContainer.classList.add('show-modal', 'active');
+      
+      // Focus on the project name input
+      const nameInput = modalContainer.querySelector('#new-project-name');
+      if (nameInput) setTimeout(() => nameInput.focus(), 100);
+    }
   </script>
 </body>
 </html> 
