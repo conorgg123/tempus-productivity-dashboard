@@ -87,9 +87,16 @@ export default function Layout({ children }) {
               </a>
             </Link>
             
+            <Link href="/pomodoro">
+              <a className={`${styles.navLink} ${isActive('pomodoro') ? styles.active : ''}`}>
+                <span className="material-icons">timer</span>
+                <span>Pomodoro Timer</span>
+              </a>
+            </Link>
+            
             <Link href="/daily-focus">
               <a className={`${styles.navLink} ${isActive('daily-focus') ? styles.active : ''}`}>
-                <span className="material-icons">timer</span>
+                <span className="material-icons">today</span>
                 <span>Daily Focus</span>
               </a>
             </Link>
